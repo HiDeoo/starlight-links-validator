@@ -1,10 +1,9 @@
-import { getLinksCount } from './remark'
+import { getValidationData } from './remark'
 
 // FIXME(HiDeoo)
 export function validateLinks() {
-  const linksCount = getLinksCount()
+  const { files, links } = getValidationData()
 
-  if (linksCount > 0) {
-    throw new Error(`Found ${linksCount} broken links.`)
-  }
+  console.error('🚨 [validation.ts:7] files:', files)
+  console.error('🚨 [validation.ts:7] links:', links)
 }

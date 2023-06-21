@@ -15,6 +15,9 @@ export default function starlightLinksValidatorIntegration(): AstroIntegration {
         })
       },
       'astro:build:done': () => {
+        // WILO
+        // TODO(HiDeoo) Figure out what infos / routes we get here at this point
+        // TODO(HiDeoo) Can we get the route URL and the file path?
         validateLinks()
       },
     },
