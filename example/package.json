@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "@astrojs/starlight": "0.2.0",
-    "astro": "2.6.6"
+    "astro": "2.6.6",
+    "starlight-links-validator": "workspace:*"
   },
   "engines": {
     "node": ">=18"

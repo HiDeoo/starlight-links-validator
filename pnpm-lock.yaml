@@ -41,6 +41,9 @@ importers:
       astro:
         specifier: 2.6.6
         version: 2.6.6
+      starlight-links-validator:
+        specifier: workspace:*
+        version: link:../packages/starlight-links-validator
 
   packages/starlight-links-validator:
     devDependencies:
