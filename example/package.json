@@ -10,7 +10,7 @@
     "build": "pnpm -F starlight-links-validator build && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "lint": "prettier -c --cache . && eslint . --cache --max-warnings=0 && tsc --noEmit"
+    "lint": "prettier -c --cache . && eslint . --cache --max-warnings=0"
   },
   "dependencies": {
     "@astrojs/starlight": "0.2.0",

@@ -1,3 +1,4 @@
 {
-  "extends": ["@hideoo"]
+  "extends": ["@hideoo"],
+  "ignorePatterns": ["packages/starlight-links-validator/tests/fixtures"]
 }

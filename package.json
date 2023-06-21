@@ -35,9 +35,5 @@
     "url": "https://github.com/HiDeoo/starlight-links-validator.git"
   },
   "bugs": "https://github.com/HiDeoo/starlight-links-validator/issues",
-  "prettier": "@hideoo/prettier-config",
-  "lint-staged": {
-    "**/*": "prettier -w -u --cache",
-    "**/*.{js,jsx,ts,tsx,cjs,mjs}": "eslint --cache --max-warnings=0"
-  }
+  "prettier": "@hideoo/prettier-config"
 }
