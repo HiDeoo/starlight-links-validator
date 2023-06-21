@@ -31,6 +31,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Build
+        run: pnpm build
+        working-directory: packages/starlight-links-validator
+
+      - name: Generates example TypeScript types
+        run: pnpm astro sync
+        working-directory: example
+
       - name: Lint
         run: pnpm lint
 
