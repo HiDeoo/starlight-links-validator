@@ -1,9 +1,9 @@
 <div align="center">
-  <h1>starlight-links-validator 🚧</h1>
-  <p>starlight-links-validator description</p>
+  <h1>starlight-links-validator 🦺</h1>
+  <p>Astro integration for Starlight to validate internal links.</p>
   <p>
-    <a href="https://dummyimage.com/520x350/121212/cdc8be.png&text=screenshot" title="Screenshot of starlight-links-validator">
-      <img alt="Screenshot of starlight-links-validator" src="https://dummyimage.com/520x350/121212/cdc8be.png&text=screenshot" width="520" />
+    <a href="https://i.imgur.com/EgiTGeR.png" title="Screenshot of starlight-links-validator">
+      <img alt="Screenshot of starlight-links-validator" src="https://i.imgur.com/EgiTGeR.png" width="520" />
     </a>
   </p>
 </div>
@@ -20,10 +20,45 @@
 
 ## Features
 
-starlight-links-validator presentation.
+An [Astro](https://astro.build) integration for [Starlight](https://starlight.astro.build) Starlight to validate **_internal_** links in Markdown and MDX files.
 
-- starlight-links-validator feature 1
-- starlight-links-validator feature 2
+- Validate internal links to other pages
+- Validate internal links to anchors in other pages
+- Validate internal links to anchors in the same page
+- Ignore external links
+- Run only during a production build
+
+## Installation
+
+Install the Starlight Links Validator integration using your favorite package manager, e.g. with [pnpm](https://pnpm.io):
+
+```shell
+pnpm add starlight-links-validator
+```
+
+Update your [Astro configuration](https://docs.astro.build/en/guides/configuring-astro/#supported-config-file-types) to include the Starlight Links Validator integration **_before_** the Starlight integration:
+
+```diff
+  import starlight from '@astrojs/starlight'
+  import { defineConfig } from 'astro/config'
++ import starlightLinksValidator from 'starlight-links-validator'
+
+  export default defineConfig({
+    // …
+    integrations: [
++     starlightLinksValidator(),
+      starlight({
+        sidebar: [
+          {
+            label: 'Guides',
+            items: [{ label: 'Example Guide', link: '/guides/example/' }],
+          },
+        ],
+        title: 'My Docs',
+      }),
+    ],
+  })
+```
 
 ## License
 
