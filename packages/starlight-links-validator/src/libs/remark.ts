@@ -1,4 +1,6 @@
-import { isAbsolute, join, relative } from 'node:path'
+import 'mdast-util-mdx-jsx'
+
+import nodePath from 'node:path'
 
 import { slug } from 'github-slugger'
 import type { Root } from 'mdast'
@@ -17,7 +19,7 @@ export const remarkStarlightLinksValidator: Plugin<[], Root> = function () {
     const fileHeadings: string[] = []
     const fileLinks: string[] = []
 
-    visit(tree, ['heading', 'link'], (node) => {
+    visit(tree, ['heading', 'link', 'mdxJsxFlowElement'], (node) => {
       // https://github.com/syntax-tree/mdast#nodes
       // https://github.com/syntax-tree/mdast-util-mdx-jsx#nodes
       switch (node.type) {
@@ -33,8 +35,29 @@ export const remarkStarlightLinksValidator: Plugin<[], Root> = function () {
           break
         }
         case 'link': {
-          if (isAbsolute(node.url) || node.url.startsWith('#')) {
+          if (isInternalLink(node.url)) {
             fileLinks.push(node.url)
+          }
+
+          break
+        }
+        case 'mdxJsxFlowElement': {
+          if (node.name !== 'a') {
+            break
+          }
+
+          for (const attribute of node.attributes) {
+            if (
+              attribute.type !== 'mdxJsxAttribute' ||
+              attribute.name !== 'href' ||
+              typeof attribute.value !== 'string'
+            ) {
+              continue
+            }
+
+            if (isInternalLink(attribute.value)) {
+              fileLinks.push(attribute.value)
+            }
           }
 
           break
@@ -51,12 +74,17 @@ export function getValidationData() {
   return { headings, links }
 }
 
+function isInternalLink(link: string) {
+  return nodePath.isAbsolute(link) || link.startsWith('#')
+}
+
 function normalizeFilePath(filePath?: string) {
   if (!filePath) {
     throw new Error('Missing file path to validate links.')
   }
 
-  return relative(join(process.cwd(), 'src/content/docs'), filePath)
+  return nodePath
+    .relative(nodePath.join(process.cwd(), 'src/content/docs'), filePath)
     .replace(/\.\w+$/, '')
     .replace(/index$/, '')
     .replace(/\/?$/, '/')

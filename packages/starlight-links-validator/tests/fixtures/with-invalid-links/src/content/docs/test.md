@@ -18,3 +18,5 @@ title: Test
 
 - [Link to valid anchor in this page](#some-links)
 - [Link to invalid anchor in this page](#links)
+- [Link to valid anchor in another MDX page](/guides/example/#some-links)
+- [Link to invalid anchor in another MDX page](/guides/example/#links)

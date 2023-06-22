@@ -11,15 +11,29 @@ test('should build with valid links', async () => {
 })
 
 test('should not build with invalid links', async () => {
-  await expect(loadFixture('with-invalid-links')).rejects.toThrow(
-    new RegExp(`Found 6 invalid links in 1 file.
+  expect.assertions(3)
 
-▶ test/
+  try {
+    await loadFixture('with-invalid-links')
+  } catch (error) {
+    expect(error).toMatch(/Found 10 invalid links in 2 files./)
+
+    expect(error).toMatch(
+      new RegExp(`▶ test/
   ├─ /
   ├─ /unknown
   ├─ /unknown/
   ├─ /unknown#title
   ├─ /unknown/#title
-  └─ #links`)
-  )
+  ├─ #links
+  └─ /guides/example/#links`)
+    )
+
+    expect(error).toMatch(
+      new RegExp(`▶ guides/example/
+  ├─ #links
+  ├─ /unknown/#links
+  └─ /unknown`)
+    )
+  }
 })

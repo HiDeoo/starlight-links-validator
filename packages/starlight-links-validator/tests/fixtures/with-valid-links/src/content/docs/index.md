@@ -14,9 +14,10 @@ title: Index
 - [Test page with hash](/test#title)
 - [Test page with hash](/test/#title)
 
-- [A nested page](/guides/example)
-- [A nested page](/guides/example/)
+- [An MDX nested page](/guides/example)
+- [An MDX nested page](/guides/example/)
 
 # More links
 
 - [Link to anchor in this page](#some-links)
+- [Link to anchor in another MDX page](/guides/example/#some-links)

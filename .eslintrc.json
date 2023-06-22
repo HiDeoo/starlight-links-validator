@@ -1,4 +1,18 @@
 {
   "extends": ["@hideoo"],
-  "ignorePatterns": ["packages/starlight-links-validator/tests/fixtures"]
+  "ignorePatterns": ["packages/starlight-links-validator/tests/fixtures"],
+  "overrides": [
+    {
+      "files": ["packages/starlight-links-validator/src/libs/remark.ts"],
+      "rules": {
+        /**
+         * There is something wrong with `mdast` types:
+         *  - Importing the `Root` types makes VSC super slow for some reason.
+         *  - Importing `mdast-util-mdx-jsx` types makes these rules fail.
+         */
+        "@typescript-eslint/no-unsafe-argument": "off",
+        "@typescript-eslint/no-unsafe-call": "off"
+      }
+    }
+  ]
 }
