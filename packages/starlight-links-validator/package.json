@@ -2,7 +2,7 @@
   "name": "starlight-links-validator",
   "version": "0.0.1",
   "license": "MIT",
-  "description": "// TODO(HiDeoo)",
+  "description": "Astro integration for Starlight to validate internal links.",
   "author": "HiDeoo <github@hideoo.dev> (https://hideoo.dev)",
   "type": "module",
   "main": "dist/index.cjs",
@@ -57,7 +57,11 @@
     "dist"
   ],
   "keywords": [
-    "// TODO(HiDeoo)"
+    "starlight",
+    "links",
+    "validation",
+    "astro",
+    "astro-integration"
   ],
   "homepage": "https://github.com/HiDeoo/starlight-links-validator",
   "repository": {
