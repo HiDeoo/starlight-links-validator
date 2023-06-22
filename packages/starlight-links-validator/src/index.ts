@@ -1,7 +1,7 @@
 import type { AstroIntegration } from 'astro'
 
 import { remarkStarlightLinksValidator } from './libs/remark'
-import { validateLinks } from './libs/validation'
+import { logErrors, validateLinks } from './libs/validation'
 
 export default function starlightLinksValidatorIntegration(): AstroIntegration {
   return {
@@ -17,12 +17,10 @@ export default function starlightLinksValidatorIntegration(): AstroIntegration {
       'astro:build:done': ({ pages }) => {
         const errors = validateLinks(pages)
 
-        if (errors.length > 0) {
-          // FIXME(HiDeoo)
-          console.error('🚨 [index.ts:21] errors:', errors)
+        logErrors(errors)
 
-          // TODO(HiDeoo)
-          throw new Error(`ERROR`)
+        if (errors.size > 0) {
+          throw new Error('Links validation failed.')
         }
       },
     },

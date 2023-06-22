@@ -1,18 +1,21 @@
+import { bgGreen, black, bold, cyan, dim, red } from 'kleur/colors'
+
 import { getValidationData, type Headings } from './remark'
 
 export function validateLinks(pages: PageData[]): ValidationErrors {
+  process.stdout.write(`\n${bgGreen(black(` validating links `))}\n`)
+
   const { headings, links } = getValidationData()
   const allPages: Pages = new Set(pages.map((page) => page.pathname))
-  console.error({ headings })
 
-  const errors: ValidationErrors = []
+  const errors: ValidationErrors = new Map()
 
-  for (const [file, fileLinks] of links) {
+  for (const [filePath, fileLinks] of links) {
     for (const link of fileLinks) {
       if (link.startsWith('#')) {
-        validateSelfAnchor(errors, link, file, headings)
+        validateSelfAnchor(errors, link, filePath, headings)
       } else {
-        validateLink(errors, link, headings, allPages)
+        validateLink(errors, link, filePath, headings, allPages)
       }
     }
   }
@@ -20,13 +23,43 @@ export function validateLinks(pages: PageData[]): ValidationErrors {
   return errors
 }
 
+export function logErrors(errors: ValidationErrors) {
+  if (errors.size === 0) {
+    process.stdout.write(dim('All internal links are valid.\n\n'))
+    return
+  }
+
+  const errorCount = [...errors.values()].reduce((acc, links) => acc + links.length, 0)
+
+  process.stderr.write(
+    `${bold(
+      red(
+        `Found ${errorCount} invalid ${pluralize(errorCount, 'link')} in ${errors.size} ${pluralize(
+          errors.size,
+          'file'
+        )}.`
+      )
+    )}\n\n`
+  )
+
+  for (const [file, links] of errors) {
+    process.stderr.write(`${red('▶')} ${file}\n`)
+
+    for (const [index, link] of links.entries()) {
+      process.stderr.write(`  ${cyan(`${index < links.length - 1 ? '├' : '└'}─`)} ${link}\n`)
+    }
+
+    process.stdout.write(dim('\n'))
+  }
+
+  process.stdout.write(dim('\n'))
+}
+
 /**
  * Validate a link to another internal page that may or may not have a hash.
  */
-function validateLink(errors: ValidationErrors, link: string, headings: Headings, pages: Pages) {
-  console.error('🚨 [validation.ts:20] link:', link)
+function validateLink(errors: ValidationErrors, link: string, filePath: string, headings: Headings, pages: Pages) {
   const sanitizedLink = link.replace(/^\//, '')
-  console.error('🚨 [validation.ts:20] sanitizedLink:', sanitizedLink)
   const segments = sanitizedLink.split('#')
 
   let path = segments[0]
@@ -42,37 +75,44 @@ function validateLink(errors: ValidationErrors, link: string, headings: Headings
   const fileHeadings = headings.get(path === '' ? '/' : path)
 
   if (!isValidPage || !fileHeadings) {
-    // TODO(HiDeoo)
-    errors.push(path)
+    addError(errors, filePath, link)
     return
   }
 
   if (hash && !fileHeadings.includes(hash)) {
-    // TODO(HiDeoo)
-    errors.push(hash)
-    return
+    addError(errors, filePath, link)
   }
 }
 
 /**
  * Validate a link to an anchor in the same page.
  */
-function validateSelfAnchor(errors: ValidationErrors, hash: string, path: string, headings: Headings) {
+function validateSelfAnchor(errors: ValidationErrors, hash: string, filePath: string, headings: Headings) {
   const sanitizedHash = hash.replace(/^#/, '')
-  const fileHeadings = headings.get(path)
+  const fileHeadings = headings.get(filePath)
 
   if (!fileHeadings) {
-    throw new Error(`Failed to find headings for the file at '${path}'.`)
+    throw new Error(`Failed to find headings for the file at '${filePath}'.`)
   }
 
   if (!fileHeadings.includes(sanitizedHash)) {
-    // TODO(HiDeoo)
-    errors.push(hash)
+    addError(errors, filePath, hash)
   }
 }
 
-type ValidationError = string
-type ValidationErrors = ValidationError[]
+function addError(errors: ValidationErrors, filePath: string, link: string) {
+  const fileErrors = errors.get(filePath) ?? []
+  fileErrors.push(link)
+
+  errors.set(filePath, fileErrors)
+}
+
+function pluralize(count: number, singular: string) {
+  return count === 1 ? singular : `${singular}s`
+}
+
+// The invalid links keyed by file path.
+type ValidationErrors = Map<string, string[]>
 
 interface PageData {
   pathname: string

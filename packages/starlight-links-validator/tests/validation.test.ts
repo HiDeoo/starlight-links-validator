@@ -10,7 +10,16 @@ test('should build with valid links', async () => {
   await expect(loadFixture('with-valid-links')).resolves.not.toThrow()
 })
 
-// TODO(HiDeoo)
-test.skip('should not build with invalid links', async () => {
-  await expect(loadFixture('with-invalid-links')).rejects.toThrow(/Found 1 broken links\./)
+test('should not build with invalid links', async () => {
+  await expect(loadFixture('with-invalid-links')).rejects.toThrow(
+    new RegExp(`Found 6 invalid links in 1 file.
+
+▶ test/
+  ├─ /
+  ├─ /unknown
+  ├─ /unknown/
+  ├─ /unknown#title
+  ├─ /unknown/#title
+  └─ #links`)
+  )
 })
