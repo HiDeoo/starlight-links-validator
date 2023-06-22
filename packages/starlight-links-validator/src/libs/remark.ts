@@ -1,47 +1,66 @@
+import { isAbsolute, join, relative } from 'node:path'
+
+import { slug } from 'github-slugger'
 import type { Root } from 'mdast'
 import type { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
 
-const links = new Set<string>()
-const filesWithHeadingSlugsMap = new Map<string, string[]>()
+// All the headings keyed by file path.
+const headings: Headings = new Map()
+// All the internal links keyed by file path.
+const links: Links = new Map()
 
 export const remarkStarlightLinksValidator: Plugin<[], Root> = function () {
   return (tree, file) => {
-    const filePath = file.history[0]
+    const filePath = normalizeFilePath(file.history[0])
 
-    if (!filePath) {
-      throw new Error('Missing file path to validate links.')
-    }
-
-    const headings: string[] = []
+    const fileHeadings: string[] = []
+    const fileLinks: string[] = []
 
     visit(tree, ['heading', 'link'], (node) => {
       // https://github.com/syntax-tree/mdast#nodes
       // https://github.com/syntax-tree/mdast-util-mdx-jsx#nodes
       switch (node.type) {
         case 'heading': {
-          const heading = node.children.find((child) => child.type === 'text')
+          const content = node.children.find((child) => child.type === 'text')
 
-          if (!heading || heading.type !== 'text') {
+          if (!content || content.type !== 'text') {
             break
           }
 
-          // TODO(HiDeoo) slugify heading
-          headings.push(heading.value)
+          fileHeadings.push(slug(content.value))
 
           break
         }
         case 'link': {
-          links.add(node.url)
+          if (isAbsolute(node.url) || node.url.startsWith('#')) {
+            fileLinks.push(node.url)
+          }
+
           break
         }
       }
     })
 
-    filesWithHeadingSlugsMap.set(filePath, headings)
+    headings.set(filePath, fileHeadings)
+    links.set(filePath, fileLinks)
   }
 }
 
 export function getValidationData() {
-  return { files: filesWithHeadingSlugsMap, links }
+  return { headings, links }
 }
+
+function normalizeFilePath(filePath?: string) {
+  if (!filePath) {
+    throw new Error('Missing file path to validate links.')
+  }
+
+  return relative(join(process.cwd(), 'src/content/docs'), filePath)
+    .replace(/\.\w+$/, '')
+    .replace(/index$/, '')
+    .replace(/\/?$/, '/')
+}
+
+export type Headings = Map<string, string[]>
+export type Links = Map<string, string[]>

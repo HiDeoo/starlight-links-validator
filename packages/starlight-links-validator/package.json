@@ -29,6 +29,7 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
+    "github-slugger": "2.0.0",
     "unist-util-visit": "4.1.2"
   },
   "devDependencies": {
