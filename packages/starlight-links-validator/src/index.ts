@@ -7,7 +7,11 @@ export default function starlightLinksValidatorIntegration(): AstroIntegration {
   return {
     name: 'starlight-links-validator',
     hooks: {
-      'astro:config:setup': ({ updateConfig }) => {
+      'astro:config:setup': ({ command, updateConfig }) => {
+        if (command !== 'build') {
+          return
+        }
+
         updateConfig({
           markdown: {
             remarkPlugins: [remarkStarlightLinksValidator],
