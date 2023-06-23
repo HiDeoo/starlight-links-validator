@@ -4,6 +4,7 @@ import nodePath from 'node:path'
 
 import { slug } from 'github-slugger'
 import type { Root } from 'mdast'
+import { toString } from 'mdast-util-to-string'
 import type { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
 
@@ -24,13 +25,13 @@ export const remarkStarlightLinksValidator: Plugin<[], Root> = function () {
       // https://github.com/syntax-tree/mdast-util-mdx-jsx#nodes
       switch (node.type) {
         case 'heading': {
-          const content = node.children.find((child) => child.type === 'text')
+          const content = toString(node)
 
-          if (!content || content.type !== 'text') {
+          if (content.length === 0) {
             break
           }
 
-          fileHeadings.push(slug(content.value))
+          fileHeadings.push(slug(content))
 
           break
         }

@@ -21,3 +21,7 @@ title: Index
 
 - [Link to anchor in this page](#some-links)
 - [Link to anchor in another MDX page](/guides/example/#some-links)
+
+## A more `complex` heading
+
+- [Link to more complex anchor](#a-more-complex-heading)
