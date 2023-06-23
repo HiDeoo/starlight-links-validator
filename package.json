@@ -1,0 +1,43 @@
+{
+  "name": "starlight-links-validator-monorepo",
+  "version": "0.0.1",
+  "license": "MIT",
+  "description": "Astro integration for Starlight to validate internal links.",
+  "author": "HiDeoo <github@hideoo.dev> (https://hideoo.dev)",
+  "type": "module",
+  "scripts": {
+    "test": "pnpm --stream -r test",
+    "lint": "pnpm -r lint",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@hideoo/eslint-config": "1.5.1",
+    "@hideoo/prettier-config": "1.0.1",
+    "@hideoo/tsconfig": "2.0.1",
+    "eslint": "8.43.0",
+    "husky": "8.0.3",
+    "lint-staged": "13.2.2",
+    "prettier": "2.8.8",
+    "typescript": "5.1.3"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "pnpm@8.6.3",
+  "private": true,
+  "sideEffects": false,
+  "keywords": [
+    "starlight",
+    "links",
+    "validation",
+    "astro",
+    "astro-integration"
+  ],
+  "homepage": "https://github.com/HiDeoo/starlight-links-validator",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HiDeoo/starlight-links-validator.git"
+  },
+  "bugs": "https://github.com/HiDeoo/starlight-links-validator/issues",
+  "prettier": "@hideoo/prettier-config"
+}

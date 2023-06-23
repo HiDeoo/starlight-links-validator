@@ -1,1 +1,1 @@
-# starlight-links-validator
+packages/starlight-links-validator/README.md
