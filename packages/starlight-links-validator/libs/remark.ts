@@ -130,6 +130,9 @@ function normalizeFilePath(filePath?: string) {
     .replace(/\.\w+$/, '')
     .replace(/index$/, '')
     .replace(/\/?$/, '/')
+    .split('/')
+    .map((segment) => slug(segment))
+    .join('/')
 }
 
 function isMdxIdAttribute(attribute: MdxJsxAttribute | MdxJsxExpressionAttribute): attribute is MdxIdAttribute {
