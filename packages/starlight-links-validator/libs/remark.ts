@@ -3,7 +3,11 @@ import 'mdast-util-mdx-jsx'
 import nodePath from 'node:path'
 
 import { slug } from 'github-slugger'
+import type { Nodes } from 'hast'
+import { fromHtml } from 'hast-util-from-html'
+import { hasProperty } from 'hast-util-has-property'
 import type { Root } from 'mdast'
+import type { MdxJsxAttribute, MdxJsxExpressionAttribute } from 'mdast-util-mdx-jsx'
 import { toString } from 'mdast-util-to-string'
 import type { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
@@ -20,7 +24,7 @@ export const remarkStarlightLinksValidator: Plugin<[], Root> = function () {
     const fileHeadings: string[] = []
     const fileLinks: string[] = []
 
-    visit(tree, ['heading', 'link', 'mdxJsxFlowElement'], (node) => {
+    visit(tree, ['heading', 'html', 'link', 'mdxJsxFlowElement', 'mdxJsxTextElement'], (node) => {
       // https://github.com/syntax-tree/mdast#nodes
       // https://github.com/syntax-tree/mdast-util-mdx-jsx#nodes
       switch (node.type) {
@@ -43,6 +47,12 @@ export const remarkStarlightLinksValidator: Plugin<[], Root> = function () {
           break
         }
         case 'mdxJsxFlowElement': {
+          for (const attribute of node.attributes) {
+            if (isMdxIdAttribute(attribute)) {
+              fileHeadings.push(attribute.value)
+            }
+          }
+
           if (node.name !== 'a') {
             break
           }
@@ -60,6 +70,37 @@ export const remarkStarlightLinksValidator: Plugin<[], Root> = function () {
               fileLinks.push(attribute.value)
             }
           }
+
+          break
+        }
+        case 'mdxJsxTextElement': {
+          for (const attribute of node.attributes) {
+            if (isMdxIdAttribute(attribute)) {
+              fileHeadings.push(attribute.value)
+            }
+          }
+
+          break
+        }
+        case 'html': {
+          const htmlTree = fromHtml(node.value, { fragment: true })
+
+          // @ts-expect-error - https://github.com/microsoft/TypeScript/issues/51188
+          visit(htmlTree, (htmlNode: Nodes) => {
+            if (hasProperty(htmlNode, 'id') && typeof htmlNode.properties.id === 'string') {
+              fileHeadings.push(htmlNode.properties.id)
+            }
+
+            if (
+              htmlNode.type === 'element' &&
+              htmlNode.tagName === 'a' &&
+              hasProperty(htmlNode, 'href') &&
+              typeof htmlNode.properties.href === 'string' &&
+              isInternalLink(htmlNode.properties.href)
+            ) {
+              fileLinks.push(htmlNode.properties.href)
+            }
+          })
 
           break
         }
@@ -91,5 +132,15 @@ function normalizeFilePath(filePath?: string) {
     .replace(/\/?$/, '/')
 }
 
+function isMdxIdAttribute(attribute: MdxJsxAttribute | MdxJsxExpressionAttribute): attribute is MdxIdAttribute {
+  return attribute.type === 'mdxJsxAttribute' && attribute.name === 'id' && typeof attribute.value === 'string'
+}
+
 export type Headings = Map<string, string[]>
 export type Links = Map<string, string[]>
+
+interface MdxIdAttribute {
+  name: 'id'
+  type: 'mdxJsxAttribute'
+  value: string
+}

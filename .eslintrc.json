@@ -3,7 +3,7 @@
   "ignorePatterns": ["packages/starlight-links-validator/tests/fixtures"],
   "overrides": [
     {
-      "files": ["packages/starlight-links-validator/src/libs/remark.ts"],
+      "files": ["packages/starlight-links-validator/libs/remark.ts"],
       "rules": {
         /**
          * There is something wrong with `mdast` types:
