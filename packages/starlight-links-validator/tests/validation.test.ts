@@ -11,12 +11,12 @@ test('should build with valid links', async () => {
 })
 
 test('should not build with invalid links', async () => {
-  expect.assertions(3)
+  expect.assertions(4)
 
   try {
     await loadFixture('with-invalid-links')
   } catch (error) {
-    expect(error).toMatch(/Found 12 invalid links in 2 files./)
+    expect(error).toMatch(/Found 14 invalid links in 3 files./)
 
     expect(error).toMatch(
       new RegExp(`▶ test/
@@ -36,6 +36,12 @@ test('should not build with invalid links', async () => {
   ├─ /unknown/#links
   ├─ /unknown
   └─ #anotherBlock`)
+    )
+
+    expect(error).toMatch(
+      new RegExp(`▶ guides/namespacetest/
+  ├─ #some-other-content
+  └─ /guides/namespacetest/#another-content`)
     )
   }
 })
