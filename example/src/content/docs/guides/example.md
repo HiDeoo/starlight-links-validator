@@ -16,3 +16,17 @@ Writing a good guide requires thinking about what your users are trying to do.
 - Check the [links](#links) section of this guide
 - Check the [reference](/reference/example/#further-reading) page
 - Check the [links](/guides/links/) page
+
+<div id="aBlock">
+some content
+
+some content
+
+some content
+
+some content
+
+  <a href="#anotherBlock">
+    test
+  </a>
+</div>

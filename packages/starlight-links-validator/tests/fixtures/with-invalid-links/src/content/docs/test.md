@@ -20,3 +20,17 @@ title: Test
 - [Link to invalid anchor in this page](#links)
 - [Link to valid anchor in another MDX page](/guides/example/#some-links)
 - [Link to invalid anchor in another MDX page](/guides/example/#links)
+
+<div id="aDiv">
+some content
+
+some content
+
+some content
+
+some content
+
+  <a href="#anotherDiv">
+    test
+  </a>
+</div>
