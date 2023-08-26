@@ -18,8 +18,8 @@ export default function starlightLinksValidatorIntegration(): AstroIntegration {
           },
         })
       },
-      'astro:build:done': ({ pages }) => {
-        const errors = validateLinks(pages)
+      'astro:build:done': ({ dir, pages }) => {
+        const errors = validateLinks(pages, dir)
 
         logErrors(errors)
 

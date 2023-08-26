@@ -1,8 +1,11 @@
+import { statSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+
 import { bgGreen, black, bold, cyan, dim, red } from 'kleur/colors'
 
 import { getValidationData, type Headings } from './remark'
 
-export function validateLinks(pages: PageData[]): ValidationErrors {
+export function validateLinks(pages: PageData[], outputDir: URL): ValidationErrors {
   process.stdout.write(`\n${bgGreen(black(` validating links `))}\n`)
 
   const { headings, links } = getValidationData()
@@ -15,7 +18,7 @@ export function validateLinks(pages: PageData[]): ValidationErrors {
       if (link.startsWith('#')) {
         validateSelfAnchor(errors, link, filePath, headings)
       } else {
-        validateLink(errors, link, filePath, headings, allPages)
+        validateLink(errors, link, filePath, headings, allPages, outputDir)
       }
     }
   }
@@ -58,7 +61,14 @@ export function logErrors(errors: ValidationErrors) {
 /**
  * Validate a link to another internal page that may or may not have a hash.
  */
-function validateLink(errors: ValidationErrors, link: string, filePath: string, headings: Headings, pages: Pages) {
+function validateLink(
+  errors: ValidationErrors,
+  link: string,
+  filePath: string,
+  headings: Headings,
+  pages: Pages,
+  outputDir: URL
+) {
   const sanitizedLink = link.replace(/^\//, '')
   const segments = sanitizedLink.split('#')
 
@@ -67,7 +77,13 @@ function validateLink(errors: ValidationErrors, link: string, filePath: string, 
 
   if (path === undefined) {
     throw new Error('Failed to validate a link with no path.')
-  } else if (path.length > 0 && !path.endsWith('/')) {
+  }
+
+  if (isValidAsset(path, outputDir)) {
+    return
+  }
+
+  if (path.length > 0 && !path.endsWith('/')) {
     path += '/'
   }
 
@@ -97,6 +113,21 @@ function validateSelfAnchor(errors: ValidationErrors, hash: string, filePath: st
 
   if (!fileHeadings.includes(sanitizedHash)) {
     addError(errors, filePath, hash)
+  }
+}
+
+/**
+ * Check if a link is a valid asset in the build output directory.
+ */
+function isValidAsset(path: string, outputDir: URL) {
+  const filePath = fileURLToPath(new URL(path, outputDir))
+
+  try {
+    const stats = statSync(filePath)
+
+    return stats.isFile()
+  } catch {
+    return false
   }
 }
 

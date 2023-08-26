@@ -18,6 +18,7 @@ export async function loadFixture(name: string) {
 
     // Copy the base fixture files.
     await cp(join(baseFixturePath, 'src'), join(testPath, 'src'), { recursive: true })
+    await cp(join(baseFixturePath, 'public'), join(testPath, 'public'), { recursive: true })
 
     // Copy the fixture under test files that may override the base fixture files.
     await cp(join(fixturePath, 'src'), join(testPath, 'src'), { force: true, recursive: true })

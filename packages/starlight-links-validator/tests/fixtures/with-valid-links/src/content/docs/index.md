@@ -21,6 +21,8 @@ title: Index
 
 - [Link to anchor in this page](#some-links)
 - [Link to anchor in another MDX page](/guides/example/#some-links)
+- [Link to an asset](/favicon.svg)
+- [Link to another asset](/guidelines/dummy.pdf)
 
 ## A more `complex` heading
 
