@@ -1,6 +1,6 @@
 {
   "name": "starlight-links-validator-example",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "license": "MIT",
   "description": "Astro integration for Starlight to validate internal links.",
   "author": "HiDeoo <github@hideoo.dev> (https://hideoo.dev)",
