@@ -20,6 +20,8 @@ title: Test
 - [Link to invalid anchor in this page](#links)
 - [Link to valid anchor in another MDX page](/guides/example/#some-links)
 - [Link to invalid anchor in another MDX page](/guides/example/#links)
+- [Link to invalid asset](/icon.svg)
+- [Link to another invalid asset](/guidelines/ui.pdf)
 
 <div id="aDiv">
 some content
