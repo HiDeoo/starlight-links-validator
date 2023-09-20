@@ -13,12 +13,13 @@
     "lint": "prettier -c --cache . && eslint . --cache --max-warnings=0"
   },
   "dependencies": {
-    "@astrojs/starlight": "0.7.2",
-    "astro": "2.10.9",
+    "@astrojs/starlight": "0.10.1",
+    "astro": "3.1.1",
+    "sharp": "0.32.6",
     "starlight-links-validator": "workspace:*"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=18.14.1"
   },
   "packageManager": "pnpm@8.6.3",
   "private": true,
