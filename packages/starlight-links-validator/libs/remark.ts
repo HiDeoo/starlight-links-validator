@@ -85,7 +85,6 @@ export const remarkStarlightLinksValidator: Plugin<[], Root> = function () {
         case 'html': {
           const htmlTree = fromHtml(node.value, { fragment: true })
 
-          // @ts-expect-error - https://github.com/microsoft/TypeScript/issues/51188
           visit(htmlTree, (htmlNode: Nodes) => {
             if (hasProperty(htmlNode, 'id') && typeof htmlNode.properties.id === 'string') {
               fileHeadings.push(htmlNode.properties.id)

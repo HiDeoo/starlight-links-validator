@@ -39,10 +39,10 @@ export function logErrors(errors: ValidationErrors) {
       red(
         `Found ${errorCount} invalid ${pluralize(errorCount, 'link')} in ${errors.size} ${pluralize(
           errors.size,
-          'file'
-        )}.`
-      )
-    )}\n\n`
+          'file',
+        )}.`,
+      ),
+    )}\n\n`,
   )
 
   for (const [file, links] of errors) {
@@ -67,7 +67,7 @@ function validateLink(
   filePath: string,
   headings: Headings,
   pages: Pages,
-  outputDir: URL
+  outputDir: URL,
 ) {
   const sanitizedLink = link.replace(/^\//, '')
   const segments = sanitizedLink.split('#')

@@ -29,7 +29,7 @@ test('should not build with invalid links', async () => {
   ├─ /guides/example/#links
   ├─ /icon.svg
   ├─ /guidelines/ui.pdf
-  └─ #anotherDiv`)
+  └─ #anotherDiv`),
     )
 
     expect(error).toMatch(
@@ -39,13 +39,13 @@ test('should not build with invalid links', async () => {
   ├─ /unknown
   ├─ #anotherBlock
   ├─ /icon.svg
-  └─ /guidelines/ui.pdf`)
+  └─ /guidelines/ui.pdf`),
     )
 
     expect(error).toMatch(
       new RegExp(`▶ guides/namespacetest/
   ├─ #some-other-content
-  └─ /guides/namespacetest/#another-content`)
+  └─ /guides/namespacetest/#another-content`),
     )
   }
 })

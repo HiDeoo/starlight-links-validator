@@ -1,4 +1,5 @@
 import type { AstroIntegration } from 'astro'
+import { AstroError } from 'astro/errors'
 
 import { remarkStarlightLinksValidator } from './libs/remark'
 import { logErrors, validateLinks } from './libs/validation'
@@ -24,7 +25,10 @@ export default function starlightLinksValidatorIntegration(): AstroIntegration {
         logErrors(errors)
 
         if (errors.size > 0) {
-          throw new Error('Links validation failed.')
+          throw new AstroError(
+            'Links validation failed.',
+            `See the error report above for more informations.\n\nIf you believe this is a bug, please file an issue at https://github.com/HiDeoo/starlight-links-validator/issues/new/choose.`,
+          )
         }
       },
     },
