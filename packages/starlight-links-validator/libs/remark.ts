@@ -2,7 +2,7 @@ import 'mdast-util-mdx-jsx'
 
 import nodePath from 'node:path'
 
-import { slug } from 'github-slugger'
+import GitHubSlugger, { slug } from 'github-slugger'
 import type { Nodes } from 'hast'
 import { fromHtml } from 'hast-util-from-html'
 import { hasProperty } from 'hast-util-has-property'
@@ -19,6 +19,7 @@ const links: Links = new Map()
 
 export const remarkStarlightLinksValidator: Plugin<[], Root> = function () {
   return (tree, file) => {
+    const slugger = new GitHubSlugger();
     const filePath = normalizeFilePath(file.history[0])
 
     const fileHeadings: string[] = []
@@ -35,7 +36,7 @@ export const remarkStarlightLinksValidator: Plugin<[], Root> = function () {
             break
           }
 
-          fileHeadings.push(slug(content))
+          fileHeadings.push(slugger.slug(content))
 
           break
         }
