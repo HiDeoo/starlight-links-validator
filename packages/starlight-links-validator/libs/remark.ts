@@ -19,7 +19,7 @@ const links: Links = new Map()
 
 export const remarkStarlightLinksValidator: Plugin<[], Root> = function () {
   return (tree, file) => {
-    const slugger = new GitHubSlugger();
+    const slugger = new GitHubSlugger()
     const filePath = normalizeFilePath(file.history[0])
 
     const fileHeadings: string[] = []

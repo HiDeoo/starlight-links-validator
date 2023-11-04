@@ -14,6 +14,8 @@ title: Index
 - [Test page with hash](/test#title)
 - [Test page with hash](/test/#title)
 
+- [Test page with duplicated hash](/test#title-1)
+
 - [An MDX nested page](/guides/example)
 - [An MDX nested page](/guides/example/)
 
