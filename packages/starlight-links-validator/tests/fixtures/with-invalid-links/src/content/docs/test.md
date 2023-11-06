@@ -23,6 +23,14 @@ title: Test
 - [Link to invalid asset](/icon.svg)
 - [Link to another invalid asset](/guidelines/ui.pdf)
 
+## Links with references
+
+- [Link reference to unknwon page][ref-unknown-page]
+- [Link reference to invalid anchor][ref-invalid-anchor]
+
+[ref-unknown-page]: /unknown-ref
+[ref-invalid-anchor]: #unknown-ref
+
 <div id="aDiv">
 some content
 

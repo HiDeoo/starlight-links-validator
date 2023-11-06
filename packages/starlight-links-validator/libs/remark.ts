@@ -24,8 +24,13 @@ export const remarkStarlightLinksValidator: Plugin<[], Root> = function () {
 
     const fileHeadings: string[] = []
     const fileLinks: string[] = []
+    const fileDefinitions = new Map<string, string>()
 
-    visit(tree, ['heading', 'html', 'link', 'mdxJsxFlowElement', 'mdxJsxTextElement'], (node) => {
+    visit(tree, 'definition', (node) => {
+      fileDefinitions.set(node.identifier, node.url)
+    })
+
+    visit(tree, ['heading', 'html', 'link', 'linkReference', 'mdxJsxFlowElement', 'mdxJsxTextElement'], (node) => {
       // https://github.com/syntax-tree/mdast#nodes
       // https://github.com/syntax-tree/mdast-util-mdx-jsx#nodes
       switch (node.type) {
@@ -43,6 +48,15 @@ export const remarkStarlightLinksValidator: Plugin<[], Root> = function () {
         case 'link': {
           if (isInternalLink(node.url)) {
             fileLinks.push(node.url)
+          }
+
+          break
+        }
+        case 'linkReference': {
+          const definition = fileDefinitions.get(node.identifier)
+
+          if (definition && isInternalLink(definition)) {
+            fileLinks.push(definition)
           }
 
           break
