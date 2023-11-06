@@ -130,7 +130,7 @@ function normalizeFilePath(filePath?: string) {
     .replace(/\.\w+$/, '')
     .replace(/index$/, '')
     .replace(/\/?$/, '/')
-    .split('/')
+    .split(/[/\\]/)
     .map((segment) => slug(segment))
     .join('/')
 }
