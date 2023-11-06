@@ -29,3 +29,14 @@ title: Index
 ## A more `complex` heading
 
 - [Link to more complex anchor](#a-more-complex-heading)
+
+## Links with references
+
+- [ref]
+- [Link reference][ref]
+- [Link reference with anchor in this page][ref-with-anchor-internal]
+- [Link reference with anchor in another page][ref-with-anchor-external]
+
+[ref]: /test
+[ref-with-anchor-internal]: #some-links
+[ref-with-anchor-external]: /test#title
