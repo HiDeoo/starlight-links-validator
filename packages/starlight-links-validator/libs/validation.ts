@@ -1,7 +1,7 @@
 import { statSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
-import { bgGreen, black, bold, cyan, dim, red } from 'kleur/colors'
+import { bgGreen, black, blue, bold, dim, red } from 'kleur/colors'
 
 import { getValidationData, type Headings } from './remark'
 
@@ -49,7 +49,7 @@ export function logErrors(errors: ValidationErrors) {
     process.stderr.write(`${red('▶')} ${file}\n`)
 
     for (const [index, link] of links.entries()) {
-      process.stderr.write(`  ${cyan(`${index < links.length - 1 ? '├' : '└'}─`)} ${link}\n`)
+      process.stderr.write(`  ${blue(`${index < links.length - 1 ? '├' : '└'}─`)} ${link}\n`)
     }
 
     process.stdout.write(dim('\n'))
