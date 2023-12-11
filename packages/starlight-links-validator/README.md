@@ -18,6 +18,10 @@
   <br />
 </div>
 
+## Getting Started
+
+Want to get started immediately? Check out the [getting started guide](https://starlight-links-validator.vercel.app/guides/getting-started/).
+
 ## Features
 
 An [Astro](https://astro.build) integration for [Starlight](https://starlight.astro.build) Starlight to validate **_internal_** links in Markdown and MDX files.
@@ -27,38 +31,6 @@ An [Astro](https://astro.build) integration for [Starlight](https://starlight.as
 - Validate internal links to anchors in the same page
 - Ignore external links
 - Run only during a production build
-
-## Installation
-
-Install the Starlight Links Validator integration using your favorite package manager, e.g. with [pnpm](https://pnpm.io):
-
-```shell
-pnpm add starlight-links-validator
-```
-
-Update your [Astro configuration](https://docs.astro.build/en/guides/configuring-astro/#supported-config-file-types) to include the Starlight Links Validator integration **_before_** the Starlight integration:
-
-```diff
-  import starlight from '@astrojs/starlight'
-  import { defineConfig } from 'astro/config'
-+ import starlightLinksValidator from 'starlight-links-validator'
-
-  export default defineConfig({
-    // …
-    integrations: [
-+     starlightLinksValidator(),
-      starlight({
-        sidebar: [
-          {
-            label: 'Guides',
-            items: [{ label: 'Example Guide', link: '/guides/example/' }],
-          },
-        ],
-        title: 'My Docs',
-      }),
-    ],
-  })
-```
 
 ## License
 

@@ -1,0 +1,73 @@
+---
+title: Getting Started
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+## Features
+
+- Validate internal links to other pages
+- Validate internal links to anchors in other pages
+- Validate internal links to anchors in the same page
+- Ignore external links
+- Run only during a production build
+
+## Installation
+
+Install the Starlight Links Validator integration:
+
+<Tabs>
+<TabItem label="npm">
+
+```sh
+npm install starlight-links-validator
+```
+
+</TabItem>
+<TabItem label="pnpm">
+
+```sh
+pnpm add starlight-links-validator
+```
+
+</TabItem>
+<TabItem label="Yarn">
+
+```sh
+yarn add starlight-links-validator
+```
+
+</TabItem>
+<TabItem label="Bun">
+
+```sh
+bun add starlight-links-validator
+```
+
+</TabItem>
+<TabItem label="ni">
+
+```sh
+ni starlight-links-validator
+```
+
+</TabItem>
+</Tabs>
+
+Update your [Astro configuration](https://docs.astro.build/en/guides/configuring-astro/#supported-config-file-types) to include the Starlight Links Validator integration **_before_** the Starlight integration:
+
+```diff lang="js"
+// astro.config.mjs
+  import starlight from '@astrojs/starlight'
+  import { defineConfig } from 'astro/config'
++ import starlightLinksValidator from 'starlight-links-validator'
+
+  export default defineConfig({
+    integrations: [
++     starlightLinksValidator(),
+      starlight({
+        title: 'My Docs',
+      }),
+    ],
+  })
+```

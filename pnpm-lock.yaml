@@ -33,7 +33,7 @@ importers:
         specifier: 5.1.3
         version: 5.1.3
 
-  example:
+  docs:
     dependencies:
       '@astrojs/starlight':
         specifier: 0.15.0
@@ -44,9 +44,6 @@ importers:
       sharp:
         specifier: 0.32.6
         version: 0.32.6
-      starlight-links-validator:
-        specifier: workspace:*
-        version: link:../packages/starlight-links-validator
 
   packages/starlight-links-validator:
     dependencies:

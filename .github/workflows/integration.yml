@@ -35,9 +35,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Generates example TypeScript types
+      - name: Generates docs TypeScript types
         run: pnpm astro sync
-        working-directory: example
+        working-directory: docs
 
       - name: Test
         run: pnpm test

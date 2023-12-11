@@ -1,5 +1,5 @@
 {
-  "name": "starlight-links-validator-example",
+  "name": "starlight-links-validator-docs",
   "version": "0.4.2",
   "license": "MIT",
   "description": "Astro integration for Starlight to validate internal links.",
@@ -15,8 +15,7 @@
   "dependencies": {
     "@astrojs/starlight": "0.15.0",
     "astro": "4.0.4",
-    "sharp": "0.32.6",
-    "starlight-links-validator": "workspace:*"
+    "sharp": "0.32.6"
   },
   "engines": {
     "node": ">=18.14.1"
