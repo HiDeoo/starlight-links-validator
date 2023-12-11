@@ -4,11 +4,11 @@ import starlightLinksValidator from 'starlight-links-validator'
 
 export default defineConfig({
   integrations: [
-    starlightLinksValidator(),
     starlight({
       editLink: {
         baseUrl: 'https://github.com/HiDeoo/starlight-links-validator/edit/main/example/',
       },
+      plugins: [starlightLinksValidator()],
       sidebar: [
         {
           label: 'Guides',

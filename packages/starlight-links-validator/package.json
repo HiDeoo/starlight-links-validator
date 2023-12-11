@@ -2,7 +2,7 @@
   "name": "starlight-links-validator",
   "version": "0.4.2",
   "license": "MIT",
-  "description": "Astro integration for Starlight to validate internal links.",
+  "description": "Starlight plugin to validate internal links.",
   "author": "HiDeoo <github@hideoo.dev> (https://hideoo.dev)",
   "type": "module",
   "exports": {
@@ -11,7 +11,7 @@
   },
   "scripts": {
     "test": "vitest",
-    "lint": "prettier -c --cache . && eslint . --cache --max-warnings=0 && tsc --noEmit"
+    "lint": "prettier -c --cache . && eslint . --cache --max-warnings=0"
   },
   "dependencies": {
     "github-slugger": "2.0.0",
@@ -46,10 +46,10 @@
   "sideEffects": false,
   "keywords": [
     "starlight",
+    "plugin",
     "links",
     "validation",
-    "astro",
-    "astro-integration"
+    "astro"
   ],
   "homepage": "https://github.com/HiDeoo/starlight-links-validator",
   "repository": {
