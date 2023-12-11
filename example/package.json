@@ -1,0 +1,40 @@
+{
+  "name": "starlight-links-validator-example",
+  "version": "0.4.2",
+  "license": "MIT",
+  "description": "Astro integration for Starlight to validate internal links.",
+  "author": "HiDeoo <github@hideoo.dev> (https://hideoo.dev)",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "lint": "prettier -c --cache . && eslint . --cache --max-warnings=0"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "0.15.0",
+    "astro": "4.0.4",
+    "sharp": "0.32.6",
+    "starlight-links-validator": "workspace:*"
+  },
+  "engines": {
+    "node": ">=18.14.1"
+  },
+  "packageManager": "pnpm@8.6.3",
+  "private": true,
+  "sideEffects": false,
+  "keywords": [
+    "starlight",
+    "links",
+    "validation",
+    "astro",
+    "astro-integration"
+  ],
+  "homepage": "https://github.com/HiDeoo/starlight-links-validator",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HiDeoo/starlight-links-validator.git"
+  },
+  "bugs": "https://github.com/HiDeoo/starlight-links-validator/issues"
+}
