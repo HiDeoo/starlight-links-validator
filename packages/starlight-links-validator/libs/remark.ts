@@ -131,7 +131,7 @@ export function getValidationData() {
 }
 
 function isInternalLink(link: string) {
-  return nodePath.isAbsolute(link) || link.startsWith('#')
+  return nodePath.isAbsolute(link) || link.startsWith('#') || link.startsWith('.')
 }
 
 function normalizeFilePath(filePath?: string) {

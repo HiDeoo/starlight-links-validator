@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 
 import { loadFixture } from './utils'
 
-test('should validate links when the `trailingSlash` option is set to `never`', async () => {
+test('should validate links when the `trailingSlash` Astro option is set to `never`', async () => {
   expect.assertions(2)
 
   try {
@@ -20,7 +20,7 @@ test('should validate links when the `trailingSlash` option is set to `never`', 
   }
 })
 
-test('should validate links when the `trailingSlash` option is set to `always`', async () => {
+test('should validate links when the `trailingSlash` Astro option is set to `always`', async () => {
   expect.assertions(2)
 
   try {

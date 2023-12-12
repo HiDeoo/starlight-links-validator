@@ -51,3 +51,27 @@ export default defineConfig({
   ],
 })
 ```
+
+### `errorOnRelativeLinks`
+
+**Type:** `boolean`  
+**Default:** `true`
+
+Relative internal links, such as `./test` or `../test`, are usually considered confusing as they can be difficult to reason about, figure out where they point to and require more maintenance when a page is moved.
+
+By default, the Starlight Links Validator plugin will error if a relative internal link is found.
+If you want to allow relative internal links, you can set this option to `false` but note that theses links will not be validated.
+
+```js {6}
+export default defineConfig({
+  integrations: [
+    starlight({
+      plugins: [
+        starlightLinksValidator({
+          errorOnRelativeLinks: false,
+        }),
+      ],
+    }),
+  ],
+})
+```

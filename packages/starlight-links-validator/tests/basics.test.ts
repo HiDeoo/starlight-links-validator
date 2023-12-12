@@ -11,12 +11,12 @@ test('should build with valid links', async () => {
 })
 
 test('should not build with invalid links', async () => {
-  expect.assertions(4)
+  expect.assertions(5)
 
   try {
     await loadFixture('basics-invalid-links')
   } catch (error) {
-    expect(error).toMatch(/Found 20 invalid links in 3 files./)
+    expect(error).toMatch(/Found 25 invalid links in 4 files./)
 
     expect(error).toMatch(
       new RegExp(`▶ test/
@@ -48,6 +48,15 @@ test('should not build with invalid links', async () => {
       new RegExp(`▶ guides/namespacetest/
   ├─ #some-other-content
   └─ /guides/namespacetest/#another-content`),
+    )
+
+    expect(error).toMatch(
+      new RegExp(`▶ relative/
+  ├─ .
+  ├─ ./relative
+  ├─ ./test
+  ├─ ./guides/example
+  └─ ../test`),
     )
   }
 })

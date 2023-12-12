@@ -17,6 +17,12 @@ const starlightLinksValidatorOptionsSchema = z
      * @see https://starlight.astro.build/guides/i18n/#fallback-content
      */
     errorOnFallbackPages: z.boolean().default(true),
+    /**
+     * Defines whether the plugin should error on internal relative links.
+     *
+     * When set to `false`, the plugin will ignore relative links (e.g. `./foo` or `../bar`).
+     */
+    errorOnRelativeLinks: z.boolean().default(true),
   })
   .default({})
 

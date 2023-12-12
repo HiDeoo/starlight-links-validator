@@ -84,7 +84,7 @@ export function logErrors(errors: ValidationErrors) {
  * Validate a link to another internal page that may or may not have a hash.
  */
 function validateLink(context: ValidationContext) {
-  const { errors, filePath, link, outputDir, pages } = context
+  const { errors, filePath, link, options, outputDir, pages } = context
 
   const sanitizedLink = link.replace(/^\//, '')
   const segments = sanitizedLink.split('#')
@@ -94,6 +94,14 @@ function validateLink(context: ValidationContext) {
 
   if (path === undefined) {
     throw new Error('Failed to validate a link with no path.')
+  }
+
+  if (path.startsWith('.')) {
+    if (options.errorOnRelativeLinks) {
+      addError(errors, filePath, link)
+    }
+
+    return
   }
 
   if (isValidAsset(path, outputDir)) {
