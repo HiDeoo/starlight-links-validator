@@ -1,13 +1,23 @@
 import { statSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
+import type { StarlightPlugin } from '@astrojs/starlight/types'
 import { bgGreen, black, blue, bold, dim, red } from 'kleur/colors'
 
+import type { StarlightLinksValidatorOptions } from '..'
+
+import { getFallbackHeadings, getLocaleConfig, type LocaleConfig } from './i18n'
 import { getValidationData, type Headings } from './remark'
 
-export function validateLinks(pages: PageData[], outputDir: URL): ValidationErrors {
+export function validateLinks(
+  pages: PageData[],
+  outputDir: URL,
+  starlightConfig: StarlightUserConfig,
+  options: StarlightLinksValidatorOptions,
+): ValidationErrors {
   process.stdout.write(`\n${bgGreen(black(` validating links `))}\n`)
 
+  const localeConfig = getLocaleConfig(starlightConfig)
   const { headings, links } = getValidationData()
   const allPages: Pages = new Set(pages.map((page) => page.pathname))
 
@@ -15,10 +25,21 @@ export function validateLinks(pages: PageData[], outputDir: URL): ValidationErro
 
   for (const [filePath, fileLinks] of links) {
     for (const link of fileLinks) {
+      const validationContext: ValidationContext = {
+        errors,
+        filePath,
+        headings,
+        link,
+        localeConfig,
+        options,
+        outputDir,
+        pages: allPages,
+      }
+
       if (link.startsWith('#')) {
-        validateSelfAnchor(errors, link, filePath, headings)
+        validateSelfAnchor(validationContext)
       } else {
-        validateLink(errors, link, filePath, headings, allPages, outputDir)
+        validateLink(validationContext)
       }
     }
   }
@@ -61,14 +82,9 @@ export function logErrors(errors: ValidationErrors) {
 /**
  * Validate a link to another internal page that may or may not have a hash.
  */
-function validateLink(
-  errors: ValidationErrors,
-  link: string,
-  filePath: string,
-  headings: Headings,
-  pages: Pages,
-  outputDir: URL,
-) {
+function validateLink(context: ValidationContext) {
+  const { errors, filePath, link, outputDir, pages } = context
+
   const sanitizedLink = link.replace(/^\//, '')
   const segments = sanitizedLink.split('#')
 
@@ -88,7 +104,7 @@ function validateLink(
   }
 
   const isValidPage = pages.has(path)
-  const fileHeadings = headings.get(path === '' ? '/' : path)
+  const fileHeadings = getFileHeadings(path, context)
 
   if (!isValidPage || !fileHeadings) {
     addError(errors, filePath, link)
@@ -100,11 +116,21 @@ function validateLink(
   }
 }
 
+function getFileHeadings(path: string, { headings, localeConfig, options }: ValidationContext) {
+  let heading = headings.get(path === '' ? '/' : path)
+
+  if (!options.errorOnFallbackPages && !heading && localeConfig) {
+    heading = getFallbackHeadings(path, headings, localeConfig)
+  }
+
+  return heading
+}
+
 /**
  * Validate a link to an anchor in the same page.
  */
-function validateSelfAnchor(errors: ValidationErrors, hash: string, filePath: string, headings: Headings) {
-  const sanitizedHash = hash.replace(/^#/, '')
+function validateSelfAnchor({ errors, link, filePath, headings }: ValidationContext) {
+  const sanitizedHash = link.replace(/^#/, '')
   const fileHeadings = headings.get(filePath)
 
   if (!fileHeadings) {
@@ -112,7 +138,7 @@ function validateSelfAnchor(errors: ValidationErrors, hash: string, filePath: st
   }
 
   if (!fileHeadings.includes(sanitizedHash)) {
-    addError(errors, filePath, hash)
+    addError(errors, filePath, link)
   }
 }
 
@@ -150,3 +176,16 @@ interface PageData {
 }
 
 type Pages = Set<PageData['pathname']>
+
+interface ValidationContext {
+  errors: ValidationErrors
+  filePath: string
+  headings: Headings
+  link: string
+  localeConfig: LocaleConfig
+  options: StarlightLinksValidatorOptions
+  outputDir: URL
+  pages: Pages
+}
+
+export type StarlightUserConfig = Parameters<StarlightPlugin['hooks']['setup']>['0']['config']

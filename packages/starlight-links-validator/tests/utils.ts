@@ -1,5 +1,5 @@
 import { exec } from 'node:child_process'
-import { cp, mkdir, rm } from 'node:fs/promises'
+import { access, constants, cp, mkdir, rm } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
@@ -23,8 +23,12 @@ export async function loadFixture(name: string) {
     // Copy the fixture under test files that may override the base fixture files.
     await cp(join(fixturePath, 'src'), join(testPath, 'src'), { force: true, recursive: true })
 
-    // Copy the Astro config.
-    await cp(join(baseFixturePath, 'astro.config.ts'), join(testPath, 'astro.config.ts'))
+    const fixtureConfigPath = join(fixturePath, 'astro.config.ts')
+    const hasFixtureConfig = await fileExists(fixtureConfigPath)
+    const configPath = hasFixtureConfig ? fixtureConfigPath : join(baseFixturePath, 'astro.config.ts')
+
+    // Copy the base Astro config if the fixture under test does not have one.
+    await cp(configPath, join(testPath, 'astro.config.ts'))
 
     // Build the project.
     await execAsync('npx astro build', { cwd: testPath })
@@ -35,4 +39,17 @@ export async function loadFixture(name: string) {
 
 function isProcessError(error: unknown): error is { stderr: string } {
   return typeof error === 'object' && error !== null && 'stderr' in error
+}
+
+async function fileExists(path: string) {
+  let exists = false
+
+  try {
+    await access(path, constants.F_OK)
+    exists = true
+  } catch {
+    // We can safely ignore this error if the file does not exist.
+  }
+
+  return exists
 }

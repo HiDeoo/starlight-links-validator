@@ -3,18 +3,18 @@ import { expect, test } from 'vitest'
 import { loadFixture } from './utils'
 
 test('should build with no links', async () => {
-  await expect(loadFixture('no-links')).resolves.not.toThrow()
+  await expect(loadFixture('basics-no-links')).resolves.not.toThrow()
 })
 
 test('should build with valid links', async () => {
-  await expect(loadFixture('with-valid-links')).resolves.not.toThrow()
+  await expect(loadFixture('basics-valid-links')).resolves.not.toThrow()
 })
 
 test('should not build with invalid links', async () => {
   expect.assertions(4)
 
   try {
-    await loadFixture('with-invalid-links')
+    await loadFixture('basics-invalid-links')
   } catch (error) {
     expect(error).toMatch(/Found 20 invalid links in 3 files./)
 

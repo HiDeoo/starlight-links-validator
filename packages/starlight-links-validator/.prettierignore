@@ -1,6 +1,7 @@
 .astro
 .github/blocks
 .next
+.tests
 .vercel
 .vscode-test
 .vscode-test-web

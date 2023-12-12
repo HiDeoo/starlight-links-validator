@@ -1,14 +1,38 @@
 import type { StarlightPlugin } from '@astrojs/starlight/types'
 import { AstroError } from 'astro/errors'
+import { z } from 'astro/zod'
 
 import { remarkStarlightLinksValidator } from './libs/remark'
 import { logErrors, validateLinks } from './libs/validation'
 
-export default function starlightLinksValidatorPlugin(): StarlightPlugin {
+const starlightLinksValidatorOptionsSchema = z
+  .object({
+    /**
+     * Defines whether the plugin should error on fallback pages.
+     *
+     * If you do not expect to have all pages translated in all configured locales and want to use the fallback pages
+     * feature built-in into Starlight, you should set this option to `false`.
+     *
+     * @default true
+     * @see https://starlight.astro.build/guides/i18n/#fallback-content
+     */
+    errorOnFallbackPages: z.boolean().default(true),
+  })
+  .default({})
+
+export default function starlightLinksValidatorPlugin(
+  userOptions?: StarlightLinksValidatorUserOptions,
+): StarlightPlugin {
+  const options = starlightLinksValidatorOptionsSchema.safeParse(userOptions)
+
+  if (!options.success) {
+    throwPluginError('Invalid options passed to the starlight-links-validator plugin.')
+  }
+
   return {
     name: 'starlight-links-validator-plugin',
     hooks: {
-      setup({ addIntegration }) {
+      setup({ addIntegration, config: starlightConfig }) {
         addIntegration({
           name: 'starlight-links-validator-integration',
           hooks: {
@@ -24,15 +48,12 @@ export default function starlightLinksValidatorPlugin(): StarlightPlugin {
               })
             },
             'astro:build:done': ({ dir, pages }) => {
-              const errors = validateLinks(pages, dir)
+              const errors = validateLinks(pages, dir, starlightConfig, options.data)
 
               logErrors(errors)
 
               if (errors.size > 0) {
-                throw new AstroError(
-                  'Links validation failed.',
-                  `See the error report above for more informations.\n\nIf you believe this is a bug, please file an issue at https://github.com/HiDeoo/starlight-links-validator/issues/new/choose.`,
-                )
+                throwPluginError('Links validation failed.')
               }
             },
           },
@@ -41,3 +62,13 @@ export default function starlightLinksValidatorPlugin(): StarlightPlugin {
     },
   }
 }
+
+function throwPluginError(message: string): never {
+  throw new AstroError(
+    message,
+    `See the error report above for more informations.\n\nIf you believe this is a bug, please file an issue at https://github.com/HiDeoo/starlight-links-validator/issues/new/choose.`,
+  )
+}
+
+type StarlightLinksValidatorUserOptions = z.input<typeof starlightLinksValidatorOptionsSchema>
+export type StarlightLinksValidatorOptions = z.output<typeof starlightLinksValidatorOptionsSchema>
