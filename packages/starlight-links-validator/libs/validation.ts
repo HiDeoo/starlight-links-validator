@@ -7,6 +7,7 @@ import { bgGreen, black, blue, bold, dim, red } from 'kleur/colors'
 import type { StarlightLinksValidatorOptions } from '..'
 
 import { getFallbackHeadings, getLocaleConfig, type LocaleConfig } from './i18n'
+import { ensureTrailingSlash } from './path'
 import { getValidationData, type Headings } from './remark'
 
 export function validateLinks(
@@ -19,7 +20,7 @@ export function validateLinks(
 
   const localeConfig = getLocaleConfig(starlightConfig)
   const { headings, links } = getValidationData()
-  const allPages: Pages = new Set(pages.map((page) => page.pathname))
+  const allPages: Pages = new Set(pages.map((page) => ensureTrailingSlash(page.pathname)))
 
   const errors: ValidationErrors = new Map()
 
@@ -99,9 +100,7 @@ function validateLink(context: ValidationContext) {
     return
   }
 
-  if (path.length > 0 && !path.endsWith('/')) {
-    path += '/'
-  }
+  path = ensureTrailingSlash(path)
 
   const isValidPage = pages.has(path)
   const fileHeadings = getFileHeadings(path, context)
