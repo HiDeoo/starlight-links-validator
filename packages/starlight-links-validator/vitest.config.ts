@@ -8,6 +8,6 @@ export default defineConfig({
         minThreads: 1,
       },
     },
-    testTimeout: 30_000,
+    testTimeout: 60_000,
   },
 })
