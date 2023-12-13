@@ -1,24 +1,54 @@
 import { statSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
-import { bgGreen, black, bold, cyan, dim, red } from 'kleur/colors'
+import type { StarlightPlugin } from '@astrojs/starlight/types'
+import type { AstroIntegrationLogger } from 'astro'
+import { bgGreen, black, blue, dim, green, red } from 'kleur/colors'
 
+import type { StarlightLinksValidatorOptions } from '..'
+
+import { getFallbackHeadings, getLocaleConfig, isInconsistentLocaleLink, type LocaleConfig } from './i18n'
+import { ensureTrailingSlash } from './path'
 import { getValidationData, type Headings } from './remark'
 
-export function validateLinks(pages: PageData[], outputDir: URL): ValidationErrors {
+export const ValidationErrorType = {
+  InconsistentLocale: 'inconsistent locale',
+  InvalidAnchor: 'invalid anchor',
+  InvalidLink: 'invalid link',
+  RelativeLink: 'relative link',
+} as const
+
+export function validateLinks(
+  pages: PageData[],
+  outputDir: URL,
+  starlightConfig: StarlightUserConfig,
+  options: StarlightLinksValidatorOptions,
+): ValidationErrors {
   process.stdout.write(`\n${bgGreen(black(` validating links `))}\n`)
 
+  const localeConfig = getLocaleConfig(starlightConfig)
   const { headings, links } = getValidationData()
-  const allPages: Pages = new Set(pages.map((page) => page.pathname))
+  const allPages: Pages = new Set(pages.map((page) => ensureTrailingSlash(page.pathname)))
 
   const errors: ValidationErrors = new Map()
 
   for (const [filePath, fileLinks] of links) {
     for (const link of fileLinks) {
+      const validationContext: ValidationContext = {
+        errors,
+        filePath,
+        headings,
+        link,
+        localeConfig,
+        options,
+        outputDir,
+        pages: allPages,
+      }
+
       if (link.startsWith('#')) {
-        validateSelfAnchor(errors, link, filePath, headings)
+        validateSelfAnchor(validationContext)
       } else {
-        validateLink(errors, link, filePath, headings, allPages, outputDir)
+        validateLink(validationContext)
       }
     }
   }
@@ -26,49 +56,46 @@ export function validateLinks(pages: PageData[], outputDir: URL): ValidationErro
   return errors
 }
 
-export function logErrors(errors: ValidationErrors) {
+export function logErrors(pluginLogger: AstroIntegrationLogger, errors: ValidationErrors) {
+  const logger = pluginLogger.fork('')
+
   if (errors.size === 0) {
-    process.stdout.write(dim('All internal links are valid.\n\n'))
+    logger.info(green('✓ All internal links are valid.\n'))
     return
   }
 
   const errorCount = [...errors.values()].reduce((acc, links) => acc + links.length, 0)
 
-  process.stderr.write(
-    `${bold(
-      red(
-        `Found ${errorCount} invalid ${pluralize(errorCount, 'link')} in ${errors.size} ${pluralize(
-          errors.size,
-          'file',
-        )}.`,
-      ),
-    )}\n\n`,
+  logger.error(
+    red(
+      `✗ Found ${errorCount} invalid ${pluralize(errorCount, 'link')} in ${errors.size} ${pluralize(
+        errors.size,
+        'file',
+      )}.`,
+    ),
   )
 
-  for (const [file, links] of errors) {
-    process.stderr.write(`${red('▶')} ${file}\n`)
+  for (const [file, validationErrors] of errors) {
+    logger.info(`${red('▶')} ${blue(file)}`)
 
-    for (const [index, link] of links.entries()) {
-      process.stderr.write(`  ${cyan(`${index < links.length - 1 ? '├' : '└'}─`)} ${link}\n`)
+    for (const [index, validationError] of validationErrors.entries()) {
+      logger.info(
+        `  ${blue(`${index < validationErrors.length - 1 ? '├' : '└'}─`)} ${validationError.link}${dim(
+          ` - ${validationError.type}`,
+        )}`,
+      )
     }
-
-    process.stdout.write(dim('\n'))
   }
 
-  process.stdout.write(dim('\n'))
+  process.stdout.write('\n')
 }
 
 /**
  * Validate a link to another internal page that may or may not have a hash.
  */
-function validateLink(
-  errors: ValidationErrors,
-  link: string,
-  filePath: string,
-  headings: Headings,
-  pages: Pages,
-  outputDir: URL,
-) {
+function validateLink(context: ValidationContext) {
+  const { errors, filePath, link, localeConfig, options, outputDir, pages } = context
+
   const sanitizedLink = link.replace(/^\//, '')
   const segments = sanitizedLink.split('#')
 
@@ -79,32 +106,53 @@ function validateLink(
     throw new Error('Failed to validate a link with no path.')
   }
 
+  if (path.startsWith('.')) {
+    if (options.errorOnRelativeLinks) {
+      addError(errors, filePath, link, ValidationErrorType.RelativeLink)
+    }
+
+    return
+  }
+
   if (isValidAsset(path, outputDir)) {
     return
   }
 
-  if (path.length > 0 && !path.endsWith('/')) {
-    path += '/'
-  }
+  path = ensureTrailingSlash(path)
 
   const isValidPage = pages.has(path)
-  const fileHeadings = headings.get(path === '' ? '/' : path)
+  const fileHeadings = getFileHeadings(path, context)
 
   if (!isValidPage || !fileHeadings) {
-    addError(errors, filePath, link)
+    addError(errors, filePath, link, ValidationErrorType.InvalidLink)
+    return
+  }
+
+  if (options.errorOnInconsistentLocale && localeConfig && isInconsistentLocaleLink(filePath, link, localeConfig)) {
+    addError(errors, filePath, link, ValidationErrorType.InconsistentLocale)
     return
   }
 
   if (hash && !fileHeadings.includes(hash)) {
-    addError(errors, filePath, link)
+    addError(errors, filePath, link, ValidationErrorType.InvalidAnchor)
   }
+}
+
+function getFileHeadings(path: string, { headings, localeConfig, options }: ValidationContext) {
+  let heading = headings.get(path === '' ? '/' : path)
+
+  if (!options.errorOnFallbackPages && !heading && localeConfig) {
+    heading = getFallbackHeadings(path, headings, localeConfig)
+  }
+
+  return heading
 }
 
 /**
  * Validate a link to an anchor in the same page.
  */
-function validateSelfAnchor(errors: ValidationErrors, hash: string, filePath: string, headings: Headings) {
-  const sanitizedHash = hash.replace(/^#/, '')
+function validateSelfAnchor({ errors, link, filePath, headings }: ValidationContext) {
+  const sanitizedHash = link.replace(/^#/, '')
   const fileHeadings = headings.get(filePath)
 
   if (!fileHeadings) {
@@ -112,7 +160,7 @@ function validateSelfAnchor(errors: ValidationErrors, hash: string, filePath: st
   }
 
   if (!fileHeadings.includes(sanitizedHash)) {
-    addError(errors, filePath, hash)
+    addError(errors, filePath, link, 'invalid anchor')
   }
 }
 
@@ -131,9 +179,9 @@ function isValidAsset(path: string, outputDir: URL) {
   }
 }
 
-function addError(errors: ValidationErrors, filePath: string, link: string) {
+function addError(errors: ValidationErrors, filePath: string, link: string, type: ValidationErrorType) {
   const fileErrors = errors.get(filePath) ?? []
-  fileErrors.push(link)
+  fileErrors.push({ link, type })
 
   errors.set(filePath, fileErrors)
 }
@@ -142,11 +190,31 @@ function pluralize(count: number, singular: string) {
   return count === 1 ? singular : `${singular}s`
 }
 
-// The invalid links keyed by file path.
-type ValidationErrors = Map<string, string[]>
+// The validation errors keyed by file path.
+type ValidationErrors = Map<string, ValidationError[]>
+
+export type ValidationErrorType = (typeof ValidationErrorType)[keyof typeof ValidationErrorType]
+
+interface ValidationError {
+  link: string
+  type: ValidationErrorType
+}
 
 interface PageData {
   pathname: string
 }
 
 type Pages = Set<PageData['pathname']>
+
+interface ValidationContext {
+  errors: ValidationErrors
+  filePath: string
+  headings: Headings
+  link: string
+  localeConfig: LocaleConfig | undefined
+  options: StarlightLinksValidatorOptions
+  outputDir: URL
+  pages: Pages
+}
+
+export type StarlightUserConfig = Parameters<StarlightPlugin['hooks']['setup']>['0']['config']

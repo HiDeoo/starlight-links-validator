@@ -1,0 +1,80 @@
+---
+title: Getting Started
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+## Features
+
+A [Starlight](https://starlight.astro.build) plugin to validate **_internal_** links in Markdown and MDX files.
+
+- Validate internal links to other pages
+- Validate internal links to anchors in other pages
+- Validate internal links to anchors in the same page
+- Ignore external links
+- Run only during a production build
+
+## Install the plugin
+
+Starlight Links Validator is a Starlight [plugin](https://starlight.astro.build/reference/plugins/). Install it using your favorite package manager:
+
+<Tabs>
+<TabItem label="npm">
+
+```sh
+npm install starlight-links-validator
+```
+
+</TabItem>
+<TabItem label="pnpm">
+
+```sh
+pnpm add starlight-links-validator
+```
+
+</TabItem>
+<TabItem label="Yarn">
+
+```sh
+yarn add starlight-links-validator
+```
+
+</TabItem>
+<TabItem label="Bun">
+
+```sh
+bun add starlight-links-validator
+```
+
+</TabItem>
+<TabItem label="ni">
+
+```sh
+ni starlight-links-validator
+```
+
+</TabItem>
+</Tabs>
+
+## Add the plugin
+
+The Starlight Links Validator plugin can be added to your Starlight [configuration](https://starlight.astro.build/reference/configuration/#plugins) in the `astro.config.mjs` file:
+
+```diff lang="js"
+// astro.config.mjs
+import starlight from '@astrojs/starlight'
+import { defineConfig } from 'astro/config'
++import starlightLinksValidator from 'starlight-links-validator'
+
+export default defineConfig({
+  integrations: [
+    starlight({
++      plugins: [starlightLinksValidator()],
+      title: 'My Docs',
+    }),
+  ],
+})
+```
+
+Running a production build will now validate all internal links in your Markdown and MDX files.
+The Starlight Links Validator plugin behavior can be tweaked using various [configuration options](/configuration).

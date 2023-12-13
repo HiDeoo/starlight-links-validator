@@ -131,7 +131,7 @@ export function getValidationData() {
 }
 
 function isInternalLink(link: string) {
-  return nodePath.isAbsolute(link) || link.startsWith('#')
+  return nodePath.isAbsolute(link) || link.startsWith('#') || link.startsWith('.')
 }
 
 function normalizeFilePath(filePath?: string) {
@@ -143,7 +143,7 @@ function normalizeFilePath(filePath?: string) {
     .relative(nodePath.join(process.cwd(), 'src/content/docs'), filePath)
     .replace(/\.\w+$/, '')
     .replace(/index$/, '')
-    .replace(/\/?$/, '/')
+    .replace(/[/\\]?$/, '/')
     .split(/[/\\]/)
     .map((segment) => slug(segment))
     .join('/')

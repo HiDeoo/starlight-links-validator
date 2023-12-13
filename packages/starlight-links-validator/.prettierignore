@@ -1,1 +1,13 @@
-../../.prettierignore
+.astro
+.github/blocks
+.next
+.tests
+.vercel
+.vscode-test
+.vscode-test-web
+build
+coverage
+dist
+dist-ssr
+out
+pnpm-lock.yaml

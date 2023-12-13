@@ -5,9 +5,8 @@ import starlightLinksValidator from '../..'
 
 export default defineConfig({
   integrations: [
-    starlightLinksValidator(),
     starlight({
-      sidebar: [],
+      plugins: [starlightLinksValidator()],
       title: 'Starlight Links Validator Tests',
     }),
   ],

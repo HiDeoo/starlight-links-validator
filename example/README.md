@@ -1,11 +1,6 @@
 <div align="center">
   <h1>starlight-links-validator 🦺</h1>
-  <p>Astro integration for Starlight to validate internal links.</p>
-  <p>
-    <a href="https://i.imgur.com/EgiTGeR.png" title="Screenshot of starlight-links-validator">
-      <img alt="Screenshot of starlight-links-validator" src="https://i.imgur.com/EgiTGeR.png" width="520" />
-    </a>
-  </p>
+  <p>Starlight plugin to validate internal links.</p>
 </div>
 
 <div align="center">
