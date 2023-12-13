@@ -1,6 +1,8 @@
 import { expect, test } from 'vitest'
 
-import { loadFixture } from './utils'
+import { ValidationErrorType } from '../libs/validation'
+
+import { expectValidationErrorCount, expectValidationErrors, loadFixture } from './utils'
 
 test('should not build with ignored fallback links', async () => {
   expect.assertions(2)
@@ -8,15 +10,14 @@ test('should not build with ignored fallback links', async () => {
   try {
     await loadFixture('fallback-prevent-links')
   } catch (error) {
-    expect(error).toMatch(/Found 4 invalid links in 1 file./)
+    expectValidationErrorCount(error, 4, 1)
 
-    expect(error).toMatch(
-      new RegExp(`▶ fr/
-  ├─ /fr/guides/example
-  ├─ /fr/guides/example/
-  ├─ /fr/guides/example#description
-  └─ /fr/guides/example/#description`),
-    )
+    expectValidationErrors(error, 'fr/', [
+      ['/fr/guides/example', ValidationErrorType.InvalidLink],
+      ['/fr/guides/example/', ValidationErrorType.InvalidLink],
+      ['/fr/guides/example#description', ValidationErrorType.InvalidLink],
+      ['/fr/guides/example/#description', ValidationErrorType.InvalidLink],
+    ])
   }
 })
 
@@ -30,30 +31,25 @@ test('should not build with invalid fallback links', async () => {
   try {
     await loadFixture('fallback-invalid-links')
   } catch (error) {
-    expect(error).toMatch(/Found 11 invalid links in 3 files./)
+    expectValidationErrorCount(error, 11, 3)
 
-    expect(error).toMatch(
-      new RegExp(`▶ en/
-  ├─ /en/guides/unknown
-  ├─ /en/guides/unknown/
-  ├─ /en/guides/example#unknown
-  ├─ /en/guides/example/#unknown
-  ├─ /es/guides/example
-  └─ /es/guides/example/`),
-    )
+    expectValidationErrors(error, 'en/', [
+      ['/en/guides/unknown', ValidationErrorType.InvalidLink],
+      ['/en/guides/unknown/', ValidationErrorType.InvalidLink],
+      ['/en/guides/example#unknown', ValidationErrorType.InvalidAnchor],
+      ['/en/guides/example/#unknown', ValidationErrorType.InvalidAnchor],
+      ['/es/guides/example', ValidationErrorType.InvalidLink],
+      ['/es/guides/example/', ValidationErrorType.InvalidLink],
+    ])
 
-    expect(error).toMatch(
-      new RegExp(`▶ fr/
-  ├─ /fr/guides/unknown
-  ├─ /fr/guides/unknown/
-  ├─ /fr/guides/example#unknown
-  └─ /fr/guides/example/#unknown`),
-    )
+    expectValidationErrors(error, 'fr/', [
+      ['/fr/guides/unknown', ValidationErrorType.InvalidLink],
+      ['/fr/guides/unknown/', ValidationErrorType.InvalidLink],
+      ['/fr/guides/example#unknown', ValidationErrorType.InvalidAnchor],
+      ['/fr/guides/example/#unknown', ValidationErrorType.InvalidAnchor],
+    ])
 
-    expect(error).toMatch(
-      new RegExp(`▶ fr/guides/test/
-  └─ /`),
-    )
+    expectValidationErrors(error, 'fr/guides/test/', [['/', ValidationErrorType.InvalidLink]])
   }
 })
 
@@ -67,29 +63,24 @@ test('should not build with a root locale and invalid fallback links', async () 
   try {
     await loadFixture('fallback-root-invalid-links')
   } catch (error) {
-    expect(error).toMatch(/Found 11 invalid links in 3 files./)
+    expectValidationErrorCount(error, 11, 3)
 
-    expect(error).toMatch(
-      new RegExp(`▶ /
-  ├─ /guides/unknown
-  ├─ /guides/unknown/
-  ├─ /guides/example#unknown
-  ├─ /guides/example/#unknown
-  ├─ /es/guides/example
-  └─ /es/guides/example/`),
-    )
+    expectValidationErrors(error, '/', [
+      ['/guides/unknown', ValidationErrorType.InvalidLink],
+      ['/guides/unknown/', ValidationErrorType.InvalidLink],
+      ['/guides/example#unknown', ValidationErrorType.InvalidAnchor],
+      ['/guides/example/#unknown', ValidationErrorType.InvalidAnchor],
+      ['/es/guides/example', ValidationErrorType.InvalidLink],
+      ['/es/guides/example/', ValidationErrorType.InvalidLink],
+    ])
 
-    expect(error).toMatch(
-      new RegExp(`▶ fr/
-  ├─ /fr/guides/unknown
-  ├─ /fr/guides/unknown/
-  ├─ /fr/guides/example#unknown
-  └─ /fr/guides/example/#unknown`),
-    )
+    expectValidationErrors(error, 'fr/', [
+      ['/fr/guides/unknown', ValidationErrorType.InvalidLink],
+      ['/fr/guides/unknown/', ValidationErrorType.InvalidLink],
+      ['/fr/guides/example#unknown', ValidationErrorType.InvalidAnchor],
+      ['/fr/guides/example/#unknown', ValidationErrorType.InvalidAnchor],
+    ])
 
-    expect(error).toMatch(
-      new RegExp(`▶ guides/test/
-  └─ /en`),
-    )
+    expectValidationErrors(error, 'guides/test/', [['/en', ValidationErrorType.InvalidLink]])
   }
 })

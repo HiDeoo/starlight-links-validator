@@ -4,6 +4,10 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 
+import { expect } from 'vitest'
+
+import type { ValidationErrorType } from '../libs/validation'
+
 const execAsync = promisify(exec)
 
 export async function loadFixture(name: string) {
@@ -33,11 +37,36 @@ export async function loadFixture(name: string) {
     // Build the project.
     await execAsync('npx astro build', { cwd: testPath })
   } catch (error) {
-    throw isProcessError(error) ? new Error(`Failed to build the fixture '${name}':\n\n${error.stderr}`) : error
+    throw isProcessError(error)
+      ? new Error(`Failed to build the fixture '${name}':\n\n${error.stderr}\n\n${error.stdout}`)
+      : error
   }
 }
 
-function isProcessError(error: unknown): error is { stderr: string } {
+export function expectValidationErrorCount(error: unknown, count: number, filesCount: number) {
+  expect(error).toMatch(
+    new RegExp(
+      `Found ${count} invalid ${count === 1 ? 'link' : 'links'} in ${filesCount} ${
+        filesCount === 1 ? 'file' : 'files'
+      }.`,
+    ),
+  )
+}
+
+export function expectValidationErrors(
+  error: unknown,
+  path: string,
+  validationErrors: [link: string, type: ValidationErrorType][],
+) {
+  expect(error).toMatch(
+    new RegExp(`▶ ${path}
+${validationErrors
+  .map(([link, type], index) => `.* ${index < validationErrors.length - 1 ? '├' : '└'}─ ${link} - ${type}`)
+  .join('\n')}`),
+  )
+}
+
+function isProcessError(error: unknown): error is { stderr: string; stdout: string } {
   return typeof error === 'object' && error !== null && 'stderr' in error
 }
 

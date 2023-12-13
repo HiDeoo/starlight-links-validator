@@ -1,6 +1,8 @@
 import { expect, test } from 'vitest'
 
-import { loadFixture } from './utils'
+import { ValidationErrorType } from '../libs/validation'
+
+import { expectValidationErrorCount, expectValidationErrors, loadFixture } from './utils'
 
 test('should build with no links', async () => {
   await expect(loadFixture('basics-no-links')).resolves.not.toThrow()
@@ -16,47 +18,43 @@ test('should not build with invalid links', async () => {
   try {
     await loadFixture('basics-invalid-links')
   } catch (error) {
-    expect(error).toMatch(/Found 25 invalid links in 4 files./)
+    expectValidationErrorCount(error, 25, 4)
 
-    expect(error).toMatch(
-      new RegExp(`▶ test/
-  ├─ /
-  ├─ /unknown
-  ├─ /unknown/
-  ├─ /unknown#title
-  ├─ /unknown/#title
-  ├─ #links
-  ├─ /guides/example/#links
-  ├─ /icon.svg
-  ├─ /guidelines/ui.pdf
-  ├─ /unknown-ref
-  ├─ #unknown-ref
-  └─ #anotherDiv`),
-    )
+    expectValidationErrors(error, 'test/', [
+      ['/', ValidationErrorType.InvalidLink],
+      ['/unknown', ValidationErrorType.InvalidLink],
+      ['/unknown/', ValidationErrorType.InvalidLink],
+      ['/unknown#title', ValidationErrorType.InvalidLink],
+      ['/unknown/#title', ValidationErrorType.InvalidLink],
+      ['#links', ValidationErrorType.InvalidAnchor],
+      ['/guides/example/#links', ValidationErrorType.InvalidAnchor],
+      ['/icon.svg', ValidationErrorType.InvalidLink],
+      ['/guidelines/ui.pdf', ValidationErrorType.InvalidLink],
+      ['/unknown-ref', ValidationErrorType.InvalidLink],
+      ['#unknown-ref', ValidationErrorType.InvalidAnchor],
+      ['#anotherDiv', ValidationErrorType.InvalidAnchor],
+    ])
 
-    expect(error).toMatch(
-      new RegExp(`▶ guides/example/
-  ├─ #links
-  ├─ /unknown/#links
-  ├─ /unknown
-  ├─ #anotherBlock
-  ├─ /icon.svg
-  └─ /guidelines/ui.pdf`),
-    )
+    expectValidationErrors(error, 'guides/example/', [
+      ['#links', ValidationErrorType.InvalidAnchor],
+      ['/unknown/#links', ValidationErrorType.InvalidLink],
+      ['/unknown', ValidationErrorType.InvalidLink],
+      ['#anotherBlock', ValidationErrorType.InvalidAnchor],
+      ['/icon.svg', ValidationErrorType.InvalidLink],
+      ['/guidelines/ui.pdf', ValidationErrorType.InvalidLink],
+    ])
 
-    expect(error).toMatch(
-      new RegExp(`▶ guides/namespacetest/
-  ├─ #some-other-content
-  └─ /guides/namespacetest/#another-content`),
-    )
+    expectValidationErrors(error, 'guides/namespacetest/', [
+      ['#some-other-content', ValidationErrorType.InvalidAnchor],
+      ['/guides/namespacetest/#another-content', ValidationErrorType.InvalidAnchor],
+    ])
 
-    expect(error).toMatch(
-      new RegExp(`▶ relative/
-  ├─ .
-  ├─ ./relative
-  ├─ ./test
-  ├─ ./guides/example
-  └─ ../test`),
-    )
+    expectValidationErrors(error, 'relative/', [
+      ['.', ValidationErrorType.RelativeLink],
+      ['./relative', ValidationErrorType.RelativeLink],
+      ['./test', ValidationErrorType.RelativeLink],
+      ['./guides/example', ValidationErrorType.RelativeLink],
+      ['../test', ValidationErrorType.RelativeLink],
+    ])
   }
 })

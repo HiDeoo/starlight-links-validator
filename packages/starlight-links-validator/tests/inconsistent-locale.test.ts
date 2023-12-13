@@ -1,6 +1,8 @@
 import { expect, test } from 'vitest'
 
-import { loadFixture } from './utils'
+import { ValidationErrorType } from '../libs/validation'
+
+import { expectValidationErrorCount, expectValidationErrors, loadFixture } from './utils'
 
 test('should not build with inconsistent locale links when enabled ', async () => {
   expect.assertions(5)
@@ -8,43 +10,39 @@ test('should not build with inconsistent locale links when enabled ', async () =
   try {
     await loadFixture('inconsistent-locale')
   } catch (error) {
-    expect(error).toMatch(/Found 20 invalid links in 4 files./)
+    expectValidationErrorCount(error, 20, 4)
 
-    expect(error).toMatch(
-      new RegExp(`▶ en/
-  ├─ /fr/guides/example
-  ├─ /fr/guides/example/
-  ├─ /fr/guides/example#description
-  ├─ /fr/guides/example/#description
-  ├─ /guides/example
-  ├─ /guides/example/
-  ├─ /guides/example#description
-  └─ /guides/example/#description`),
-    )
+    expectValidationErrors(error, 'en/', [
+      ['/fr/guides/example', ValidationErrorType.InconsistentLocale],
+      ['/fr/guides/example/', ValidationErrorType.InconsistentLocale],
+      ['/fr/guides/example#description', ValidationErrorType.InconsistentLocale],
+      ['/fr/guides/example/#description', ValidationErrorType.InconsistentLocale],
+      ['/guides/example', ValidationErrorType.InvalidLink],
+      ['/guides/example/', ValidationErrorType.InvalidLink],
+      ['/guides/example#description', ValidationErrorType.InvalidLink],
+      ['/guides/example/#description', ValidationErrorType.InvalidLink],
+    ])
 
-    expect(error).toMatch(
-      new RegExp(`▶ en/guides/example/
-  ├─ /fr
-  └─ /`),
-    )
+    expectValidationErrors(error, 'en/guides/example/', [
+      ['/fr', ValidationErrorType.InconsistentLocale],
+      ['/', ValidationErrorType.InvalidLink],
+    ])
 
-    expect(error).toMatch(
-      new RegExp(`▶ fr/
-  ├─ /en/guides/example
-  ├─ /en/guides/example/
-  ├─ /en/guides/example#description
-  ├─ /en/guides/example/#description
-  ├─ /guides/example
-  ├─ /guides/example/
-  ├─ /guides/example#description
-  └─ /guides/example/#description`),
-    )
+    expectValidationErrors(error, 'fr/', [
+      ['/en/guides/example', ValidationErrorType.InconsistentLocale],
+      ['/en/guides/example/', ValidationErrorType.InconsistentLocale],
+      ['/en/guides/example#description', ValidationErrorType.InconsistentLocale],
+      ['/en/guides/example/#description', ValidationErrorType.InconsistentLocale],
+      ['/guides/example', ValidationErrorType.InvalidLink],
+      ['/guides/example/', ValidationErrorType.InvalidLink],
+      ['/guides/example#description', ValidationErrorType.InvalidLink],
+      ['/guides/example/#description', ValidationErrorType.InvalidLink],
+    ])
 
-    expect(error).toMatch(
-      new RegExp(`▶ fr/guides/example/
-  ├─ /en
-  └─ /`),
-    )
+    expectValidationErrors(error, 'fr/guides/example/', [
+      ['/en', ValidationErrorType.InconsistentLocale],
+      ['/', ValidationErrorType.InvalidLink],
+    ])
   }
 })
 
@@ -54,37 +52,31 @@ test('should not build with a root locale and inconsistent locale links when ena
   try {
     await loadFixture('inconsistent-locale-root')
   } catch (error) {
-    expect(error).toMatch(/Found 15 invalid links in 4 files./)
+    expectValidationErrorCount(error, 15, 4)
 
-    expect(error).toMatch(
-      new RegExp(`▶ /
-  ├─ /fr/guides/example
-  ├─ /fr/guides/example/
-  ├─ /fr/guides/example#description
-  └─ /fr/guides/example/#description`),
-    )
+    expectValidationErrors(error, '/', [
+      ['/fr/guides/example', ValidationErrorType.InconsistentLocale],
+      ['/fr/guides/example/', ValidationErrorType.InconsistentLocale],
+      ['/fr/guides/example#description', ValidationErrorType.InconsistentLocale],
+      ['/fr/guides/example/#description', ValidationErrorType.InconsistentLocale],
+    ])
 
-    expect(error).toMatch(
-      new RegExp(`▶ guides/example/
-  └─ /fr`),
-    )
+    expectValidationErrors(error, 'guides/example/', [['/fr', ValidationErrorType.InconsistentLocale]])
 
-    expect(error).toMatch(
-      new RegExp(`▶ fr/
-  ├─ /es/guides/example
-  ├─ /es/guides/example/
-  ├─ /es/guides/example#description
-  ├─ /es/guides/example/#description
-  ├─ /guides/example
-  ├─ /guides/example/
-  ├─ /guides/example#description
-  └─ /guides/example/#description`),
-    )
+    expectValidationErrors(error, 'fr/', [
+      ['/es/guides/example', ValidationErrorType.InconsistentLocale],
+      ['/es/guides/example/', ValidationErrorType.InconsistentLocale],
+      ['/es/guides/example#description', ValidationErrorType.InconsistentLocale],
+      ['/es/guides/example/#description', ValidationErrorType.InconsistentLocale],
+      ['/guides/example', ValidationErrorType.InconsistentLocale],
+      ['/guides/example/', ValidationErrorType.InconsistentLocale],
+      ['/guides/example#description', ValidationErrorType.InconsistentLocale],
+      ['/guides/example/#description', ValidationErrorType.InconsistentLocale],
+    ])
 
-    expect(error).toMatch(
-      new RegExp(`▶ fr/guides/example/
-  ├─ /es
-  └─ /`),
-    )
+    expectValidationErrors(error, 'fr/guides/example/', [
+      ['/es', ValidationErrorType.InconsistentLocale],
+      ['/', ValidationErrorType.InconsistentLocale],
+    ])
   }
 })

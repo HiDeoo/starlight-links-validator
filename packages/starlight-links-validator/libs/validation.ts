@@ -2,13 +2,21 @@ import { statSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
 import type { StarlightPlugin } from '@astrojs/starlight/types'
-import { bgGreen, black, blue, bold, dim, red } from 'kleur/colors'
+import type { AstroIntegrationLogger } from 'astro'
+import { bgGreen, black, blue, dim, green, red } from 'kleur/colors'
 
 import type { StarlightLinksValidatorOptions } from '..'
 
 import { getFallbackHeadings, getLocaleConfig, isInconsistentLocaleLink, type LocaleConfig } from './i18n'
 import { ensureTrailingSlash } from './path'
 import { getValidationData, type Headings } from './remark'
+
+export const ValidationErrorType = {
+  InconsistentLocale: 'inconsistent locale',
+  InvalidAnchor: 'invalid anchor',
+  InvalidLink: 'invalid link',
+  RelativeLink: 'relative link',
+} as const
 
 export function validateLinks(
   pages: PageData[],
@@ -48,36 +56,38 @@ export function validateLinks(
   return errors
 }
 
-export function logErrors(errors: ValidationErrors) {
+export function logErrors(pluginLogger: AstroIntegrationLogger, errors: ValidationErrors) {
+  const logger = pluginLogger.fork('')
+
   if (errors.size === 0) {
-    process.stdout.write(dim('All internal links are valid.\n\n'))
+    logger.info(green('✓ All internal links are valid.\n'))
     return
   }
 
   const errorCount = [...errors.values()].reduce((acc, links) => acc + links.length, 0)
 
-  process.stderr.write(
-    `${bold(
-      red(
-        `Found ${errorCount} invalid ${pluralize(errorCount, 'link')} in ${errors.size} ${pluralize(
-          errors.size,
-          'file',
-        )}.`,
-      ),
-    )}\n\n`,
+  logger.error(
+    red(
+      `✗ Found ${errorCount} invalid ${pluralize(errorCount, 'link')} in ${errors.size} ${pluralize(
+        errors.size,
+        'file',
+      )}.`,
+    ),
   )
 
-  for (const [file, links] of errors) {
-    process.stderr.write(`${red('▶')} ${file}\n`)
+  for (const [file, validationErrors] of errors) {
+    logger.info(`${red('▶')} ${blue(file)}`)
 
-    for (const [index, link] of links.entries()) {
-      process.stderr.write(`  ${blue(`${index < links.length - 1 ? '├' : '└'}─`)} ${link}\n`)
+    for (const [index, validationError] of validationErrors.entries()) {
+      logger.info(
+        `  ${blue(`${index < validationErrors.length - 1 ? '├' : '└'}─`)} ${validationError.link}${dim(
+          ` - ${validationError.type}`,
+        )}`,
+      )
     }
-
-    process.stdout.write(dim('\n'))
   }
 
-  process.stdout.write(dim('\n'))
+  process.stdout.write('\n')
 }
 
 /**
@@ -98,7 +108,7 @@ function validateLink(context: ValidationContext) {
 
   if (path.startsWith('.')) {
     if (options.errorOnRelativeLinks) {
-      addError(errors, filePath, link)
+      addError(errors, filePath, link, ValidationErrorType.RelativeLink)
     }
 
     return
@@ -114,17 +124,17 @@ function validateLink(context: ValidationContext) {
   const fileHeadings = getFileHeadings(path, context)
 
   if (!isValidPage || !fileHeadings) {
-    addError(errors, filePath, link)
+    addError(errors, filePath, link, ValidationErrorType.InvalidLink)
     return
   }
 
   if (options.errorOnInconsistentLocale && localeConfig && isInconsistentLocaleLink(filePath, link, localeConfig)) {
-    addError(errors, filePath, link)
+    addError(errors, filePath, link, ValidationErrorType.InconsistentLocale)
     return
   }
 
   if (hash && !fileHeadings.includes(hash)) {
-    addError(errors, filePath, link)
+    addError(errors, filePath, link, ValidationErrorType.InvalidAnchor)
   }
 }
 
@@ -150,7 +160,7 @@ function validateSelfAnchor({ errors, link, filePath, headings }: ValidationCont
   }
 
   if (!fileHeadings.includes(sanitizedHash)) {
-    addError(errors, filePath, link)
+    addError(errors, filePath, link, 'invalid anchor')
   }
 }
 
@@ -169,9 +179,9 @@ function isValidAsset(path: string, outputDir: URL) {
   }
 }
 
-function addError(errors: ValidationErrors, filePath: string, link: string) {
+function addError(errors: ValidationErrors, filePath: string, link: string, type: ValidationErrorType) {
   const fileErrors = errors.get(filePath) ?? []
-  fileErrors.push(link)
+  fileErrors.push({ link, type })
 
   errors.set(filePath, fileErrors)
 }
@@ -180,8 +190,15 @@ function pluralize(count: number, singular: string) {
   return count === 1 ? singular : `${singular}s`
 }
 
-// The invalid links keyed by file path.
-type ValidationErrors = Map<string, string[]>
+// The validation errors keyed by file path.
+type ValidationErrors = Map<string, ValidationError[]>
+
+export type ValidationErrorType = (typeof ValidationErrorType)[keyof typeof ValidationErrorType]
+
+interface ValidationError {
+  link: string
+  type: ValidationErrorType
+}
 
 interface PageData {
   pathname: string

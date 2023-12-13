@@ -48,7 +48,7 @@ export default function starlightLinksValidatorPlugin(
   return {
     name: 'starlight-links-validator-plugin',
     hooks: {
-      setup({ addIntegration, config: starlightConfig }) {
+      setup({ addIntegration, config: starlightConfig, logger }) {
         addIntegration({
           name: 'starlight-links-validator-integration',
           hooks: {
@@ -66,7 +66,7 @@ export default function starlightLinksValidatorPlugin(
             'astro:build:done': ({ dir, pages }) => {
               const errors = validateLinks(pages, dir, starlightConfig, options.data)
 
-              logErrors(errors)
+              logErrors(logger, errors)
 
               if (errors.size > 0) {
                 throwPluginError('Links validation failed.')

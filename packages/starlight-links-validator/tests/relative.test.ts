@@ -1,6 +1,8 @@
 import { expect, test } from 'vitest'
 
-import { loadFixture } from './utils'
+import { ValidationErrorType } from '../libs/validation'
+
+import { expectValidationErrorCount, expectValidationErrors, loadFixture } from './utils'
 
 test('should ignore relative links when the `errorOnRelativeLinks` option is set to `false`', async () => {
   expect.assertions(2)
@@ -8,14 +10,13 @@ test('should ignore relative links when the `errorOnRelativeLinks` option is set
   try {
     await loadFixture('relative-ignore')
   } catch (error) {
-    expect(error).toMatch(/Found 4 invalid links in 1 file./)
+    expectValidationErrorCount(error, 4, 1)
 
-    expect(error).toMatch(
-      new RegExp(`▶ test/
-  ├─ /unknown
-  ├─ /unknown/
-  ├─ /guides/example#unknown
-  └─ /guides/example/#unknown`),
-    )
+    expectValidationErrors(error, 'test/', [
+      ['/unknown', ValidationErrorType.InvalidLink],
+      ['/unknown/', ValidationErrorType.InvalidLink],
+      ['/guides/example#unknown', ValidationErrorType.InvalidAnchor],
+      ['/guides/example/#unknown', ValidationErrorType.InvalidAnchor],
+    ])
   }
 })
