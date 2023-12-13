@@ -1,7 +1,8 @@
+import { ensureLeadingSlash, ensureTrailingSlash } from './path'
 import type { Headings } from './remark'
 import type { StarlightUserConfig } from './validation'
 
-export function getLocaleConfig(config: StarlightUserConfig): LocaleConfig {
+export function getLocaleConfig(config: StarlightUserConfig): LocaleConfig | undefined {
   if (!config.locales || Object.keys(config.locales).length === 0) return
 
   let defaultLocale = config.defaultLocale
@@ -30,7 +31,7 @@ export function getLocaleConfig(config: StarlightUserConfig): LocaleConfig {
 export function getFallbackHeadings(
   path: string,
   headings: Headings,
-  localeConfig: LocaleConfig,
+  localeConfig: LocaleConfig | undefined,
 ): string[] | undefined {
   if (!localeConfig) return
 
@@ -48,9 +49,30 @@ export function getFallbackHeadings(
   return
 }
 
-export type LocaleConfig =
-  | {
-      defaultLocale: string
-      locales: string[]
+export function isInconsistentLocaleLink(path: string, link: string, localeConfig: LocaleConfig) {
+  const pathLocale = getLocale(path, localeConfig)
+  const linkLocale = getLocale(link, localeConfig)
+
+  if (pathLocale !== undefined || linkLocale !== undefined) {
+    return pathLocale !== linkLocale
+  }
+
+  return false
+}
+
+function getLocale(path: string, localeConfig: LocaleConfig) {
+  const normalizedPath = ensureTrailingSlash(ensureLeadingSlash(path))
+
+  for (const locale of localeConfig.locales) {
+    if (normalizedPath.startsWith(`/${locale}/`)) {
+      return locale
     }
-  | undefined
+  }
+
+  return
+}
+
+export interface LocaleConfig {
+  defaultLocale: string
+  locales: string[]
+}

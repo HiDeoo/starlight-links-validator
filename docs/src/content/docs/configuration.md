@@ -52,6 +52,31 @@ export default defineConfig({
 })
 ```
 
+### `errorOnInconsistentLocale`
+
+**Type:** `boolean`  
+**Default:** `false`
+
+When translating a page in multilingual websites, forgetting to update a link to point to the same language is a common mistake.
+If not invalid, such links can be confusing for users as they will move the user from their current language to another one.
+
+By default, the Starlight Links Validator plugin will not error if a link points to a page in another locale.
+If you want to prevent such links, you can set this option to `true`.
+
+```js {6}
+export default defineConfig({
+  integrations: [
+    starlight({
+      plugins: [
+        starlightLinksValidator({
+          errorOnInconsistentLocale: true,
+        }),
+      ],
+    }),
+  ],
+})
+```
+
 ### `errorOnRelativeLinks`
 
 **Type:** `boolean`  

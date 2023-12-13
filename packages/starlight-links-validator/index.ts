@@ -18,9 +18,19 @@ const starlightLinksValidatorOptionsSchema = z
      */
     errorOnFallbackPages: z.boolean().default(true),
     /**
+     * Defines whether the plugin should error on inconsistent locale links.
+     *
+     * When set to `true`, the plugin will error on links that are pointing to a page in a different locale.
+     *
+     * @default false
+     */
+    errorOnInconsistentLocale: z.boolean().default(false),
+    /**
      * Defines whether the plugin should error on internal relative links.
      *
      * When set to `false`, the plugin will ignore relative links (e.g. `./foo` or `../bar`).
+     *
+     * @default true
      */
     errorOnRelativeLinks: z.boolean().default(true),
   })

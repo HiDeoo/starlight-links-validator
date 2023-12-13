@@ -17,3 +17,9 @@ title: Index
 
 - [Example page in another locale with hash](/fr/guides/example#description)
 - [Example page in another locale with hash](/fr/guides/example/#description)
+
+- [Example page in non-existing root locale](/guides/example)
+- [Example page in non-existing root locale](/guides/example/)
+
+- [Example page in non-existing root locale with hash](/guides/example#description)
+- [Example page in non-existing root locale with hash](/guides/example/#description)

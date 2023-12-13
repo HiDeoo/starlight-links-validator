@@ -6,7 +6,7 @@ import { bgGreen, black, blue, bold, dim, red } from 'kleur/colors'
 
 import type { StarlightLinksValidatorOptions } from '..'
 
-import { getFallbackHeadings, getLocaleConfig, type LocaleConfig } from './i18n'
+import { getFallbackHeadings, getLocaleConfig, isInconsistentLocaleLink, type LocaleConfig } from './i18n'
 import { ensureTrailingSlash } from './path'
 import { getValidationData, type Headings } from './remark'
 
@@ -84,7 +84,7 @@ export function logErrors(errors: ValidationErrors) {
  * Validate a link to another internal page that may or may not have a hash.
  */
 function validateLink(context: ValidationContext) {
-  const { errors, filePath, link, options, outputDir, pages } = context
+  const { errors, filePath, link, localeConfig, options, outputDir, pages } = context
 
   const sanitizedLink = link.replace(/^\//, '')
   const segments = sanitizedLink.split('#')
@@ -114,6 +114,11 @@ function validateLink(context: ValidationContext) {
   const fileHeadings = getFileHeadings(path, context)
 
   if (!isValidPage || !fileHeadings) {
+    addError(errors, filePath, link)
+    return
+  }
+
+  if (options.errorOnInconsistentLocale && localeConfig && isInconsistentLocaleLink(filePath, link, localeConfig)) {
     addError(errors, filePath, link)
     return
   }
@@ -189,7 +194,7 @@ interface ValidationContext {
   filePath: string
   headings: Headings
   link: string
-  localeConfig: LocaleConfig
+  localeConfig: LocaleConfig | undefined
   options: StarlightLinksValidatorOptions
   outputDir: URL
   pages: Pages

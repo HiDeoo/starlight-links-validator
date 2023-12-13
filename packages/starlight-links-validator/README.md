@@ -20,7 +20,7 @@
 
 ## Getting Started
 
-Want to get started immediately? Check out the [getting started guide](https://starlight-links-validator.vercel.app/guides/getting-started/).
+Want to get started immediately? Check out the [getting started guide](https://starlight-links-validator.vercel.app/getting-started/).
 
 ## Features
 
