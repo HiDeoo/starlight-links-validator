@@ -10,9 +10,6 @@ test('should not build with inconsistent locale links when enabled ', async () =
   try {
     await loadFixture('inconsistent-locale')
   } catch (error) {
-    // TODO(HiDeoo) Remove this once fixed
-    console.error('🚨 [inconsistent-locale.test.ts:13] error:', error)
-
     expectValidationErrorCount(error, 20, 4)
 
     expectValidationErrors(error, 'en/', [
