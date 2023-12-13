@@ -143,7 +143,7 @@ function normalizeFilePath(filePath?: string) {
     .relative(nodePath.join(process.cwd(), 'src/content/docs'), filePath)
     .replace(/\.\w+$/, '')
     .replace(/index$/, '')
-    .replace(/\/?$/, '/')
+    .replace(/[/\\]?$/, '/')
     .split(/[/\\]/)
     .map((segment) => slug(segment))
     .join('/')
