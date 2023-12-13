@@ -39,6 +39,10 @@ jobs:
         run: pnpm astro sync
         working-directory: docs
 
+      - name: Generates example TypeScript types
+        run: pnpm astro sync
+        working-directory: example
+
       - name: Test
         run: pnpm test
 
