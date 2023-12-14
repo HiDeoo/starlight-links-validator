@@ -151,7 +151,7 @@ function normalizeFilePath(base: string, filePath?: string) {
     .join('/')
 
   if (base !== '/') {
-    return nodePath.join(stripLeadingSlash(base), path)
+    return nodePath.posix.join(stripLeadingSlash(base), path)
   }
 
   return path
