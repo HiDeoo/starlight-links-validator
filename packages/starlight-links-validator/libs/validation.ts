@@ -1,5 +1,5 @@
 import { statSync } from 'node:fs'
-import { join } from 'node:path'
+import { posix } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import type { StarlightPlugin } from '@astrojs/starlight/types'
@@ -32,7 +32,7 @@ export function validateLinks(
   const { headings, links } = getValidationData()
   const allPages: Pages = new Set(
     pages.map((page) =>
-      ensureTrailingSlash(base === '/' ? page.pathname : join(stripLeadingSlash(base), page.pathname)),
+      ensureTrailingSlash(base === '/' ? page.pathname : posix.join(stripLeadingSlash(base), page.pathname)),
     ),
   )
 
