@@ -10,6 +10,7 @@ test('should validate links when the `base` Astro option is set', async () => {
   try {
     await loadFixture('base-path')
   } catch (error) {
+    console.error('🚨 [base-path.test.ts:13] error:', error)
     expectValidationErrorCount(error, 8, 1)
 
     expectValidationErrors(error, 'test/test/', [
