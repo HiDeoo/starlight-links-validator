@@ -5,3 +5,7 @@ export function ensureLeadingSlash(path: string): string {
 export function ensureTrailingSlash(path: string): string {
   return path.endsWith('/') ? path : `${path}/`
 }
+
+export function stripLeadingSlash(path: string) {
+  return path.replace(/^\//, '')
+}

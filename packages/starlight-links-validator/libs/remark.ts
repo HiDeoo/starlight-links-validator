@@ -12,15 +12,17 @@ import { toString } from 'mdast-util-to-string'
 import type { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
 
+import { stripLeadingSlash } from './path'
+
 // All the headings keyed by file path.
 const headings: Headings = new Map()
 // All the internal links keyed by file path.
 const links: Links = new Map()
 
-export const remarkStarlightLinksValidator: Plugin<[], Root> = function () {
+export const remarkStarlightLinksValidator: Plugin<[base: string], Root> = function (base) {
   return (tree, file) => {
     const slugger = new GitHubSlugger()
-    const filePath = normalizeFilePath(file.history[0])
+    const filePath = normalizeFilePath(base, file.history[0])
 
     const fileHeadings: string[] = []
     const fileLinks: string[] = []
@@ -134,12 +136,12 @@ function isInternalLink(link: string) {
   return nodePath.isAbsolute(link) || link.startsWith('#') || link.startsWith('.')
 }
 
-function normalizeFilePath(filePath?: string) {
+function normalizeFilePath(base: string, filePath?: string) {
   if (!filePath) {
     throw new Error('Missing file path to validate links.')
   }
 
-  return nodePath
+  const path = nodePath
     .relative(nodePath.join(process.cwd(), 'src/content/docs'), filePath)
     .replace(/\.\w+$/, '')
     .replace(/index$/, '')
@@ -147,6 +149,12 @@ function normalizeFilePath(filePath?: string) {
     .split(/[/\\]/)
     .map((segment) => slug(segment))
     .join('/')
+
+  if (base !== '/') {
+    return nodePath.join(stripLeadingSlash(base), path)
+  }
+
+  return path
 }
 
 function isMdxIdAttribute(attribute: MdxJsxAttribute | MdxJsxExpressionAttribute): attribute is MdxIdAttribute {
