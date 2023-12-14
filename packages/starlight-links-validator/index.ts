@@ -48,7 +48,7 @@ export default function starlightLinksValidatorPlugin(
   return {
     name: 'starlight-links-validator-plugin',
     hooks: {
-      setup({ addIntegration, config: starlightConfig, logger }) {
+      setup({ addIntegration, astroConfig, config: starlightConfig, logger }) {
         addIntegration({
           name: 'starlight-links-validator-integration',
           hooks: {
@@ -59,12 +59,12 @@ export default function starlightLinksValidatorPlugin(
 
               updateConfig({
                 markdown: {
-                  remarkPlugins: [remarkStarlightLinksValidator],
+                  remarkPlugins: [[remarkStarlightLinksValidator, astroConfig.base]],
                 },
               })
             },
             'astro:build:done': ({ dir, pages }) => {
-              const errors = validateLinks(pages, dir, starlightConfig, options.data)
+              const errors = validateLinks(pages, dir, astroConfig.base, starlightConfig, options.data)
 
               logErrors(logger, errors)
 

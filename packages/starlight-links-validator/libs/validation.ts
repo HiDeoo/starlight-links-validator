@@ -1,4 +1,5 @@
 import { statSync } from 'node:fs'
+import { posix } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import type { StarlightPlugin } from '@astrojs/starlight/types'
@@ -8,7 +9,7 @@ import { bgGreen, black, blue, dim, green, red } from 'kleur/colors'
 import type { StarlightLinksValidatorOptions } from '..'
 
 import { getFallbackHeadings, getLocaleConfig, isInconsistentLocaleLink, type LocaleConfig } from './i18n'
-import { ensureTrailingSlash } from './path'
+import { ensureTrailingSlash, stripLeadingSlash } from './path'
 import { getValidationData, type Headings } from './remark'
 
 export const ValidationErrorType = {
@@ -21,6 +22,7 @@ export const ValidationErrorType = {
 export function validateLinks(
   pages: PageData[],
   outputDir: URL,
+  base: string,
   starlightConfig: StarlightUserConfig,
   options: StarlightLinksValidatorOptions,
 ): ValidationErrors {
@@ -28,7 +30,11 @@ export function validateLinks(
 
   const localeConfig = getLocaleConfig(starlightConfig)
   const { headings, links } = getValidationData()
-  const allPages: Pages = new Set(pages.map((page) => ensureTrailingSlash(page.pathname)))
+  const allPages: Pages = new Set(
+    pages.map((page) =>
+      ensureTrailingSlash(base === '/' ? page.pathname : posix.join(stripLeadingSlash(base), page.pathname)),
+    ),
+  )
 
   const errors: ValidationErrors = new Map()
 
