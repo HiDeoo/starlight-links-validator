@@ -82,7 +82,7 @@ export default function starlightLinksValidatorPlugin(
 function throwPluginError(message: string): never {
   throw new AstroError(
     message,
-    `See the error report above for more informations.\n\nIf you believe this is a bug, please file an issue at https://github.com/HiDeoo/starlight-links-validator/issues/new/choose.`,
+    `See the error report above for more informations.\n\nIf you believe this is a bug, please file an issue at https://github.com/HiDeoo/starlight-links-validator/issues/new/choose`,
   )
 }
 
