@@ -10,7 +10,7 @@ test('should validate links when the `base` Astro option is set', async () => {
   try {
     await loadFixture('base-path')
   } catch (error) {
-    expectValidationErrorCount(error, 8, 1)
+    expectValidationErrorCount(error, 10, 1)
 
     expectValidationErrors(error, 'test/test/', [
       ['/guides/example', ValidationErrorType.InvalidLink],
@@ -21,6 +21,8 @@ test('should validate links when the `base` Astro option is set', async () => {
       ['/unknown/', ValidationErrorType.InvalidLink],
       ['/test/guides/example#unknown', ValidationErrorType.InvalidAnchor],
       ['/test/guides/example/#unknown', ValidationErrorType.InvalidAnchor],
+      ['/favicon.svg', ValidationErrorType.InvalidLink],
+      ['/guidelines/dummy.pdf', ValidationErrorType.InvalidLink],
     ])
   }
 })
