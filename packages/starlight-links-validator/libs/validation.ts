@@ -41,6 +41,7 @@ export function validateLinks(
   for (const [filePath, fileLinks] of links) {
     for (const link of fileLinks) {
       const validationContext: ValidationContext = {
+        base,
         errors,
         filePath,
         headings,
@@ -100,7 +101,7 @@ export function logErrors(pluginLogger: AstroIntegrationLogger, errors: Validati
  * Validate a link to another internal page that may or may not have a hash.
  */
 function validateLink(context: ValidationContext) {
-  const { errors, filePath, link, localeConfig, options, outputDir, pages } = context
+  const { errors, filePath, link, localeConfig, options, pages } = context
 
   const sanitizedLink = link.replace(/^\//, '')
   const segments = sanitizedLink.split('#')
@@ -120,7 +121,7 @@ function validateLink(context: ValidationContext) {
     return
   }
 
-  if (isValidAsset(path, outputDir)) {
+  if (isValidAsset(path, context)) {
     return
   }
 
@@ -173,8 +174,18 @@ function validateSelfAnchor({ errors, link, filePath, headings }: ValidationCont
 /**
  * Check if a link is a valid asset in the build output directory.
  */
-function isValidAsset(path: string, outputDir: URL) {
-  const filePath = fileURLToPath(new URL(path, outputDir))
+function isValidAsset(path: string, context: ValidationContext) {
+  if (context.base !== '/') {
+    const base = stripLeadingSlash(context.base)
+
+    if (path.startsWith(base)) {
+      path = path.replace(new RegExp(`^${stripLeadingSlash(base)}/?`), '')
+    } else {
+      return false
+    }
+  }
+
+  const filePath = fileURLToPath(new URL(path, context.outputDir))
 
   try {
     const stats = statSync(filePath)
@@ -213,6 +224,7 @@ interface PageData {
 type Pages = Set<PageData['pathname']>
 
 interface ValidationContext {
+  base: string
   errors: ValidationErrors
   filePath: string
   headings: Headings

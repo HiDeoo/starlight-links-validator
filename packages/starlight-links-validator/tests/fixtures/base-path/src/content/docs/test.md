@@ -23,3 +23,9 @@ title: Test
 
 - [Example page with unknown hash](/test/guides/example#unknown)
 - [Example page with unknown hash](/test/guides/example/#unknown)
+
+- [Link to an asset](/test/favicon.svg)
+- [Link to another asset](/test/guidelines/dummy.pdf)
+
+- [Link to an asset with missing base](/favicon.svg)
+- [Link to another asset with missing base](/guidelines/dummy.pdf)
