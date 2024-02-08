@@ -113,7 +113,7 @@ function validateLink(context: ValidationContext) {
     throw new Error('Failed to validate a link with no path.')
   }
 
-  if (path.startsWith('.')) {
+  if (path.startsWith('.') || !link.startsWith('/')) {
     if (options.errorOnRelativeLinks) {
       addError(errors, filePath, link, ValidationErrorType.RelativeLink)
     }

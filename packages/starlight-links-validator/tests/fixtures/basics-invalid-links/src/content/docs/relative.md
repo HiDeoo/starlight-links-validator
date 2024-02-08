@@ -7,3 +7,4 @@ title: Relative
 - [Link to another page in the same directory](./test)
 - [Link to another page in another directory](./guides/example)
 - [Link to another page in a parent directory](../test)
+- [Another link to another page in the same directory](test)

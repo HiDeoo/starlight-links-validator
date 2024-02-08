@@ -18,7 +18,7 @@ test('should not build with invalid links', async () => {
   try {
     await loadFixture('basics-invalid-links')
   } catch (error) {
-    expectValidationErrorCount(error, 25, 4)
+    expectValidationErrorCount(error, 26, 4)
 
     expectValidationErrors(error, 'test/', [
       ['/', ValidationErrorType.InvalidLink],
@@ -55,6 +55,7 @@ test('should not build with invalid links', async () => {
       ['./test', ValidationErrorType.RelativeLink],
       ['./guides/example', ValidationErrorType.RelativeLink],
       ['../test', ValidationErrorType.RelativeLink],
+      ['test', ValidationErrorType.RelativeLink],
     ])
   }
 })

@@ -6,6 +6,7 @@ import GitHubSlugger, { slug } from 'github-slugger'
 import type { Nodes } from 'hast'
 import { fromHtml } from 'hast-util-from-html'
 import { hasProperty } from 'hast-util-has-property'
+import isAbsoluteUrl from 'is-absolute-url'
 import type { Root } from 'mdast'
 import type { MdxJsxAttribute, MdxJsxExpressionAttribute } from 'mdast-util-mdx-jsx'
 import { toString } from 'mdast-util-to-string'
@@ -133,7 +134,7 @@ export function getValidationData() {
 }
 
 function isInternalLink(link: string) {
-  return nodePath.isAbsolute(link) || link.startsWith('#') || link.startsWith('.')
+  return !isAbsoluteUrl(link)
 }
 
 function normalizeFilePath(base: string, filePath?: string) {
