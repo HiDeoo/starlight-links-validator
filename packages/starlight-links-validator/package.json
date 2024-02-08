@@ -17,6 +17,7 @@
     "github-slugger": "2.0.0",
     "hast-util-from-html": "2.0.1",
     "hast-util-has-property": "3.0.0",
+    "is-absolute-url": "4.0.1",
     "kleur": "4.1.5",
     "mdast-util-to-string": "4.0.0",
     "unist-util-visit": "5.0.0"
