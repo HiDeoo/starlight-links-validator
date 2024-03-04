@@ -40,3 +40,7 @@ title: Index
 [ref]: /test
 [ref-with-anchor-internal]: #some-links
 [ref-with-anchor-external]: /test#title
+
+## Link to page with custom slug
+
+- [A page with custom slug](/release/@pkg/v0.1.0)

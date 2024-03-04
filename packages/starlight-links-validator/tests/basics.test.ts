@@ -18,7 +18,7 @@ test('should not build with invalid links', async () => {
   try {
     await loadFixture('basics-invalid-links')
   } catch (error) {
-    expectValidationErrorCount(error, 26, 4)
+    expectValidationErrorCount(error, 28, 4)
 
     expectValidationErrors(error, 'test/', [
       ['/', ValidationErrorType.InvalidLink],
@@ -33,6 +33,8 @@ test('should not build with invalid links', async () => {
       ['/unknown-ref', ValidationErrorType.InvalidLink],
       ['#unknown-ref', ValidationErrorType.InvalidAnchor],
       ['#anotherDiv', ValidationErrorType.InvalidAnchor],
+      ['/guides/page-with-custom-slug', ValidationErrorType.InvalidLink],
+      ['/release/@pkg/v0.2.0', ValidationErrorType.InvalidLink],
     ])
 
     expectValidationErrors(error, 'guides/example/', [

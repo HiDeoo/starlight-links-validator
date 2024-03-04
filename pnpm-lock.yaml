@@ -108,6 +108,9 @@ importers:
       unified:
         specifier: 11.0.4
         version: 11.0.4
+      vfile:
+        specifier: 6.0.1
+        version: 6.0.1
       vitest:
         specifier: 1.0.4
         version: 1.0.4(@types/node@18.17.18)

@@ -44,3 +44,8 @@ some content
     test
   </a>
 </div>
+
+## Links to page with custom slug
+
+- [Link to page not using its custom slug](/guides/page-with-custom-slug)
+- [Link to page using an invalid custom slug](/release/@pkg/v0.2.0)
