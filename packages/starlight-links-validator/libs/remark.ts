@@ -13,7 +13,7 @@ import { toString } from 'mdast-util-to-string'
 import type { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
 
-import { stripLeadingSlash } from './path'
+import { ensureTrailingSlash, stripLeadingSlash } from './path'
 
 // All the headings keyed by file path.
 const headings: Headings = new Map()
@@ -24,6 +24,7 @@ export const remarkStarlightLinksValidator: Plugin<[base: string], Root> = funct
   return (tree, file) => {
     const slugger = new GitHubSlugger()
     const filePath = normalizeFilePath(base, file.history[0])
+    const slug = file.data.astro?.frontmatter?.slug
 
     const fileHeadings: string[] = []
     const fileLinks: string[] = []
@@ -124,8 +125,8 @@ export const remarkStarlightLinksValidator: Plugin<[base: string], Root> = funct
       }
     })
 
-    headings.set(filePath, fileHeadings)
-    links.set(filePath, fileLinks)
+    headings.set(getFilePath(filePath, slug), fileHeadings)
+    links.set(getFilePath(filePath, slug), fileLinks)
   }
 }
 
@@ -135,6 +136,10 @@ export function getValidationData() {
 
 function isInternalLink(link: string) {
   return !isAbsoluteUrl(link)
+}
+
+function getFilePath(filePath: string, slug: string | undefined) {
+  return slug ? stripLeadingSlash(ensureTrailingSlash(slug)) : filePath
 }
 
 function normalizeFilePath(base: string, filePath?: string) {
@@ -169,4 +174,14 @@ interface MdxIdAttribute {
   name: 'id'
   type: 'mdxJsxAttribute'
   value: string
+}
+
+declare module 'vfile' {
+  interface DataMap {
+    astro?: {
+      frontmatter?: {
+        slug?: string
+      }
+    }
+  }
 }

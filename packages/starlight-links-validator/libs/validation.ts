@@ -32,7 +32,9 @@ export function validateLinks(
   const { headings, links } = getValidationData()
   const allPages: Pages = new Set(
     pages.map((page) =>
-      ensureTrailingSlash(base === '/' ? page.pathname : posix.join(stripLeadingSlash(base), page.pathname)),
+      ensureTrailingSlash(
+        base === '/' ? stripLeadingSlash(page.pathname) : posix.join(stripLeadingSlash(base), page.pathname),
+      ),
     ),
   )
 
