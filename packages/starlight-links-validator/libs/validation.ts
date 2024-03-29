@@ -151,8 +151,9 @@ function validateLink(context: ValidationContext) {
   }
 
   if (
-    (astroConfig.trailingSlash === 'always' && !path.endsWith('/')) ||
-    (astroConfig.trailingSlash === 'never' && path.endsWith('/'))
+    path.length > 0 &&
+    ((astroConfig.trailingSlash === 'always' && !path.endsWith('/')) ||
+      (astroConfig.trailingSlash === 'never' && path.endsWith('/')))
   ) {
     addError(errors, filePath, link, ValidationErrorType.TrailingSlash)
     return
