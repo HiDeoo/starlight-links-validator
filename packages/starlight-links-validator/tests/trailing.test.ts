@@ -10,9 +10,11 @@ test('should validate links when the `trailingSlash` Astro option is set to `nev
   try {
     await loadFixture('trailing-never')
   } catch (error) {
-    expectValidationErrorCount(error, 4, 1)
+    expectValidationErrorCount(error, 6, 1)
 
     expectValidationErrors(error, 'test/', [
+      ['/guides/example/', ValidationErrorType.TrailingSlash],
+      ['/guides/example/#description', ValidationErrorType.TrailingSlash],
       ['/unknown', ValidationErrorType.InvalidLink],
       ['/unknown/', ValidationErrorType.InvalidLink],
       ['/guides/example#unknown', ValidationErrorType.InvalidAnchor],
@@ -27,9 +29,11 @@ test('should validate links when the `trailingSlash` Astro option is set to `alw
   try {
     await loadFixture('trailing-always')
   } catch (error) {
-    expectValidationErrorCount(error, 4, 1)
+    expectValidationErrorCount(error, 6, 1)
 
     expectValidationErrors(error, 'test/', [
+      ['/guides/example', ValidationErrorType.TrailingSlash],
+      ['/guides/example#description', ValidationErrorType.TrailingSlash],
       ['/unknown', ValidationErrorType.InvalidLink],
       ['/unknown/', ValidationErrorType.InvalidLink],
       ['/guides/example#unknown', ValidationErrorType.InvalidAnchor],

@@ -3,7 +3,7 @@ import { posix } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import type { StarlightPlugin } from '@astrojs/starlight/types'
-import type { AstroIntegrationLogger } from 'astro'
+import type { AstroConfig, AstroIntegrationLogger } from 'astro'
 import { bgGreen, black, blue, dim, green, red } from 'kleur/colors'
 
 import type { StarlightLinksValidatorOptions } from '..'
@@ -17,12 +17,13 @@ export const ValidationErrorType = {
   InvalidAnchor: 'invalid anchor',
   InvalidLink: 'invalid link',
   RelativeLink: 'relative link',
+  TrailingSlash: 'trailing slash',
 } as const
 
 export function validateLinks(
   pages: PageData[],
   outputDir: URL,
-  base: string,
+  astroConfig: AstroConfig,
   starlightConfig: StarlightUserConfig,
   options: StarlightLinksValidatorOptions,
 ): ValidationErrors {
@@ -33,7 +34,9 @@ export function validateLinks(
   const allPages: Pages = new Set(
     pages.map((page) =>
       ensureTrailingSlash(
-        base === '/' ? stripLeadingSlash(page.pathname) : posix.join(stripLeadingSlash(base), page.pathname),
+        astroConfig.base === '/'
+          ? stripLeadingSlash(page.pathname)
+          : posix.join(stripLeadingSlash(astroConfig.base), page.pathname),
       ),
     ),
   )
@@ -43,7 +46,7 @@ export function validateLinks(
   for (const [filePath, fileLinks] of links) {
     for (const link of fileLinks) {
       const validationContext: ValidationContext = {
-        base,
+        astroConfig,
         errors,
         filePath,
         headings,
@@ -103,12 +106,12 @@ export function logErrors(pluginLogger: AstroIntegrationLogger, errors: Validati
  * Validate a link to another internal page that may or may not have a hash.
  */
 function validateLink(context: ValidationContext) {
-  const { errors, filePath, link, localeConfig, options, pages } = context
+  const { astroConfig, errors, filePath, link, localeConfig, options, pages } = context
 
   const sanitizedLink = link.replace(/^\//, '')
   const segments = sanitizedLink.split('#')
 
-  let path = segments[0]
+  const path = segments[0]
   const hash = segments[1]
 
   if (path === undefined) {
@@ -127,10 +130,10 @@ function validateLink(context: ValidationContext) {
     return
   }
 
-  path = ensureTrailingSlash(path)
+  const sanitizedPath = ensureTrailingSlash(path)
 
-  const isValidPage = pages.has(path)
-  const fileHeadings = getFileHeadings(path, context)
+  const isValidPage = pages.has(sanitizedPath)
+  const fileHeadings = getFileHeadings(sanitizedPath, context)
 
   if (!isValidPage || !fileHeadings) {
     addError(errors, filePath, link, ValidationErrorType.InvalidLink)
@@ -144,6 +147,15 @@ function validateLink(context: ValidationContext) {
 
   if (hash && !fileHeadings.includes(hash)) {
     addError(errors, filePath, link, ValidationErrorType.InvalidAnchor)
+    return
+  }
+
+  if (
+    (astroConfig.trailingSlash === 'always' && !path.endsWith('/')) ||
+    (astroConfig.trailingSlash === 'never' && path.endsWith('/'))
+  ) {
+    addError(errors, filePath, link, ValidationErrorType.TrailingSlash)
+    return
   }
 }
 
@@ -177,8 +189,8 @@ function validateSelfAnchor({ errors, link, filePath, headings }: ValidationCont
  * Check if a link is a valid asset in the build output directory.
  */
 function isValidAsset(path: string, context: ValidationContext) {
-  if (context.base !== '/') {
-    const base = stripLeadingSlash(context.base)
+  if (context.astroConfig.base !== '/') {
+    const base = stripLeadingSlash(context.astroConfig.base)
 
     if (path.startsWith(base)) {
       path = path.replace(new RegExp(`^${stripLeadingSlash(base)}/?`), '')
@@ -226,7 +238,7 @@ interface PageData {
 type Pages = Set<PageData['pathname']>
 
 interface ValidationContext {
-  base: string
+  astroConfig: AstroConfig
   errors: ValidationErrors
   filePath: string
   headings: Headings

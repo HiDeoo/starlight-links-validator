@@ -64,7 +64,7 @@ export default function starlightLinksValidatorPlugin(
               })
             },
             'astro:build:done': ({ dir, pages }) => {
-              const errors = validateLinks(pages, dir, astroConfig.base, starlightConfig, options.data)
+              const errors = validateLinks(pages, dir, astroConfig, starlightConfig, options.data)
 
               logErrors(logger, errors)
 
