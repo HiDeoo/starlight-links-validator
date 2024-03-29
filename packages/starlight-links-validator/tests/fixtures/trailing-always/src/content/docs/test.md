@@ -6,6 +6,8 @@ title: Test
 
 - [External link](https://starlight.astro.build/)
 
+- [Honme page](/)
+
 - [Example page](/guides/example)
 - [Example page](/guides/example/)
 
