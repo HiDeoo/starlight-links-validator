@@ -108,6 +108,10 @@ export function logErrors(pluginLogger: AstroIntegrationLogger, errors: Validati
 function validateLink(context: ValidationContext) {
   const { astroConfig, errors, filePath, link, localeConfig, options, pages } = context
 
+  if (isExcludedLink(link, context)) {
+    return
+  }
+
   const sanitizedLink = link.replace(/^\//, '')
   const segments = sanitizedLink.split('#')
 
@@ -209,6 +213,13 @@ function isValidAsset(path: string, context: ValidationContext) {
   } catch {
     return false
   }
+}
+
+/**
+ * Check if a link is explicitly excluded from validation by the user.
+ */
+function isExcludedLink(link: string, context: ValidationContext) {
+  return context.options.exclude.includes(link)
 }
 
 function addError(errors: ValidationErrors, filePath: string, link: string, type: ValidationErrorType) {

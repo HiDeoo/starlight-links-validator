@@ -100,3 +100,28 @@ export default defineConfig({
   ],
 })
 ```
+
+### `exclude`
+
+**Type:** `string[]`  
+**Default:** `[]`
+
+A list of links that should be excluded from validation.
+
+The links in this list will be ignored by the plugin and will not be validated.
+As this option can lead to broken links in your documentation or a downgraded user/author experience, it should be used with caution.
+The list must exactly match links as they appear in Markdown.
+
+```js {6}
+export default defineConfig({
+  integrations: [
+    starlight({
+      plugins: [
+        starlightLinksValidator({
+          exclude: ['/social/discord', '/social/twitter'],
+        }),
+      ],
+    }),
+  ],
+})
+```
