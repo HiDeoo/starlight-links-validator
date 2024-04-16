@@ -33,6 +33,15 @@ const starlightLinksValidatorOptionsSchema = z
      * @default true
      */
     errorOnRelativeLinks: z.boolean().default(true),
+    /**
+     * Defines a list of links that should be excluded from validation.
+     *
+     * The links in this list will be ignored by the plugin and will not be validated.
+     * The list must exactly match links as they appear in Markdown.
+     *
+     * @default []
+     */
+    exclude: z.array(z.string()).default([]),
   })
   .default({})
 
