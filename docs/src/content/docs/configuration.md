@@ -108,9 +108,9 @@ export default defineConfig({
 
 A list of links that should be excluded from validation.
 
-The links in this list will be ignored by the plugin and will not be validated.
-As this option can lead to broken links in your documentation or a downgraded user/author experience, it should be used with caution.
-The list must exactly match links as they appear in Markdown.
+The links in this list must exactly match links as they appear in Markdown and will be ignored by the plugin.
+
+This option should be used with caution but can be useful to exclude links that are not meant to be validated like redirects only existing in production or links to [custom pages](https://starlight.astro.build/guides/pages/#custom-pages) that are not part of your documentation.
 
 ```js {6}
 export default defineConfig({
