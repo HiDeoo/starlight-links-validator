@@ -106,11 +106,9 @@ export default defineConfig({
 **Type:** `string[]`  
 **Default:** `[]`
 
-A list of links that should be excluded from validation.
+A list of links or [glob patterns](https://github.com/micromatch/picomatch#globbing-features) that should be excluded from validation.
 
-The links in this list must exactly match links as they appear in Markdown and will be ignored by the plugin.
-
-This option should be used with caution but can be useful to exclude links that are not meant to be validated like redirects only existing in production or links to [custom pages](https://starlight.astro.build/guides/pages/#custom-pages) that are not part of your documentation.
+This option should be used with caution but can be useful to exclude links that are not meant to be validated like redirects only existing in production or links to [custom pages](https://starlight.astro.build/guides/pages/#custom-pages) that are automatically generated or not part of your documentation.
 
 ```js {6}
 export default defineConfig({
@@ -118,10 +116,16 @@ export default defineConfig({
     starlight({
       plugins: [
         starlightLinksValidator({
-          exclude: ['/social/discord', '/social/twitter'],
+          exclude: ['/social/twitter', '/api/{interface,functions}/**/*'],
         }),
       ],
     }),
   ],
 })
 ```
+
+:::tip
+
+You can use this [webpage](https://www.digitalocean.com/community/tools/glob) to generate and test glob patterns.
+
+:::

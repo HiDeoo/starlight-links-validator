@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 import type { StarlightPlugin } from '@astrojs/starlight/types'
 import type { AstroConfig, AstroIntegrationLogger } from 'astro'
 import { bgGreen, black, blue, dim, green, red } from 'kleur/colors'
+import picomatch from 'picomatch'
 
 import type { StarlightLinksValidatorOptions } from '..'
 
@@ -216,10 +217,10 @@ function isValidAsset(path: string, context: ValidationContext) {
 }
 
 /**
- * Check if a link is explicitly excluded from validation by the user.
+ * Check if a link is excluded from validation by the user.
  */
 function isExcludedLink(link: string, context: ValidationContext) {
-  return context.options.exclude.includes(link)
+  return picomatch(context.options.exclude)(link)
 }
 
 function addError(errors: ValidationErrors, filePath: string, link: string, type: ValidationErrorType) {
