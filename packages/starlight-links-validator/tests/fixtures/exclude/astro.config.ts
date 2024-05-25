@@ -6,7 +6,9 @@ import starlightLinksValidator from '../..'
 export default defineConfig({
   integrations: [
     starlight({
-      plugins: [starlightLinksValidator({ exclude: ['/excluded'] })],
+      plugins: [
+        starlightLinksValidator({ exclude: ['/excluded', '/glob/*', '/api/{interface,functions}/**/*', '/tests/**'] }),
+      ],
       title: 'Starlight Links Validator Tests - exclude',
     }),
   ],
