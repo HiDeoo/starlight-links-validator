@@ -16,6 +16,10 @@ export default defineConfig({
             { label: 'Configuration', link: '/configuration/' },
           ],
         },
+        {
+          label: 'Resources',
+          items: [{ label: 'Plugins and Tools', link: '/resources/starlight/' }],
+        },
       ],
       social: {
         github: 'https://github.com/HiDeoo/starlight-links-validator',
