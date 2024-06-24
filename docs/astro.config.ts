@@ -9,8 +9,13 @@ export default defineConfig({
         baseUrl: 'https://github.com/HiDeoo/starlight-links-validator/edit/main/docs/',
       },
       sidebar: [
-        { label: 'Getting Started', link: '/getting-started/' },
-        { label: 'Configuration', link: '/configuration/' },
+        {
+          label: 'Start Here',
+          items: [
+            { label: 'Getting Started', link: '/getting-started/' },
+            { label: 'Configuration', link: '/configuration/' },
+          ],
+        },
       ],
       social: {
         github: 'https://github.com/HiDeoo/starlight-links-validator',
