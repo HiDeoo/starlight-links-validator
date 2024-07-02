@@ -205,9 +205,8 @@ function isValidAsset(path: string, context: ValidationContext) {
     }
   }
 
-  const filePath = fileURLToPath(new URL(path, context.outputDir))
-
   try {
+    const filePath = fileURLToPath(new URL(path, context.outputDir))
     const stats = statSync(filePath)
 
     return stats.isFile()

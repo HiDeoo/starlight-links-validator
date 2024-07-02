@@ -6,6 +6,8 @@ title: Test
 
 - [External link](https://starlight.astro.build/)
 
+- [External link prefixed with a slash](/https://starlight.astro.build/)
+
 - [Home page](/)
 
 - [Unknown page](/unknown)
