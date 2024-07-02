@@ -18,9 +18,10 @@ test('should not build with invalid links', async () => {
   try {
     await loadFixture('basics-invalid-links')
   } catch (error) {
-    expectValidationErrorCount(error, 28, 4)
+    expectValidationErrorCount(error, 29, 4)
 
     expectValidationErrors(error, 'test/', [
+      ['/https://starlight.astro.build/', ValidationErrorType.InvalidLink],
       ['/', ValidationErrorType.InvalidLink],
       ['/unknown', ValidationErrorType.InvalidLink],
       ['/unknown/', ValidationErrorType.InvalidLink],
