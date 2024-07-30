@@ -39,6 +39,11 @@ export const remarkStarlightLinksValidator: Plugin<[base: string], Root> = funct
       // https://github.com/syntax-tree/mdast-util-mdx-jsx#nodes
       switch (node.type) {
         case 'heading': {
+          if (node.data?.hProperties?.['id']) {
+            fileHeadings.push(String(node.data.hProperties['id']))
+            break
+          }
+
           const content = toString(node)
 
           if (content.length === 0) {
