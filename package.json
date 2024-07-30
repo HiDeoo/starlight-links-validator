@@ -1,6 +1,6 @@
 {
   "name": "starlight-links-validator-monorepo",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "license": "MIT",
   "description": "Starlight plugin to validate internal links.",
   "author": "HiDeoo <github@hideoo.dev> (https://hideoo.dev)",
