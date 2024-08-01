@@ -67,7 +67,9 @@ export default function starlightLinksValidatorPlugin(
 
               updateConfig({
                 markdown: {
-                  remarkPlugins: [[remarkStarlightLinksValidator, astroConfig.base]],
+                  remarkPlugins: [
+                    [remarkStarlightLinksValidator, { base: astroConfig.base, srcDir: astroConfig.srcDir }],
+                  ],
                 },
               })
             },

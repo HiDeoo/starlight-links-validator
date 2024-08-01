@@ -1,6 +1,7 @@
 import 'mdast-util-mdx-jsx'
 
 import nodePath from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import GitHubSlugger, { slug } from 'github-slugger'
 import type { Nodes } from 'hast'
@@ -20,10 +21,13 @@ const headings: Headings = new Map()
 // All the internal links keyed by file path.
 const links: Links = new Map()
 
-export const remarkStarlightLinksValidator: Plugin<[base: string], Root> = function (base) {
+export const remarkStarlightLinksValidator: Plugin<[{ base: string; srcDir: URL }], Root> = function ({
+  base,
+  srcDir,
+}) {
   return (tree, file) => {
     const slugger = new GitHubSlugger()
-    const filePath = normalizeFilePath(base, file.history[0])
+    const filePath = normalizeFilePath(base, srcDir, file.history[0])
     const slug = file.data.astro?.frontmatter?.slug
 
     const fileHeadings: string[] = []
@@ -147,13 +151,13 @@ function getFilePath(filePath: string, slug: string | undefined) {
   return slug ? stripLeadingSlash(ensureTrailingSlash(slug)) : filePath
 }
 
-function normalizeFilePath(base: string, filePath?: string) {
+function normalizeFilePath(base: string, srcDir: URL, filePath?: string) {
   if (!filePath) {
     throw new Error('Missing file path to validate links.')
   }
 
   const path = nodePath
-    .relative(nodePath.join(process.cwd(), 'src/content/docs'), filePath)
+    .relative(nodePath.join(fileURLToPath(srcDir), 'content/docs'), filePath)
     .replace(/\.\w+$/, '')
     .replace(/index$/, '')
     .replace(/[/\\]?$/, '/')

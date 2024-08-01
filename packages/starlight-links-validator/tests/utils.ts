@@ -10,7 +10,7 @@ import type { ValidationErrorType } from '../libs/validation'
 
 const execAsync = promisify(exec)
 
-export async function loadFixture(name: string) {
+export async function loadFixture(name: string, srcDir = 'src') {
   const testPath = fileURLToPath(new URL(`../.tests/${name}/`, import.meta.url))
   const fixturePath = fileURLToPath(new URL(`fixtures/${name}/`, import.meta.url))
   const baseFixturePath = fileURLToPath(new URL(`fixtures/base/`, import.meta.url))
@@ -21,11 +21,13 @@ export async function loadFixture(name: string) {
     await mkdir(testPath, { recursive: true })
 
     // Copy the base fixture files.
-    await cp(join(baseFixturePath, 'src'), join(testPath, 'src'), { recursive: true })
+    if (srcDir === 'src') {
+      await cp(join(baseFixturePath, 'src'), join(testPath, 'src'), { recursive: true })
+    }
     await cp(join(baseFixturePath, 'public'), join(testPath, 'public'), { recursive: true })
 
     // Copy the fixture under test files that may override the base fixture files.
-    await cp(join(fixturePath, 'src'), join(testPath, 'src'), { force: true, recursive: true })
+    await cp(join(fixturePath, srcDir), join(testPath, srcDir), { force: true, recursive: true })
 
     const fixtureConfigPath = join(fixturePath, 'astro.config.ts')
     const hasFixtureConfig = await fileExists(fixtureConfigPath)
