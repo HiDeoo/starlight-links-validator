@@ -18,7 +18,7 @@ test('should not build with invalid links', async () => {
   try {
     await loadFixture('basics-invalid-links')
   } catch (error) {
-    expectValidationErrorCount(error, 29, 4)
+    expectValidationErrorCount(error, 35, 4)
 
     expectValidationErrors(error, 'test/', [
       ['/https://starlight.astro.build/', ValidationErrorType.InvalidLink],
@@ -45,6 +45,12 @@ test('should not build with invalid links', async () => {
       ['#anotherBlock', ValidationErrorType.InvalidAnchor],
       ['/icon.svg', ValidationErrorType.InvalidLink],
       ['/guidelines/ui.pdf', ValidationErrorType.InvalidLink],
+      ['/linkcard/', ValidationErrorType.InvalidLink],
+      ['/linkcard/#links', ValidationErrorType.InvalidLink],
+      ['#linkcard', ValidationErrorType.InvalidAnchor],
+      ['/linkbutton/', ValidationErrorType.InvalidLink],
+      ['/linkbutton/#links', ValidationErrorType.InvalidLink],
+      ['#linkbutton', ValidationErrorType.InvalidAnchor],
     ])
 
     expectValidationErrors(error, 'guides/namespacetest/', [
