@@ -2,7 +2,7 @@
 title: Example
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components'
+import { Card, CardGrid, LinkCard, LinkButton } from '@astrojs/starlight/components'
 
 ## Steps
 
@@ -37,3 +37,13 @@ some content
 
 <a href="/favicon.svg">Link to an asset</a>
 <a href="/guidelines/dummy.pdf">Link to another asset</a>
+
+<CardGrid>
+  <LinkCard title="LinkCard: page" href="/test/" />
+  <LinkCard title="LinkCard: page and anchor" href="/test/#title" />
+  <LinkCard title="LinkCard: anchor" href="#steps" />
+</CardGrid>
+
+<LinkButton href="/test/">LinkCard: unknown page</LinkButton>
+<LinkButton href="/test/#title">LinkCard: unknown page and anchor</LinkButton>
+<LinkButton href="#steps">LinkCard: unknown anchor</LinkButton>

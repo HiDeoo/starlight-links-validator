@@ -81,7 +81,7 @@ export const remarkStarlightLinksValidator: Plugin<[{ base: string; srcDir: URL 
             }
           }
 
-          if (node.name !== 'a') {
+          if (node.name !== 'a' && node.name !== 'LinkCard' && node.name !== 'LinkButton') {
             break
           }
 
