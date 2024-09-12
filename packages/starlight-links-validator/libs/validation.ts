@@ -15,7 +15,7 @@ import { getValidationData, type Headings } from './remark'
 
 export const ValidationErrorType = {
   InconsistentLocale: 'inconsistent locale',
-  InvalidAnchor: 'invalid anchor',
+  InvalidHash: 'invalid hash',
   InvalidLink: 'invalid link',
   RelativeLink: 'relative link',
   TrailingSlash: 'trailing slash',
@@ -59,7 +59,9 @@ export function validateLinks(
       }
 
       if (link.startsWith('#')) {
-        validateSelfAnchor(validationContext)
+        if (options.errorOnInvalidHashes) {
+          validateSelfHash(validationContext)
+        }
       } else {
         validateLink(validationContext)
       }
@@ -151,7 +153,9 @@ function validateLink(context: ValidationContext) {
   }
 
   if (hash && !fileHeadings.includes(hash)) {
-    addError(errors, filePath, link, ValidationErrorType.InvalidAnchor)
+    if (options.errorOnInvalidHashes) {
+      addError(errors, filePath, link, ValidationErrorType.InvalidHash)
+    }
     return
   }
 
@@ -176,9 +180,9 @@ function getFileHeadings(path: string, { headings, localeConfig, options }: Vali
 }
 
 /**
- * Validate a link to an anchor in the same page.
+ * Validate a link to an hash in the same page.
  */
-function validateSelfAnchor({ errors, link, filePath, headings }: ValidationContext) {
+function validateSelfHash({ errors, link, filePath, headings }: ValidationContext) {
   const sanitizedHash = link.replace(/^#/, '')
   const fileHeadings = headings.get(filePath)
 
@@ -187,7 +191,7 @@ function validateSelfAnchor({ errors, link, filePath, headings }: ValidationCont
   }
 
   if (!fileHeadings.includes(sanitizedHash)) {
-    addError(errors, filePath, link, 'invalid anchor')
+    addError(errors, filePath, link, ValidationErrorType.InvalidHash)
   }
 }
 

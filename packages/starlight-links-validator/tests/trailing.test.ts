@@ -17,8 +17,8 @@ test('should validate links when the `trailingSlash` Astro option is set to `nev
       ['/guides/example/#description', ValidationErrorType.TrailingSlash],
       ['/unknown', ValidationErrorType.InvalidLink],
       ['/unknown/', ValidationErrorType.InvalidLink],
-      ['/guides/example#unknown', ValidationErrorType.InvalidAnchor],
-      ['/guides/example/#unknown', ValidationErrorType.InvalidAnchor],
+      ['/guides/example#unknown', ValidationErrorType.InvalidHash],
+      ['/guides/example/#unknown', ValidationErrorType.InvalidHash],
     ])
   }
 })
@@ -36,8 +36,8 @@ test('should validate links when the `trailingSlash` Astro option is set to `alw
       ['/guides/example#description', ValidationErrorType.TrailingSlash],
       ['/unknown', ValidationErrorType.InvalidLink],
       ['/unknown/', ValidationErrorType.InvalidLink],
-      ['/guides/example#unknown', ValidationErrorType.InvalidAnchor],
-      ['/guides/example/#unknown', ValidationErrorType.InvalidAnchor],
+      ['/guides/example#unknown', ValidationErrorType.InvalidHash],
+      ['/guides/example/#unknown', ValidationErrorType.InvalidHash],
     ])
   }
 })

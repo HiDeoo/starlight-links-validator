@@ -36,8 +36,8 @@ test('should not build with invalid fallback links', async () => {
     expectValidationErrors(error, 'en/', [
       ['/en/guides/unknown', ValidationErrorType.InvalidLink],
       ['/en/guides/unknown/', ValidationErrorType.InvalidLink],
-      ['/en/guides/example#unknown', ValidationErrorType.InvalidAnchor],
-      ['/en/guides/example/#unknown', ValidationErrorType.InvalidAnchor],
+      ['/en/guides/example#unknown', ValidationErrorType.InvalidHash],
+      ['/en/guides/example/#unknown', ValidationErrorType.InvalidHash],
       ['/es/guides/example', ValidationErrorType.InvalidLink],
       ['/es/guides/example/', ValidationErrorType.InvalidLink],
     ])
@@ -45,8 +45,8 @@ test('should not build with invalid fallback links', async () => {
     expectValidationErrors(error, 'fr/', [
       ['/fr/guides/unknown', ValidationErrorType.InvalidLink],
       ['/fr/guides/unknown/', ValidationErrorType.InvalidLink],
-      ['/fr/guides/example#unknown', ValidationErrorType.InvalidAnchor],
-      ['/fr/guides/example/#unknown', ValidationErrorType.InvalidAnchor],
+      ['/fr/guides/example#unknown', ValidationErrorType.InvalidHash],
+      ['/fr/guides/example/#unknown', ValidationErrorType.InvalidHash],
     ])
 
     expectValidationErrors(error, 'fr/guides/test/', [['/', ValidationErrorType.InvalidLink]])
@@ -68,8 +68,8 @@ test('should not build with a root locale and invalid fallback links', async () 
     expectValidationErrors(error, '/', [
       ['/guides/unknown', ValidationErrorType.InvalidLink],
       ['/guides/unknown/', ValidationErrorType.InvalidLink],
-      ['/guides/example#unknown', ValidationErrorType.InvalidAnchor],
-      ['/guides/example/#unknown', ValidationErrorType.InvalidAnchor],
+      ['/guides/example#unknown', ValidationErrorType.InvalidHash],
+      ['/guides/example/#unknown', ValidationErrorType.InvalidHash],
       ['/es/guides/example', ValidationErrorType.InvalidLink],
       ['/es/guides/example/', ValidationErrorType.InvalidLink],
     ])
@@ -77,8 +77,8 @@ test('should not build with a root locale and invalid fallback links', async () 
     expectValidationErrors(error, 'fr/', [
       ['/fr/guides/unknown', ValidationErrorType.InvalidLink],
       ['/fr/guides/unknown/', ValidationErrorType.InvalidLink],
-      ['/fr/guides/example#unknown', ValidationErrorType.InvalidAnchor],
-      ['/fr/guides/example/#unknown', ValidationErrorType.InvalidAnchor],
+      ['/fr/guides/example#unknown', ValidationErrorType.InvalidHash],
+      ['/fr/guides/example/#unknown', ValidationErrorType.InvalidHash],
     ])
 
     expectValidationErrors(error, 'guides/test/', [['/en', ValidationErrorType.InvalidLink]])

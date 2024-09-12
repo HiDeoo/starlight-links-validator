@@ -101,6 +101,30 @@ export default defineConfig({
 })
 ```
 
+### `errorOnInvalidHashes`
+
+**Type:** `boolean`  
+**Default:** `true`
+
+By default, the Starlight Links Validator plugin will error if an internal link points to an [hash](https://developer.mozilla.org/en-US/docs/Web/API/URL/hash) that does not exist in the target page.
+If you want to only validate that pages exist but ignore hashes, you can set this option to `false`.
+
+This option should be used with caution but can be useful in large documentation with many contributors where hashes always being up-to-date can be difficult to maintain and validated on a different schedule, e.g. once a week.
+
+```js {6}
+export default defineConfig({
+  integrations: [
+    starlight({
+      plugins: [
+        starlightLinksValidator({
+          errorOnInvalidHashes: false,
+        }),
+      ],
+    }),
+  ],
+})
+```
+
 ### `exclude`
 
 **Type:** `string[]`  

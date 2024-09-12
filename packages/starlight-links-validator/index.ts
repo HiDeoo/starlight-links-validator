@@ -34,6 +34,14 @@ const starlightLinksValidatorOptionsSchema = z
      */
     errorOnRelativeLinks: z.boolean().default(true),
     /**
+     * Defines whether the plugin should error on invalid hashes.
+     *
+     * When set to `false`, the plugin will only validate link pages and ignore hashes.
+     *
+     * @default true
+     */
+    errorOnInvalidHashes: z.boolean().default(true),
+    /**
      * Defines a list of links or glob patterns that should be excluded from validation.
      *
      * The links in this list will be ignored by the plugin and will not be validated.

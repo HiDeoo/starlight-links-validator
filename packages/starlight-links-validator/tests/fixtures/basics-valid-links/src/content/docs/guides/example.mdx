@@ -13,7 +13,7 @@ import { Card, CardGrid, LinkCard, LinkButton } from '@astrojs/starlight/compone
 
 ## Some links
 
-- [Link to anchor in the same page](#some-links)
+- [Link to hash in the same page](#some-links)
 
 <a href="/test">HTML link to another page</a>
 
@@ -40,10 +40,10 @@ some content
 
 <CardGrid>
   <LinkCard title="LinkCard: page" href="/test/" />
-  <LinkCard title="LinkCard: page and anchor" href="/test/#title" />
-  <LinkCard title="LinkCard: anchor" href="#steps" />
+  <LinkCard title="LinkCard: page and hash" href="/test/#title" />
+  <LinkCard title="LinkCard: hash" href="#steps" />
 </CardGrid>
 
 <LinkButton href="/test/">LinkCard: unknown page</LinkButton>
-<LinkButton href="/test/#title">LinkCard: unknown page and anchor</LinkButton>
-<LinkButton href="#steps">LinkCard: unknown anchor</LinkButton>
+<LinkButton href="/test/#title">LinkCard: unknown page and hash</LinkButton>
+<LinkButton href="#steps">LinkCard: unknown hash</LinkButton>
