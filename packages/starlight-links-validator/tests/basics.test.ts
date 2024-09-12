@@ -27,35 +27,35 @@ test('should not build with invalid links', async () => {
       ['/unknown/', ValidationErrorType.InvalidLink],
       ['/unknown#title', ValidationErrorType.InvalidLink],
       ['/unknown/#title', ValidationErrorType.InvalidLink],
-      ['#links', ValidationErrorType.InvalidAnchor],
-      ['/guides/example/#links', ValidationErrorType.InvalidAnchor],
+      ['#links', ValidationErrorType.InvalidHash],
+      ['/guides/example/#links', ValidationErrorType.InvalidHash],
       ['/icon.svg', ValidationErrorType.InvalidLink],
       ['/guidelines/ui.pdf', ValidationErrorType.InvalidLink],
       ['/unknown-ref', ValidationErrorType.InvalidLink],
-      ['#unknown-ref', ValidationErrorType.InvalidAnchor],
-      ['#anotherDiv', ValidationErrorType.InvalidAnchor],
+      ['#unknown-ref', ValidationErrorType.InvalidHash],
+      ['#anotherDiv', ValidationErrorType.InvalidHash],
       ['/guides/page-with-custom-slug', ValidationErrorType.InvalidLink],
       ['/release/@pkg/v0.2.0', ValidationErrorType.InvalidLink],
     ])
 
     expectValidationErrors(error, 'guides/example/', [
-      ['#links', ValidationErrorType.InvalidAnchor],
+      ['#links', ValidationErrorType.InvalidHash],
       ['/unknown/#links', ValidationErrorType.InvalidLink],
       ['/unknown', ValidationErrorType.InvalidLink],
-      ['#anotherBlock', ValidationErrorType.InvalidAnchor],
+      ['#anotherBlock', ValidationErrorType.InvalidHash],
       ['/icon.svg', ValidationErrorType.InvalidLink],
       ['/guidelines/ui.pdf', ValidationErrorType.InvalidLink],
       ['/linkcard/', ValidationErrorType.InvalidLink],
       ['/linkcard/#links', ValidationErrorType.InvalidLink],
-      ['#linkcard', ValidationErrorType.InvalidAnchor],
+      ['#linkcard', ValidationErrorType.InvalidHash],
       ['/linkbutton/', ValidationErrorType.InvalidLink],
       ['/linkbutton/#links', ValidationErrorType.InvalidLink],
-      ['#linkbutton', ValidationErrorType.InvalidAnchor],
+      ['#linkbutton', ValidationErrorType.InvalidHash],
     ])
 
     expectValidationErrors(error, 'guides/namespacetest/', [
-      ['#some-other-content', ValidationErrorType.InvalidAnchor],
-      ['/guides/namespacetest/#another-content', ValidationErrorType.InvalidAnchor],
+      ['#some-other-content', ValidationErrorType.InvalidHash],
+      ['/guides/namespacetest/#another-content', ValidationErrorType.InvalidHash],
     ])
 
     expectValidationErrors(error, 'relative/', [

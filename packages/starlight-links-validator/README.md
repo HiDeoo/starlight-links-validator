@@ -27,8 +27,8 @@ Want to get started immediately? Check out the [getting started guide](https://s
 A [Starlight](https://starlight.astro.build) plugin to validate **_internal_** links in Markdown and MDX files.
 
 - Validate internal links to other pages
-- Validate internal links to anchors in other pages
-- Validate internal links to anchors in the same page
+- Validate internal links to hashes in other pages
+- Validate internal links to hashes in the same page
 - Ignore external links
 - Run only during a production build
 

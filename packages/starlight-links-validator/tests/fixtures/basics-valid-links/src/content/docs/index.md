@@ -21,25 +21,25 @@ title: Index
 
 # More links
 
-- [Link to anchor in this page](#some-links)
-- [Link to anchor in another MDX page](/guides/example/#some-links)
+- [Link to hash in this page](#some-links)
+- [Link to hash in another MDX page](/guides/example/#some-links)
 - [Link to an asset](/favicon.svg)
 - [Link to another asset](/guidelines/dummy.pdf)
 
 ## A more `complex` heading
 
-- [Link to more complex anchor](#a-more-complex-heading)
+- [Link to more complex hash](#a-more-complex-heading)
 
 ## Links with references
 
 - [ref]
 - [Link reference][ref]
-- [Link reference with anchor in this page][ref-with-anchor-internal]
-- [Link reference with anchor in another page][ref-with-anchor-external]
+- [Link reference with hash in this page][ref-with-hash-internal]
+- [Link reference with hash in another page][ref-with-hash-external]
 
 [ref]: /test
-[ref-with-anchor-internal]: #some-links
-[ref-with-anchor-external]: /test#title
+[ref-with-hash-internal]: #some-links
+[ref-with-hash-external]: /test#title
 
 ## Link to page with custom slug
 

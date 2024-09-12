@@ -15,8 +15,8 @@ test('should ignore relative links when the `errorOnRelativeLinks` option is set
     expectValidationErrors(error, 'test/', [
       ['/unknown', ValidationErrorType.InvalidLink],
       ['/unknown/', ValidationErrorType.InvalidLink],
-      ['/guides/example#unknown', ValidationErrorType.InvalidAnchor],
-      ['/guides/example/#unknown', ValidationErrorType.InvalidAnchor],
+      ['/guides/example#unknown', ValidationErrorType.InvalidHash],
+      ['/guides/example/#unknown', ValidationErrorType.InvalidHash],
     ])
   }
 })

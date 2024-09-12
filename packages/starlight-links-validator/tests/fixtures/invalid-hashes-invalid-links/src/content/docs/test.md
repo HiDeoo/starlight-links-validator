@@ -27,7 +27,7 @@ title: Test
 
 ## Links with references
 
-- [Link reference to unknwon page][ref-unknown-page]
+- [Link reference to unknown page][ref-unknown-page]
 - [Link reference to invalid hash][ref-invalid-hash]
 
 [ref-unknown-page]: /unknown-ref
@@ -46,8 +46,3 @@ some content
     test
   </a>
 </div>
-
-## Links to page with custom slug
-
-- [Link to page not using its custom slug](/guides/page-with-custom-slug)
-- [Link to page using an invalid custom slug](/release/@pkg/v0.2.0)

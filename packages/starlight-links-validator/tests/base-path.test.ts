@@ -19,8 +19,8 @@ test('should validate links when the `base` Astro option is set', async () => {
       ['/guides/example/#description', ValidationErrorType.InvalidLink],
       ['/unknown', ValidationErrorType.InvalidLink],
       ['/unknown/', ValidationErrorType.InvalidLink],
-      ['/test/guides/example#unknown', ValidationErrorType.InvalidAnchor],
-      ['/test/guides/example/#unknown', ValidationErrorType.InvalidAnchor],
+      ['/test/guides/example#unknown', ValidationErrorType.InvalidHash],
+      ['/test/guides/example/#unknown', ValidationErrorType.InvalidHash],
       ['/favicon.svg', ValidationErrorType.InvalidLink],
       ['/guidelines/dummy.pdf', ValidationErrorType.InvalidLink],
     ])
