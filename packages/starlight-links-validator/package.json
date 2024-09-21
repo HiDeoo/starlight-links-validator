@@ -14,6 +14,7 @@
     "lint": "prettier -c --cache . && eslint . --cache --max-warnings=0"
   },
   "dependencies": {
+    "@types/picomatch": "2.3.3",
     "github-slugger": "2.0.0",
     "hast-util-from-html": "2.0.1",
     "hast-util-has-property": "3.0.0",
@@ -28,7 +29,6 @@
     "@types/hast": "3.0.3",
     "@types/mdast": "4.0.3",
     "@types/node": "18.17.18",
-    "@types/picomatch": "2.3.3",
     "astro": "4.8.6",
     "mdast-util-mdx-jsx": "3.0.0",
     "remark-custom-heading-id": "2.0.0",
