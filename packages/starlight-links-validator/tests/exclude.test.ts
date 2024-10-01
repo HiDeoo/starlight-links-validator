@@ -2,23 +2,21 @@ import { expect, test } from 'vitest'
 
 import { ValidationErrorType } from '../libs/validation'
 
-import { expectValidationErrorCount, expectValidationErrors, loadFixture } from './utils'
+import { buildFixture, expectValidationErrorCount, expectValidationErrors } from './utils'
 
-test('should ignore links that are excluded from validation', async () => {
-  expect.assertions(2)
+test('ignores links that are excluded from validation', async () => {
+  const { output, status } = await buildFixture('exclude')
 
-  try {
-    await loadFixture('exclude')
-  } catch (error) {
-    expectValidationErrorCount(error, 6, 1)
+  expect(status).toBe('error')
 
-    expectValidationErrors(error, '/', [
-      ['/excluded/', ValidationErrorType.InvalidLink],
-      ['/excluded#test', ValidationErrorType.InvalidLink],
-      ['/test/excluded', ValidationErrorType.InvalidLink],
-      ['/test/excluded/test', ValidationErrorType.InvalidLink],
-      ['/api/getting-started', ValidationErrorType.InvalidLink],
-      ['/api/class/baz', ValidationErrorType.InvalidLink],
-    ])
-  }
+  expectValidationErrorCount(output, 6, 1)
+
+  expectValidationErrors(output, '/', [
+    ['/excluded/', ValidationErrorType.InvalidLink],
+    ['/excluded#test', ValidationErrorType.InvalidLink],
+    ['/test/excluded', ValidationErrorType.InvalidLink],
+    ['/test/excluded/test', ValidationErrorType.InvalidLink],
+    ['/api/getting-started', ValidationErrorType.InvalidLink],
+    ['/api/class/baz', ValidationErrorType.InvalidLink],
+  ])
 })
