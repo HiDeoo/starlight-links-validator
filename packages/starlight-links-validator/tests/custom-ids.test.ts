@@ -2,16 +2,14 @@ import { expect, test } from 'vitest'
 
 import { ValidationErrorType } from '../libs/validation'
 
-import { expectValidationErrorCount, expectValidationErrors, loadFixture } from './utils'
+import { buildFixture, expectValidationErrorCount, expectValidationErrors } from './utils'
 
-test('should validate links with custom IDs', async () => {
-  expect.assertions(2)
+test('validates links with custom IDs', async () => {
+  const { output, status } = await buildFixture('custom-ids')
 
-  try {
-    await loadFixture('custom-ids')
-  } catch (error) {
-    expectValidationErrorCount(error, 1, 1)
+  expect(status).toBe('error')
 
-    expectValidationErrors(error, 'test/', [['#heading-with-custom-id', ValidationErrorType.InvalidHash]])
-  }
+  expectValidationErrorCount(output, 1, 1)
+
+  expectValidationErrors(output, 'test/', [['#heading-with-custom-id', ValidationErrorType.InvalidHash]])
 })

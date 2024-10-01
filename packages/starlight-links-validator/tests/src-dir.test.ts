@@ -2,21 +2,19 @@ import { expect, test } from 'vitest'
 
 import { ValidationErrorType } from '../libs/validation'
 
-import { expectValidationErrorCount, expectValidationErrors, loadFixture } from './utils'
+import { buildFixture, expectValidationErrorCount, expectValidationErrors } from './utils'
 
-test('should validate links when the `srcDir` Astro option is set', async () => {
-  expect.assertions(2)
+test('validates links when the `srcDir` Astro option is set', async () => {
+  const { output, status } = await buildFixture('src-dir')
 
-  try {
-    await loadFixture('src-dir', 'content')
-  } catch (error) {
-    expectValidationErrorCount(error, 4, 1)
+  expect(status).toBe('error')
 
-    expectValidationErrors(error, 'test/', [
-      ['/unknown', ValidationErrorType.InvalidLink],
-      ['/unknown/', ValidationErrorType.InvalidLink],
-      ['/guides/example#unknown', ValidationErrorType.InvalidHash],
-      ['/guides/example/#unknown', ValidationErrorType.InvalidHash],
-    ])
-  }
+  expectValidationErrorCount(output, 4, 1)
+
+  expectValidationErrors(output, 'test/', [
+    ['/unknown', ValidationErrorType.InvalidLink],
+    ['/unknown/', ValidationErrorType.InvalidLink],
+    ['/guides/example#unknown', ValidationErrorType.InvalidHash],
+    ['/guides/example/#unknown', ValidationErrorType.InvalidHash],
+  ])
 })

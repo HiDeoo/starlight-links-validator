@@ -1,52 +1,39 @@
-import { exec } from 'node:child_process'
-import { access, constants, cp, mkdir, rm } from 'node:fs/promises'
-import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { promisify } from 'node:util'
 
-import { expect } from 'vitest'
+import { build } from 'astro'
+import { expect, vi } from 'vitest'
 
 import type { ValidationErrorType } from '../libs/validation'
 
-const execAsync = promisify(exec)
-
-export async function loadFixture(name: string, srcDir = 'src') {
-  const testPath = fileURLToPath(new URL(`../.tests/${name}/`, import.meta.url))
+export async function buildFixture(name: string) {
   const fixturePath = fileURLToPath(new URL(`fixtures/${name}/`, import.meta.url))
-  const baseFixturePath = fileURLToPath(new URL(`fixtures/base/`, import.meta.url))
+
+  let output = ''
+  let status: 'success' | 'error'
+
+  function writeOutput(chunk: string | Uint8Array) {
+    output += String(chunk)
+    return true
+  }
+
+  const stdoutWriteSpy = vi.spyOn(process.stdout, 'write').mockImplementation(writeOutput)
+  const stderrWriteSpy = vi.spyOn(process.stderr, 'write').mockImplementation(writeOutput)
 
   try {
-    // Setup the test directory.
-    await rm(testPath, { force: true, recursive: true })
-    await mkdir(testPath, { recursive: true })
-
-    // Copy the base fixture files.
-    if (srcDir === 'src') {
-      await cp(join(baseFixturePath, 'src'), join(testPath, 'src'), { recursive: true })
-    }
-    await cp(join(baseFixturePath, 'public'), join(testPath, 'public'), { recursive: true })
-
-    // Copy the fixture under test files that may override the base fixture files.
-    await cp(join(fixturePath, srcDir), join(testPath, srcDir), { force: true, recursive: true })
-
-    const fixtureConfigPath = join(fixturePath, 'astro.config.ts')
-    const hasFixtureConfig = await fileExists(fixtureConfigPath)
-    const configPath = hasFixtureConfig ? fixtureConfigPath : join(baseFixturePath, 'astro.config.ts')
-
-    // Copy the base Astro config if the fixture under test does not have one.
-    await cp(configPath, join(testPath, 'astro.config.ts'))
-
-    // Build the project.
-    await execAsync('npx astro build', { cwd: testPath })
-  } catch (error) {
-    throw isProcessError(error)
-      ? new Error(`Failed to build the fixture '${name}':\n\n${error.stderr}\n\n${error.stdout}`)
-      : error
+    await build({ root: fixturePath })
+    status = 'success'
+  } catch {
+    status = 'error'
   }
+
+  stderrWriteSpy.mockRestore()
+  stdoutWriteSpy.mockRestore()
+
+  return { output, status }
 }
 
-export function expectValidationErrorCount(error: unknown, count: number, filesCount: number) {
-  expect(error).toMatch(
+export function expectValidationErrorCount(output: string, count: number, filesCount: number) {
+  expect(output).toMatch(
     new RegExp(
       `Found ${count} invalid ${count === 1 ? 'link' : 'links'} in ${filesCount} ${
         filesCount === 1 ? 'file' : 'files'
@@ -56,31 +43,14 @@ export function expectValidationErrorCount(error: unknown, count: number, filesC
 }
 
 export function expectValidationErrors(
-  error: unknown,
+  output: string,
   path: string,
   validationErrors: [link: string, type: ValidationErrorType][],
 ) {
-  expect(error).toMatch(
+  expect(output).toMatch(
     new RegExp(`▶ ${path}
 ${validationErrors
   .map(([link, type], index) => `.* ${index < validationErrors.length - 1 ? '├' : '└'}─ ${link} - ${type}`)
   .join('\n')}`),
   )
-}
-
-function isProcessError(error: unknown): error is { stderr: string; stdout: string } {
-  return typeof error === 'object' && error !== null && 'stderr' in error
-}
-
-async function fileExists(path: string) {
-  let exists = false
-
-  try {
-    await access(path, constants.F_OK)
-    exists = true
-  } catch {
-    // We can safely ignore this error if the file does not exist.
-  }
-
-  return exists
 }

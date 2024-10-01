@@ -2,27 +2,25 @@ import { expect, test } from 'vitest'
 
 import { ValidationErrorType } from '../libs/validation'
 
-import { expectValidationErrorCount, expectValidationErrors, loadFixture } from './utils'
+import { buildFixture, expectValidationErrorCount, expectValidationErrors } from './utils'
 
-test('should validate links when the `base` Astro option is set', async () => {
-  expect.assertions(2)
+test('validates links when the `base` Astro option is set', async () => {
+  const { output, status } = await buildFixture('base-path')
 
-  try {
-    await loadFixture('base-path')
-  } catch (error) {
-    expectValidationErrorCount(error, 10, 1)
+  expect(status).toBe('error')
 
-    expectValidationErrors(error, 'test/test/', [
-      ['/guides/example', ValidationErrorType.InvalidLink],
-      ['/guides/example/', ValidationErrorType.InvalidLink],
-      ['/guides/example#description', ValidationErrorType.InvalidLink],
-      ['/guides/example/#description', ValidationErrorType.InvalidLink],
-      ['/unknown', ValidationErrorType.InvalidLink],
-      ['/unknown/', ValidationErrorType.InvalidLink],
-      ['/test/guides/example#unknown', ValidationErrorType.InvalidHash],
-      ['/test/guides/example/#unknown', ValidationErrorType.InvalidHash],
-      ['/favicon.svg', ValidationErrorType.InvalidLink],
-      ['/guidelines/dummy.pdf', ValidationErrorType.InvalidLink],
-    ])
-  }
+  expectValidationErrorCount(output, 10, 1)
+
+  expectValidationErrors(output, 'test/test/', [
+    ['/guides/example', ValidationErrorType.InvalidLink],
+    ['/guides/example/', ValidationErrorType.InvalidLink],
+    ['/guides/example#description', ValidationErrorType.InvalidLink],
+    ['/guides/example/#description', ValidationErrorType.InvalidLink],
+    ['/unknown', ValidationErrorType.InvalidLink],
+    ['/unknown/', ValidationErrorType.InvalidLink],
+    ['/test/guides/example#unknown', ValidationErrorType.InvalidHash],
+    ['/test/guides/example/#unknown', ValidationErrorType.InvalidHash],
+    ['/favicon.svg', ValidationErrorType.InvalidLink],
+    ['/guidelines/dummy.pdf', ValidationErrorType.InvalidLink],
+  ])
 })
