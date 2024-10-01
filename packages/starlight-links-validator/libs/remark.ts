@@ -134,8 +134,8 @@ export const remarkStarlightLinksValidator: Plugin<[{ base: string; srcDir: URL 
       }
     })
 
-    headings.set(getFilePath(filePath, slug), fileHeadings)
-    links.set(getFilePath(filePath, slug), fileLinks)
+    headings.set(getFilePath(base, filePath, slug), fileHeadings)
+    links.set(getFilePath(base, filePath, slug), fileLinks)
   }
 }
 
@@ -147,8 +147,12 @@ function isInternalLink(link: string) {
   return !isAbsoluteUrl(link)
 }
 
-function getFilePath(filePath: string, slug: string | undefined) {
-  return slug ? stripLeadingSlash(ensureTrailingSlash(slug)) : filePath
+function getFilePath(base: string, filePath: string, slug: string | undefined) {
+  if (slug) {
+    return nodePath.posix.join(stripLeadingSlash(base), stripLeadingSlash(ensureTrailingSlash(slug)))
+  }
+
+  return filePath
 }
 
 function normalizeFilePath(base: string, srcDir: URL, filePath?: string) {
