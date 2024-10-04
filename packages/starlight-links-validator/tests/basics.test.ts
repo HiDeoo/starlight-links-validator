@@ -21,7 +21,7 @@ test('does not build with invalid links', async () => {
 
   expect(status).toBe('error')
 
-  expectValidationErrorCount(output, 35, 4)
+  expectValidationErrorCount(output, 59, 4)
 
   expectValidationErrors(output, 'test/', [
     ['/https://starlight.astro.build/', ValidationErrorType.InvalidLink],
@@ -39,6 +39,17 @@ test('does not build with invalid links', async () => {
     ['#anotherDiv', ValidationErrorType.InvalidHash],
     ['/guides/page-with-custom-slug', ValidationErrorType.InvalidLink],
     ['/release/@pkg/v0.2.0', ValidationErrorType.InvalidLink],
+    ['/?query=string', ValidationErrorType.InvalidLink],
+    ['/unknown?query=string', ValidationErrorType.InvalidLink],
+    ['/unknown/?query=string', ValidationErrorType.InvalidLink],
+    ['/unknown?query=string#title', ValidationErrorType.InvalidLink],
+    ['/unknown/?query=string#title', ValidationErrorType.InvalidLink],
+    ['?query=string#links', ValidationErrorType.InvalidHash],
+    ['/guides/example/?query=string#links', ValidationErrorType.InvalidHash],
+    ['/icon.svg?query=string', ValidationErrorType.InvalidLink],
+    ['/guidelines/ui.pdf?query=string', ValidationErrorType.InvalidLink],
+    ['/unknown-ref?query=string', ValidationErrorType.InvalidLink],
+    ['?query=string#unknown-ref', ValidationErrorType.InvalidHash],
   ])
 
   expectValidationErrors(output, 'guides/example/', [
@@ -54,6 +65,13 @@ test('does not build with invalid links', async () => {
     ['/linkbutton/', ValidationErrorType.InvalidLink],
     ['/linkbutton/#links', ValidationErrorType.InvalidLink],
     ['#linkbutton', ValidationErrorType.InvalidHash],
+    ['?query=string#links', ValidationErrorType.InvalidHash],
+    ['/unknown/?query=string#links', ValidationErrorType.InvalidLink],
+    ['/unknown?query=string', ValidationErrorType.InvalidLink],
+    ['/icon.svg?query=string', ValidationErrorType.InvalidLink],
+    ['/guidelines/ui.pdf?query=string', ValidationErrorType.InvalidLink],
+    ['/linkcard/?query=string', ValidationErrorType.InvalidLink],
+    ['/linkbutton/?query=string', ValidationErrorType.InvalidLink],
   ])
 
   expectValidationErrors(output, 'guides/namespacetest/', [
@@ -68,5 +86,11 @@ test('does not build with invalid links', async () => {
     ['./guides/example', ValidationErrorType.RelativeLink],
     ['../test', ValidationErrorType.RelativeLink],
     ['test', ValidationErrorType.RelativeLink],
+    ['.?query=string', ValidationErrorType.RelativeLink],
+    ['./relative?query=string', ValidationErrorType.RelativeLink],
+    ['./test?query=string', ValidationErrorType.RelativeLink],
+    ['./guides/example?query=string', ValidationErrorType.RelativeLink],
+    ['../test?query=string', ValidationErrorType.RelativeLink],
+    ['test?query=string', ValidationErrorType.RelativeLink],
   ])
 })

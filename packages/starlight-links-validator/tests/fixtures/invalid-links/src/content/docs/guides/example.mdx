@@ -44,3 +44,19 @@ some content
 <LinkButton href="/linkbutton/">LinkButton: unknown page</LinkButton>
 <LinkButton href="/linkbutton/#links">LinkButton: unknown page and hash</LinkButton>
 <LinkButton href="#linkbutton">LinkButton: unknown hash</LinkButton>
+
+## Query strings
+
+- [Link with query string to invalid hash in the same page](?query=string#links)
+- [Link with query string to invalid hash in another page](/unknown/?query=string#links)
+
+<a href="/unknown?query=string">HTML link with query string to unknown page</a>
+
+<a href="/icon.svg?query=string">Link with query string to invalid asset</a>
+<a href="/guidelines/ui.pdf?query=string">Link with query string to another invalid asset</a>
+
+<CardGrid>
+  <LinkCard title="LinkCard: unknown page with query string" href="/linkcard/?query=string" />
+</CardGrid>
+
+<LinkButton href="/linkbutton/?query=string">LinkButton: unknown page with query string</LinkButton>
