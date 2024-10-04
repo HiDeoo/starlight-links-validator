@@ -58,7 +58,7 @@ export function validateLinks(
         pages: allPages,
       }
 
-      if (link.startsWith('#')) {
+      if (link.startsWith('#') || link.startsWith('?')) {
         if (options.errorOnInvalidHashes) {
           validateSelfHash(validationContext)
         }
@@ -125,7 +125,7 @@ function validateLink(context: ValidationContext) {
     throw new Error('Failed to validate a link with no path.')
   }
 
-  if (path.startsWith('.') || !link.startsWith('/')) {
+  if (path.startsWith('.') || (!link.startsWith('/') && !link.startsWith('?'))) {
     if (options.errorOnRelativeLinks) {
       addError(errors, filePath, link, ValidationErrorType.RelativeLink)
     }
@@ -137,7 +137,7 @@ function validateLink(context: ValidationContext) {
     return
   }
 
-  const sanitizedPath = ensureTrailingSlash(path)
+  const sanitizedPath = ensureTrailingSlash(stripQueryString(path))
 
   const isValidPage = pages.has(sanitizedPath)
   const fileHeadings = getFileHeadings(sanitizedPath, context)
@@ -183,7 +183,8 @@ function getFileHeadings(path: string, { headings, localeConfig, options }: Vali
  * Validate a link to an hash in the same page.
  */
 function validateSelfHash({ errors, link, filePath, headings }: ValidationContext) {
-  const sanitizedHash = link.replace(/^#/, '')
+  const hash = link.split('#')[1] ?? link
+  const sanitizedHash = hash.replace(/^#/, '')
   const fileHeadings = headings.get(filePath)
 
   if (!fileHeadings) {
@@ -224,6 +225,10 @@ function isValidAsset(path: string, context: ValidationContext) {
  */
 function isExcludedLink(link: string, context: ValidationContext) {
   return picomatch(context.options.exclude)(link)
+}
+
+function stripQueryString(path: string): string {
+  return path.split('?')[0] ?? path
 }
 
 function addError(errors: ValidationErrors, filePath: string, link: string, type: ValidationErrorType) {

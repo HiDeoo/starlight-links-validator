@@ -50,7 +50,10 @@ export function expectValidationErrors(
   expect(output).toMatch(
     new RegExp(`▶ ${path}
 ${validationErrors
-  .map(([link, type], index) => `.* ${index < validationErrors.length - 1 ? '├' : '└'}─ ${link} - ${type}`)
+  .map(
+    ([link, type], index) =>
+      `.* ${index < validationErrors.length - 1 ? '├' : '└'}─ ${link.replaceAll('?', '\\?')} - ${type}`,
+  )
   .join('\n')}`),
   )
 }

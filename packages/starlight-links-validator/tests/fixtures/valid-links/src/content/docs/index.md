@@ -44,3 +44,27 @@ title: Index
 ## Link to page with custom slug
 
 - [A page with custom slug](/release/@pkg/v0.1.0)
+
+## Query strings
+
+- [Home page with query string](/?query=string)
+
+- [Test page with query string](/test?query=string)
+- [Test page with query string](/test/?query=string)
+
+- [Test page with query string and hash](/test?query=string#title)
+- [Test page with query string and hash](/test/?query=string#title)
+
+- [Link to hash in this page with query string](?query=string#some-links)
+
+- [Link to an asset with query string](/favicon.svg?query=string)
+- [Link to another asset with query string](/guidelines/dummy.pdf?query=string)
+
+- [ref-with-query-string]
+- [Link reference with query string][ref-with-query-string]
+- [Link reference with query string and hash in this page][ref-with-query-string-and-hash-internal]
+- [Link reference with query string and hash in another page][ref-with-query-string-and-hash-external]
+
+[ref-with-query-string]: /test?query=string
+[ref-with-query-string-and-hash-internal]: ?query=string#some-links
+[ref-with-query-string-and-hash-external]: /test?query=string#title
