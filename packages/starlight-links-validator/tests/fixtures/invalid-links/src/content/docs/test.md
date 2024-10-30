@@ -16,6 +16,9 @@ title: Test
 - [Unknown page with hash](/unknown#title)
 - [Unknown page with hash](/unknown/#title)
 
+- [Draft page](/draft)
+- [Draft page](/draft/)
+
 # More links
 
 - [Link to valid hash in this page](#some-links)

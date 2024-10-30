@@ -26,6 +26,8 @@ export const remarkStarlightLinksValidator: Plugin<[{ base: string; srcDir: URL 
   srcDir,
 }) {
   return (tree, file) => {
+    if (file.data.astro?.frontmatter?.draft) return
+
     const slugger = new GitHubSlugger()
     const filePath = normalizeFilePath(base, srcDir, file.history[0])
     const slug = file.data.astro?.frontmatter?.slug
@@ -193,6 +195,7 @@ declare module 'vfile' {
   interface DataMap {
     astro?: {
       frontmatter?: {
+        draft?: boolean
         slug?: string
       }
     }
