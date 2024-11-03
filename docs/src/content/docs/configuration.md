@@ -125,6 +125,28 @@ export default defineConfig({
 })
 ```
 
+### `errorOnLocalLinks`
+
+**Type:** `boolean`  
+**Default:** `true`
+
+By default, the Starlight Links Validator plugin will error on local links, e.g. URLs with a hostname of `localhost` or `127.0.0.1`, as they are usually used for development purposes and should not be present in production.
+If you want to allow such links, you can set this option to `false`.
+
+```js {6}
+export default defineConfig({
+  integrations: [
+    starlight({
+      plugins: [
+        starlightLinksValidator({
+          errorOnLocalLinks: false,
+        }),
+      ],
+    }),
+  ],
+})
+```
+
 ### `exclude`
 
 **Type:** `string[]`  

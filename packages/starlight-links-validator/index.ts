@@ -42,6 +42,12 @@ const starlightLinksValidatorOptionsSchema = z
      */
     errorOnInvalidHashes: z.boolean().default(true),
     /**
+     * Defines whether the plugin should error on local links, e.g. URLs with a hostname of `localhost` or `127.0.0.1`.
+     *
+     * @default true
+     */
+    errorOnLocalLinks: z.boolean().default(true),
+    /**
      * Defines a list of links or glob patterns that should be excluded from validation.
      *
      * The links in this list will be ignored by the plugin and will not be validated.
