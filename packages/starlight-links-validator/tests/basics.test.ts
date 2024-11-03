@@ -21,7 +21,7 @@ test('does not build with invalid links', async () => {
 
   expect(status).toBe('error')
 
-  expectValidationErrorCount(output, 61, 4)
+  expectValidationErrorCount(output, 64, 4)
 
   expectValidationErrors(output, 'test/', [
     ['/https://starlight.astro.build/', ValidationErrorType.InvalidLink],
@@ -52,6 +52,9 @@ test('does not build with invalid links', async () => {
     ['/guidelines/ui.pdf?query=string', ValidationErrorType.InvalidLink],
     ['/unknown-ref?query=string', ValidationErrorType.InvalidLink],
     ['?query=string#unknown-ref', ValidationErrorType.InvalidHash],
+    ['http://localhost', ValidationErrorType.LocalLink],
+    ['http://localhost:4321/', ValidationErrorType.LocalLink],
+    ['https://127.0.0.1:4321/getting-started', ValidationErrorType.LocalLink],
   ])
 
   expectValidationErrors(output, 'guides/example/', [

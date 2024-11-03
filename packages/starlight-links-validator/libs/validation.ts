@@ -17,6 +17,7 @@ export const ValidationErrorType = {
   InconsistentLocale: 'inconsistent locale',
   InvalidHash: 'invalid hash',
   InvalidLink: 'invalid link',
+  LocalLink: 'local link',
   RelativeLink: 'relative link',
   TrailingSlash: 'trailing slash',
 } as const
@@ -112,6 +113,14 @@ function validateLink(context: ValidationContext) {
   const { astroConfig, errors, filePath, link, localeConfig, options, pages } = context
 
   if (isExcludedLink(link, context)) {
+    return
+  }
+
+  if (/^https?:\/\//.test(link)) {
+    if (options.errorOnLocalLinks) {
+      addError(errors, filePath, link, ValidationErrorType.LocalLink)
+    }
+
     return
   }
 

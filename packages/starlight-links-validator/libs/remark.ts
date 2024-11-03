@@ -61,7 +61,7 @@ export const remarkStarlightLinksValidator: Plugin<[{ base: string; srcDir: URL 
           break
         }
         case 'link': {
-          if (isInternalLink(node.url)) {
+          if (shouldValidateLink(node.url)) {
             fileLinks.push(node.url)
           }
 
@@ -70,7 +70,7 @@ export const remarkStarlightLinksValidator: Plugin<[{ base: string; srcDir: URL 
         case 'linkReference': {
           const definition = fileDefinitions.get(node.identifier)
 
-          if (definition && isInternalLink(definition)) {
+          if (definition && shouldValidateLink(definition)) {
             fileLinks.push(definition)
           }
 
@@ -96,7 +96,7 @@ export const remarkStarlightLinksValidator: Plugin<[{ base: string; srcDir: URL 
               continue
             }
 
-            if (isInternalLink(attribute.value)) {
+            if (shouldValidateLink(attribute.value)) {
               fileLinks.push(attribute.value)
             }
           }
@@ -125,7 +125,7 @@ export const remarkStarlightLinksValidator: Plugin<[{ base: string; srcDir: URL 
               htmlNode.tagName === 'a' &&
               hasProperty(htmlNode, 'href') &&
               typeof htmlNode.properties.href === 'string' &&
-              isInternalLink(htmlNode.properties.href)
+              shouldValidateLink(htmlNode.properties.href)
             ) {
               fileLinks.push(htmlNode.properties.href)
             }
@@ -145,8 +145,18 @@ export function getValidationData() {
   return { headings, links }
 }
 
-function isInternalLink(link: string) {
-  return !isAbsoluteUrl(link)
+function shouldValidateLink(link: string) {
+  if (!isAbsoluteUrl(link)) {
+    return true
+  }
+
+  try {
+    const url = new URL(link)
+
+    return url.hostname === 'localhost' || url.hostname === '127.0.0.1'
+  } catch {
+    return false
+  }
 }
 
 function getFilePath(base: string, filePath: string, slug: string | undefined) {

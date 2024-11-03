@@ -77,3 +77,9 @@ some content
 
 [ref-with-query-string-unknown-page]: /unknown-ref?query=string
 [ref-with-query-string-invalid-hash]: ?query=string#unknown-ref
+
+## Local links
+
+- [Local link](http://localhost)
+- [Local link with port](http://localhost:4321/)
+- [Local link using HTTPS](https://127.0.0.1:4321/getting-started)
