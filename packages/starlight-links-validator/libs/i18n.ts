@@ -1,6 +1,7 @@
+import type { StarlightUserConfig } from '@astrojs/starlight/types'
+
 import { ensureLeadingSlash, ensureTrailingSlash } from './path'
 import type { Headings } from './remark'
-import type { StarlightUserConfig } from './validation'
 
 export function getLocaleConfig(config: StarlightUserConfig): LocaleConfig | undefined {
   if (!config.locales || Object.keys(config.locales).length === 0) return
