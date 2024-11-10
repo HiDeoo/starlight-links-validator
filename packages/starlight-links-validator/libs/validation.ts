@@ -2,7 +2,7 @@ import { statSync } from 'node:fs'
 import { posix } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import type { StarlightUserConfig } from '@astrojs/starlight/types'
+import type { StarlightUserConfig as StarlightUserConfigWithPlugins } from '@astrojs/starlight/types'
 import type { AstroConfig, AstroIntegrationLogger } from 'astro'
 import { bgGreen, black, blue, dim, green, red } from 'kleur/colors'
 import picomatch from 'picomatch'
@@ -278,3 +278,5 @@ interface ValidationContext {
   outputDir: URL
   pages: Pages
 }
+
+export type StarlightUserConfig = Omit<StarlightUserConfigWithPlugins, 'plugins'>
