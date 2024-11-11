@@ -29,6 +29,7 @@ A [Starlight](https://starlight.astro.build) plugin to validate **_internal_** l
 - Validate internal links to other pages
 - Validate internal links to hashes in other pages
 - Validate internal links to hashes in the same page
+- Validate links to local machine
 - Ignore external links
 - Run only during a production build
 
