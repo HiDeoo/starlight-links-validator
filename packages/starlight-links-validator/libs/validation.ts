@@ -19,7 +19,8 @@ export const ValidationErrorType = {
   InvalidLink: 'invalid link',
   LocalLink: 'local link',
   RelativeLink: 'relative link',
-  TrailingSlash: 'trailing slash',
+  TrailingSlashMissing: 'missing trailing slash',
+  TrailingSlashForbidden: 'forbidden trailing slash',
 } as const
 
 export function validateLinks(
@@ -168,13 +169,14 @@ function validateLink(context: ValidationContext) {
     return
   }
 
-  if (
-    path.length > 0 &&
-    ((astroConfig.trailingSlash === 'always' && !path.endsWith('/')) ||
-      (astroConfig.trailingSlash === 'never' && path.endsWith('/')))
-  ) {
-    addError(errors, filePath, link, ValidationErrorType.TrailingSlash)
-    return
+  if (path.length > 0) {
+    if (astroConfig.trailingSlash === 'always' && !path.endsWith('/')) {
+      addError(errors, filePath, link, ValidationErrorType.TrailingSlashMissing)
+      return
+    } else if (astroConfig.trailingSlash === 'never' && path.endsWith('/')) {
+      addError(errors, filePath, link, ValidationErrorType.TrailingSlashForbidden)
+      return
+    }
   }
 }
 

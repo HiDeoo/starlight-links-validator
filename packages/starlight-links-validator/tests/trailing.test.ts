@@ -12,8 +12,8 @@ test('validates links when the `trailingSlash` Astro option is set to `never`', 
   expectValidationErrorCount(output, 6, 1)
 
   expectValidationErrors(output, 'test/', [
-    ['/guides/example/', ValidationErrorType.TrailingSlash],
-    ['/guides/example/#description', ValidationErrorType.TrailingSlash],
+    ['/guides/example/', ValidationErrorType.TrailingSlashForbidden],
+    ['/guides/example/#description', ValidationErrorType.TrailingSlashForbidden],
     ['/unknown', ValidationErrorType.InvalidLink],
     ['/unknown/', ValidationErrorType.InvalidLink],
     ['/guides/example#unknown', ValidationErrorType.InvalidHash],
@@ -29,8 +29,8 @@ test('validates links when the `trailingSlash` Astro option is set to `always`',
   expectValidationErrorCount(output, 6, 1)
 
   expectValidationErrors(output, 'test/', [
-    ['/guides/example', ValidationErrorType.TrailingSlash],
-    ['/guides/example#description', ValidationErrorType.TrailingSlash],
+    ['/guides/example', ValidationErrorType.TrailingSlashMissing],
+    ['/guides/example#description', ValidationErrorType.TrailingSlashMissing],
     ['/unknown', ValidationErrorType.InvalidLink],
     ['/unknown/', ValidationErrorType.InvalidLink],
     ['/guides/example#unknown', ValidationErrorType.InvalidHash],
