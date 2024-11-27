@@ -1,6 +1,6 @@
 {
   "name": "starlight-links-validator",
-  "version": "0.13.2",
+  "version": "0.13.3",
   "license": "MIT",
   "description": "Starlight plugin to validate internal links.",
   "author": "HiDeoo <github@hideoo.dev> (https://hideoo.dev)",
