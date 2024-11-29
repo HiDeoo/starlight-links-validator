@@ -56,7 +56,12 @@ export const remarkStarlightLinksValidator: Plugin<[{ base: string; srcDir: URL 
             break
           }
 
-          fileHeadings.push(slugger.slug(content))
+          // Remove trailing -, given that a heading can contain trailing markup e.g. a deprecation <Badge>
+          // GitHub Slugger considers it as content and adds a -
+          // Whereas Astro Markdown renderer removes this trailing - from the DOM node's id
+          // See: tests/markup-in-heading
+          const headingSlug = slugger.slug(content).replace(/-$/, '')
+          fileHeadings.push(headingSlug)
 
           break
         }
