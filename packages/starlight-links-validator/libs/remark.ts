@@ -56,7 +56,9 @@ export const remarkStarlightLinksValidator: Plugin<[{ base: string; srcDir: URL 
             break
           }
 
-          fileHeadings.push(slugger.slug(content))
+          // Remove the last trailing hyphen from the slug like Astro does if it exists.
+          // https://github.com/withastro/astro/blob/74ee2e45ecc9edbe285eadee6d0b94fc47d0d125/packages/integrations/markdoc/src/heading-ids.ts#L21
+          fileHeadings.push(slugger.slug(content).replace(/-$/, ''))
 
           break
         }
