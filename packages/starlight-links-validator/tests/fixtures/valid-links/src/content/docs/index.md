@@ -65,6 +65,12 @@ title: Index
 - [Link reference with query string and hash in this page][ref-with-query-string-and-hash-internal]
 - [Link reference with query string and hash in another page][ref-with-query-string-and-hash-external]
 
+## Trailing markup
+
+- [Link to heading with trailing markup](/guides/example#heading-with-trailing-markup)
+- [Link to heading with trailing markup and content](/guides/example#heading-with-trailing-markup-and-content-foo)
+- [Link to heading with complex markup](/guides/example#-foo-heading-with--foo-complex-markup-foo-)
+
 [ref-with-query-string]: /test?query=string
 [ref-with-query-string-and-hash-internal]: ?query=string#some-links
 [ref-with-query-string-and-hash-external]: /test?query=string#title

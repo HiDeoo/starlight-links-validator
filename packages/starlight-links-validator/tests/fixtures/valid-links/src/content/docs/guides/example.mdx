@@ -47,3 +47,17 @@ some content
 <LinkButton href="/test/">LinkCard: unknown page</LinkButton>
 <LinkButton href="/test/#title">LinkCard: unknown page and hash</LinkButton>
 <LinkButton href="#steps">LinkCard: unknown hash</LinkButton>
+
+import { Badge } from '@astrojs/starlight/components'
+
+## Heading with trailing markup <Badge text="x"/>
+
+- [Link to heading with trailing markup](#heading-with-trailing-markup)
+
+## Heading with trailing markup and content <Badge text="x">Foo</Badge>
+
+- [Link to heading with trailing markup and content](#heading-with-trailing-markup-and-content-foo)
+
+## <Badge text="x"/> <Badge text="x">Foo</Badge> Heading with <Badge text="x"/> <Badge text="x">Foo</Badge> complex markup <Badge text="x">Foo</Badge> <Badge text="x"/> <Badge text="y"/>
+
+- [Link to heading with complex markup](#-foo-heading-with--foo-complex-markup-foo-)
