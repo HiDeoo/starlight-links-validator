@@ -47,7 +47,8 @@
   },
   "packageManager": "pnpm@8.6.3",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "sideEffects": false,
   "keywords": [
