@@ -2,9 +2,9 @@
   "name": "@starlight-links-validator-tests/custom-ids",
   "version": "0.0.0",
   "dependencies": {
-    "@astrojs/starlight": "0.26.1",
-    "astro": "4.8.6",
-    "remark-custom-heading-id": "2.0.0",
+    "@astrojs/starlight": "^0.30.2",
+    "astro": "^5.0.9",
+    "remark-custom-heading-id": "^2.0.0",
     "starlight-links-validator": "workspace:*"
   },
   "private": true

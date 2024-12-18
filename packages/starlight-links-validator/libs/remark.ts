@@ -26,11 +26,12 @@ export const remarkStarlightLinksValidator: Plugin<[{ base: string; srcDir: URL 
   srcDir,
 }) {
   return (tree, file) => {
-    if (file.data.astro?.frontmatter?.draft) return
+    if (file.data.astro?.frontmatter?.['draft']) return
 
     const slugger = new GitHubSlugger()
     const filePath = normalizeFilePath(base, srcDir, file.history[0])
-    const slug = file.data.astro?.frontmatter?.slug
+    const slug: string | undefined =
+      typeof file.data.astro?.frontmatter?.['slug'] === 'string' ? file.data.astro.frontmatter['slug'] : undefined
 
     const fileHeadings: string[] = []
     const fileLinks: string[] = []
@@ -201,15 +202,4 @@ interface MdxIdAttribute {
   name: 'id'
   type: 'mdxJsxAttribute'
   value: string
-}
-
-declare module 'vfile' {
-  interface DataMap {
-    astro?: {
-      frontmatter?: {
-        draft?: boolean
-        slug?: string
-      }
-    }
-  }
 }

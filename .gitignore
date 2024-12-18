@@ -26,7 +26,6 @@ next-env.d.ts
 node_modules
 npm-debug.log*
 out
-packages/starlight-links-validator/.tests
 pnpm-debug.log*
 releases
 yarn-debug.log*

@@ -52,7 +52,7 @@ export function expectValidationErrors(
 ${validationErrors
   .map(
     ([link, type], index) =>
-      `.* ${index < validationErrors.length - 1 ? '├' : '└'}─ ${link.replaceAll('?', '\\?')} - ${type}`,
+      `.* ${index < validationErrors.length - 1 ? '├' : '└'}─ ${link.replaceAll('?', String.raw`\?`)} - ${type}`,
   )
   .join('\n')}`),
   )

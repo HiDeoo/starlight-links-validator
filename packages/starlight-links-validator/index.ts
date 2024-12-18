@@ -2,6 +2,7 @@ import type { StarlightPlugin } from '@astrojs/starlight/types'
 import { AstroError } from 'astro/errors'
 import { z } from 'astro/zod'
 
+import { clearContentLayerCache } from './libs/astro'
 import { remarkStarlightLinksValidator } from './libs/remark'
 import { logErrors, validateLinks } from './libs/validation'
 
@@ -74,10 +75,12 @@ export default function starlightLinksValidatorPlugin(
         addIntegration({
           name: 'starlight-links-validator-integration',
           hooks: {
-            'astro:config:setup': ({ command, updateConfig }) => {
+            'astro:config:setup': async ({ command, updateConfig }) => {
               if (command !== 'build') {
                 return
               }
+
+              await clearContentLayerCache(astroConfig, logger)
 
               updateConfig({
                 markdown: {
