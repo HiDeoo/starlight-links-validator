@@ -9,6 +9,7 @@ export default defineConfig({
         baseUrl: 'https://github.com/HiDeoo/starlight-links-validator/edit/main/example/',
       },
       plugins: [starlightLinksValidator()],
+      pagefind: false,
       sidebar: [
         {
           label: 'Guides',

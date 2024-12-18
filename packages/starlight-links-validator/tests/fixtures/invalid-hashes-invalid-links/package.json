@@ -2,8 +2,8 @@
   "name": "@starlight-links-validator-tests/invalid-hashes-invalid-links",
   "version": "0.0.0",
   "dependencies": {
-    "@astrojs/starlight": "0.26.1",
-    "astro": "4.8.6",
+    "@astrojs/starlight": "^0.30.2",
+    "astro": "^5.0.9",
     "starlight-links-validator": "workspace:*"
   },
   "private": true

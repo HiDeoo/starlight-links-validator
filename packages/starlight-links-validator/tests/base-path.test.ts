@@ -9,7 +9,12 @@ test('validates links when the `base` Astro option is set', async () => {
 
   expect(status).toBe('error')
 
-  expectValidationErrorCount(output, 16, 1)
+  /**
+   * Due to a regression in Astro v5 + Content Layer, pages with custom IDs/slugs can no longer be validated.
+   * @see https://github.com/withastro/astro/issues/12778
+   */
+  // expectValidationErrorCount(output, 16, 1)
+  expectValidationErrorCount(output, 20, 1)
 
   expectValidationErrors(output, 'test/test/', [
     ['/guides/example', ValidationErrorType.InvalidLink],
@@ -22,6 +27,16 @@ test('validates links when the `base` Astro option is set', async () => {
     ['/test/guides/example/#unknown', ValidationErrorType.InvalidHash],
     ['/favicon.svg', ValidationErrorType.InvalidLink],
     ['/guidelines/dummy.pdf', ValidationErrorType.InvalidLink],
+
+    /**
+     * Due to a regression in Astro v5 + Content Layer, pages with custom IDs/slugs can no longer be validated.
+     * @see https://github.com/withastro/astro/issues/12778
+     */
+    ['/test/release/@pkg/v0.1.0', ValidationErrorType.InvalidLink],
+    ['/test/release/@pkg/v0.1.0/', ValidationErrorType.InvalidLink],
+    ['/test/release/@pkg/v0.1.0#some-content', ValidationErrorType.InvalidLink],
+    ['/test/release/@pkg/v0.1.0/#some-content', ValidationErrorType.InvalidLink],
+
     ['/release/@pkg/v0.1.0', ValidationErrorType.InvalidLink],
     ['/release/@pkg/v0.1.0/', ValidationErrorType.InvalidLink],
     ['/release/@pkg/v0.1.0#some-content', ValidationErrorType.InvalidLink],

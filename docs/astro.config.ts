@@ -11,10 +11,11 @@ export default defineConfig({
       sidebar: [
         {
           label: 'Start Here',
-          items: [
-            { label: 'Getting Started', link: '/getting-started/' },
-            { label: 'Configuration', link: '/configuration/' },
-          ],
+          items: ['getting-started', 'configuration'],
+        },
+        {
+          label: 'Guides',
+          items: ['guides/conditional-validation'],
         },
         {
           label: 'Resources',

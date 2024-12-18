@@ -1,7 +1,0 @@
-{
-  "extends": ["@hideoo"],
-  "ignorePatterns": ["packages/starlight-links-validator/tests/fixtures"],
-  "rules": {
-    "@typescript-eslint/no-redeclare": "off"
-  }
-}
