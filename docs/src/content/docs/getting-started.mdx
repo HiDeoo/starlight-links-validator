@@ -46,6 +46,11 @@ import { PackageManagers } from '@hideoo/starlight-plugins-docs-components'
 
 3. Run a [production build](https://docs.astro.build/en/reference/cli-reference/#astro-build) to validate all internal links in your Markdown and MDX files.
 
+   :::tip
+   When using the Starlight Links Validator plugin with the [Content Layer API](https://docs.astro.build/en/guides/content-collections/), the plugin will automatically invalidate the content layer cache so that all links can be properly validated.
+   To avoid unnecessary cache invalidation, it is recommended to [conditionally use](/guides/conditional-validation) the plugin only when necessary.
+   :::
+
 </Steps>
 
 The Starlight Links Validator plugin behavior can be tweaked using various [configuration options](/configuration).
