@@ -19,6 +19,8 @@ title: Index
 - [An MDX nested page](/guides/example)
 - [An MDX nested page](/guides/example/)
 
+- [A page that ends with index](/a-page-that-ends-with-index)
+
 # More links
 
 - [Link to hash in this page](#some-links)
