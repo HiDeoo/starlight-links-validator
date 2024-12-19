@@ -1,6 +1,5 @@
 ---
 "starlight-links-validator": patch
-"@starlight-links-validator-tests/valid-links": patch
 ---
 
-fix: dont strip trailing index from links unless it is the full segment
+Only trim trailing index from links if  it is the full segment
