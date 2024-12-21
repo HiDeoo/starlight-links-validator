@@ -1,5 +1,15 @@
 # starlight-links-validator
 
+## 0.14.1
+
+### Patch Changes
+
+- [#82](https://github.com/HiDeoo/starlight-links-validator/pull/82) [`b3cbee8`](https://github.com/HiDeoo/starlight-links-validator/commit/b3cbee83fb54f5bd6dd06b01bb8397758c081752) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes regresion introduced in version [`0.14.0`](https://github.com/HiDeoo/starlight-links-validator/releases/tag/starlight-links-validator%400.14.0) of the plugin regarding validation of links to pages with [custom IDs/slugs](https://docs.astro.build/en/guides/content-collections/#defining-custom-ids).
+
+  Note that you must use at least Astro version [`5.1.1`](https://github.com/withastro/astro/releases/tag/astro%405.1.1) to benefit from this fix.
+
+- [#80](https://github.com/HiDeoo/starlight-links-validator/pull/80) [`876cb50`](https://github.com/HiDeoo/starlight-links-validator/commit/876cb5094d10a56a1be04b7cdc27e4f89fb1b681) Thanks [@lukekarrys](https://github.com/lukekarrys)! - Fixes validation issues for pages ending in `index`, e.g. `module_index`.
+
 ## 0.14.0
 
 ### Minor Changes
