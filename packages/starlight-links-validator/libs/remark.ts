@@ -178,7 +178,7 @@ function normalizeFilePath(base: string, srcDir: URL, filePath?: string) {
   const path = nodePath
     .relative(nodePath.join(fileURLToPath(srcDir), 'content/docs'), filePath)
     .replace(/\.\w+$/, '')
-    .replace(/index$/, '')
+    .replace(/(^|[/\\])index$/, '')
     .replace(/[/\\]?$/, '/')
     .split(/[/\\]/)
     .map((segment) => slug(segment))
