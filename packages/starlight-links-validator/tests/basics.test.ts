@@ -11,16 +11,9 @@ test('builds with no links', async () => {
 })
 
 test('builds with valid links', async () => {
-  const { status, output } = await buildFixture('valid-links')
+  const { status } = await buildFixture('valid-links')
 
-  /**
-   * Due to a regression in Astro v5 + Content Layer, pages with custom IDs/slugs can no longer be validated.
-   * @see https://github.com/withastro/astro/issues/12778
-   */
-  // expect(status).toBe('success')
-  expect(status).toBe('error')
-  expectValidationErrorCount(output, 1, 1)
-  expectValidationErrors(output, '/', [['/release/@pkg/v0.1.0', ValidationErrorType.InvalidLink]])
+  expect(status).toBe('success')
 })
 
 test('does not build with invalid links', async () => {
