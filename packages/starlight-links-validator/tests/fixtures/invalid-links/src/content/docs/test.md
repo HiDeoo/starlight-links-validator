@@ -83,3 +83,11 @@ some content
 - [Local link](http://localhost)
 - [Local link with port](http://localhost:4321/)
 - [Local link using HTTPS](https://127.0.0.1:4321/getting-started)
+
+## Links to custom pages
+
+- [Link to unknown custom page](/unknown-custom-page/)
+- [Link to custom page](/custom-page/)
+- [Link to custom dynamic page with known param](/custom-dynamic-page/foo/)
+- [Link to custom dynamic page with known param including a dot](/custom-dynamic-page/foo.bar/)
+- [Link to custom dynamic page with unknown param](/custom-dynamic-page/bar/)
