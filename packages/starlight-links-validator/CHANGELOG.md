@@ -1,5 +1,11 @@
 # starlight-links-validator
 
+## 0.14.2
+
+### Patch Changes
+
+- [#85](https://github.com/HiDeoo/starlight-links-validator/pull/85) [`57fdb1b`](https://github.com/HiDeoo/starlight-links-validator/commit/57fdb1b2f85f023e4b053480fd9ea5adb69a9e2a) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Improves error message for invalid links to custom pages.
+
 ## 0.14.1
 
 ### Patch Changes
