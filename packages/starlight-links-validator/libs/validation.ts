@@ -10,13 +10,14 @@ import picomatch from 'picomatch'
 import type { StarlightLinksValidatorOptions } from '..'
 
 import { getFallbackHeadings, getLocaleConfig, isInconsistentLocaleLink, type LocaleConfig } from './i18n'
-import { ensureTrailingSlash, stripLeadingSlash } from './path'
+import { ensureTrailingSlash, stripLeadingSlash, stripTrailingSlash } from './path'
 import { getValidationData, type Headings } from './remark'
 
 export const ValidationErrorType = {
   InconsistentLocale: 'inconsistent locale',
   InvalidHash: 'invalid hash',
   InvalidLink: 'invalid link',
+  InvalidLinkToCustomPage: 'invalid link to custom page',
   LocalLink: 'local link',
   RelativeLink: 'relative link',
   TrailingSlashMissing: 'missing trailing slash',
@@ -25,6 +26,7 @@ export const ValidationErrorType = {
 
 export function validateLinks(
   pages: PageData[],
+  customPages: Set<string>,
   outputDir: URL,
   astroConfig: AstroConfig,
   starlightConfig: StarlightUserConfig,
@@ -50,6 +52,7 @@ export function validateLinks(
     for (const link of fileLinks) {
       const validationContext: ValidationContext = {
         astroConfig,
+        customPages,
         errors,
         filePath,
         headings,
@@ -92,6 +95,8 @@ export function logErrors(pluginLogger: AstroIntegrationLogger, errors: Validati
     ),
   )
 
+  let hasInvalidLinkToCustomPage = false
+
   for (const [file, validationErrors] of errors) {
     logger.info(`${red('▶')} ${blue(file)}`)
 
@@ -101,17 +106,20 @@ export function logErrors(pluginLogger: AstroIntegrationLogger, errors: Validati
           ` - ${validationError.type}`,
         )}`,
       )
+      hasInvalidLinkToCustomPage = validationError.type === ValidationErrorType.InvalidLinkToCustomPage
     }
   }
 
   process.stdout.write('\n')
+
+  return hasInvalidLinkToCustomPage
 }
 
 /**
  * Validate a link to another internal page that may or may not have a hash.
  */
 function validateLink(context: ValidationContext) {
-  const { astroConfig, errors, filePath, link, localeConfig, options, pages } = context
+  const { astroConfig, customPages, errors, filePath, link, localeConfig, options, pages } = context
 
   if (isExcludedLink(link, context)) {
     return
@@ -153,7 +161,14 @@ function validateLink(context: ValidationContext) {
   const fileHeadings = getFileHeadings(sanitizedPath, context)
 
   if (!isValidPage || !fileHeadings) {
-    addError(errors, filePath, link, ValidationErrorType.InvalidLink)
+    addError(
+      errors,
+      filePath,
+      link,
+      customPages.has(stripTrailingSlash(sanitizedPath))
+        ? ValidationErrorType.InvalidLinkToCustomPage
+        : ValidationErrorType.InvalidLink,
+    )
     return
   }
 
@@ -271,6 +286,7 @@ type Pages = Set<PageData['pathname']>
 
 interface ValidationContext {
   astroConfig: AstroConfig
+  customPages: Set<string>
   errors: ValidationErrors
   filePath: string
   headings: Headings

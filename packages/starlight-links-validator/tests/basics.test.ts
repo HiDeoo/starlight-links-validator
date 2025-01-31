@@ -21,7 +21,7 @@ test('does not build with invalid links', async () => {
 
   expect(status).toBe('error')
 
-  expectValidationErrorCount(output, 64, 4)
+  expectValidationErrorCount(output, 69, 4)
 
   expectValidationErrors(output, 'test/', [
     ['/https://starlight.astro.build/', ValidationErrorType.InvalidLink],
@@ -55,6 +55,11 @@ test('does not build with invalid links', async () => {
     ['http://localhost', ValidationErrorType.LocalLink],
     ['http://localhost:4321/', ValidationErrorType.LocalLink],
     ['https://127.0.0.1:4321/getting-started', ValidationErrorType.LocalLink],
+    ['/unknown-custom-page/', ValidationErrorType.InvalidLink],
+    ['/custom-page/', ValidationErrorType.InvalidLinkToCustomPage],
+    ['/custom-dynamic-page/foo/', ValidationErrorType.InvalidLinkToCustomPage],
+    ['/custom-dynamic-page/foo.bar/', ValidationErrorType.InvalidLinkToCustomPage],
+    ['/custom-dynamic-page/bar/', ValidationErrorType.InvalidLink],
   ])
 
   expectValidationErrors(output, 'guides/example/', [

@@ -1,8 +1,10 @@
 import type { StarlightPlugin } from '@astrojs/starlight/types'
+import type { IntegrationResolvedRoute } from 'astro'
 import { AstroError } from 'astro/errors'
 import { z } from 'astro/zod'
 
 import { clearContentLayerCache } from './libs/astro'
+import { pathnameToSlug } from './libs/path'
 import { remarkStarlightLinksValidator } from './libs/remark'
 import { logErrors, validateLinks } from './libs/validation'
 
@@ -72,6 +74,8 @@ export default function starlightLinksValidatorPlugin(
     name: 'starlight-links-validator-plugin',
     hooks: {
       setup({ addIntegration, astroConfig, config: starlightConfig, logger }) {
+        let routes: IntegrationResolvedRoute[] = []
+
         addIntegration({
           name: 'starlight-links-validator-integration',
           hooks: {
@@ -90,13 +94,32 @@ export default function starlightLinksValidatorPlugin(
                 },
               })
             },
-            'astro:build:done': ({ dir, pages }) => {
-              const errors = validateLinks(pages, dir, astroConfig, starlightConfig, options.data)
+            'astro:routes:resolved': (params) => {
+              routes = params.routes
+            },
+            'astro:build:done': ({ dir, pages, assets }) => {
+              const customPages = new Set<string>()
 
-              logErrors(logger, errors)
+              for (const [pattern, urls] of assets) {
+                const route = routes.find((route) => route.pattern === pattern)
+                if (!route || route.origin !== 'project') continue
+
+                for (const url of urls) {
+                  customPages.add(pathnameToSlug(url.pathname.replace(astroConfig.outDir.pathname, '')))
+                }
+              }
+
+              const errors = validateLinks(pages, customPages, dir, astroConfig, starlightConfig, options.data)
+
+              const hasInvalidLinkToCustomPage = logErrors(logger, errors)
 
               if (errors.size > 0) {
-                throwPluginError('Links validation failed.')
+                throwPluginError(
+                  'Links validation failed.',
+                  hasInvalidLinkToCustomPage
+                    ? 'Some invalid links point to custom pages which cannot be validated, see the `exclude` option for more informations at https://starlight-links-validator.vercel.app/configuration#exclude'
+                    : undefined,
+                )
               }
             },
           },
@@ -106,11 +129,13 @@ export default function starlightLinksValidatorPlugin(
   }
 }
 
-function throwPluginError(message: string): never {
-  throw new AstroError(
-    message,
-    `See the error report above for more informations.\n\nIf you believe this is a bug, please file an issue at https://github.com/HiDeoo/starlight-links-validator/issues/new/choose`,
-  )
+function throwPluginError(message: string, additionalHint?: string): never {
+  let hint = 'See the error report above for more informations.\n\n'
+  if (additionalHint) hint += `${additionalHint}\n\n`
+  hint +=
+    'If you believe this is a bug, please file an issue at https://github.com/HiDeoo/starlight-links-validator/issues/new/choose'
+
+  throw new AstroError(message, hint)
 }
 
 type StarlightLinksValidatorUserOptions = z.input<typeof starlightLinksValidatorOptionsSchema>
