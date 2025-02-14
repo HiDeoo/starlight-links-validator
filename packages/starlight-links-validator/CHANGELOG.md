@@ -1,5 +1,11 @@
 # starlight-links-validator
 
+## 0.14.3
+
+### Patch Changes
+
+- [#91](https://github.com/HiDeoo/starlight-links-validator/pull/91) [`1ef31b8`](https://github.com/HiDeoo/starlight-links-validator/commit/1ef31b81e7c5321a7481df6111d9161c4608fd4e) Thanks [@DaniFoldi](https://github.com/DaniFoldi)! - Moves `mdast-util-mdx-jsx` package to non-dev dependencies to prevent issues in monorepos with hoisting disabled.
+
 ## 0.14.2
 
 ### Patch Changes
