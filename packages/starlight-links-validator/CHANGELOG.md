@@ -1,5 +1,17 @@
 # starlight-links-validator
 
+## 0.15.0
+
+### Minor Changes
+
+- [#93](https://github.com/HiDeoo/starlight-links-validator/pull/93) [`6d7174b`](https://github.com/HiDeoo/starlight-links-validator/commit/6d7174bcc6a2bb39f287a50bbdda29a6af4c16c8) Thanks [@HiDeoo](https://github.com/HiDeoo)! - ⚠️ **BREAKING CHANGE:** The minimum supported version of Starlight is now version `0.32.0`.
+
+  Please use the `@astrojs/upgrade` command to upgrade your project:
+
+  ```sh
+  npx @astrojs/upgrade
+  ```
+
 ## 0.14.3
 
 ### Patch Changes
