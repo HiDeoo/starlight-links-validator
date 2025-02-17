@@ -2,8 +2,8 @@
   "name": "@starlight-links-validator-tests/inconsistent-locale-root",
   "version": "0.0.0",
   "dependencies": {
-    "@astrojs/starlight": "^0.30.2",
-    "astro": "^5.1.1",
+    "@astrojs/starlight": "^0.32.0",
+    "astro": "^5.3.0",
     "starlight-links-validator": "workspace:*"
   },
   "private": true
