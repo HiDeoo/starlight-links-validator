@@ -73,7 +73,7 @@ export default function starlightLinksValidatorPlugin(
   return {
     name: 'starlight-links-validator-plugin',
     hooks: {
-      setup({ addIntegration, astroConfig, config: starlightConfig, logger }) {
+      'config:setup'({ addIntegration, astroConfig, config: starlightConfig, logger }) {
         let routes: IntegrationResolvedRoute[] = []
 
         addIntegration({
