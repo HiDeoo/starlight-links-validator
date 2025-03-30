@@ -195,11 +195,11 @@ function validateLink(context: ValidationContext) {
   }
 }
 
-function getFileHeadings(path: string, { headings, localeConfig, options }: ValidationContext) {
+function getFileHeadings(path: string, { astroConfig, headings, localeConfig, options }: ValidationContext) {
   let heading = headings.get(path === '' ? '/' : path)
 
   if (!options.errorOnFallbackPages && !heading && localeConfig) {
-    heading = getFallbackHeadings(path, headings, localeConfig)
+    heading = getFallbackHeadings(path, headings, localeConfig, astroConfig)
   }
 
   return heading

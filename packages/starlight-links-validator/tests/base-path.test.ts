@@ -30,3 +30,20 @@ test('validates links when the `base` Astro option is set', async () => {
     ['/guides/page-with-custom-slug/', ValidationErrorType.InvalidLink],
   ])
 })
+
+test('validates links when the `base` Astro option is set and fallback links are used', async () => {
+  const { output, status } = await buildFixture('base-path-fallback')
+
+  expect(status).toBe('success')
+
+  // expectValidationErrorCount(output, 11, 3)
+
+  // expectValidationErrors(output, 'en/', [
+  //   ['/es/guides/example', ValidationErrorType.InvalidLink],
+  //   ['/es/guides/example/', ValidationErrorType.InvalidLink],
+  // ])
+
+  // expectValidationErrors(output, 'fr/', [])
+
+  // expectValidationErrors(output, 'fr/guides/test/', [['/', ValidationErrorType.InvalidLink]])
+})

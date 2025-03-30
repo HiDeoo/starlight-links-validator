@@ -1,3 +1,4 @@
+import type { AstroConfig } from 'astro'
 import { ensureLeadingSlash, ensureTrailingSlash } from './path'
 import type { Headings } from './remark'
 import type { StarlightUserConfig } from './validation'
@@ -32,13 +33,15 @@ export function getFallbackHeadings(
   path: string,
   headings: Headings,
   localeConfig: LocaleConfig | undefined,
+  astroConfig: AstroConfig,
 ): string[] | undefined {
   if (!localeConfig) return
 
   for (const locale of localeConfig.locales) {
-    if (path.startsWith(`${locale}/`)) {
+    const pathStart = astroConfig.base === '/' ? `${locale}/` : `${astroConfig.base}/${locale}/`
+    if (path.startsWith(pathStart)) {
       const fallbackPath = path.replace(
-        new RegExp(`^${locale}/`),
+        new RegExp(`${locale}/`),
         localeConfig.defaultLocale === '' ? localeConfig.defaultLocale : `${localeConfig.defaultLocale}/`,
       )
 
