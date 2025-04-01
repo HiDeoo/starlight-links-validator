@@ -6,9 +6,13 @@ export default defineConfig({
   base: '/test',
   integrations: [
     starlight({
+      locales: {
+        root: { label: 'English', lang: 'en' },
+        fr: { label: 'Français', lang: 'fr' },
+      },
       pagefind: false,
-      plugins: [starlightLinksValidator()],
-      title: 'Starlight Links Validator Tests - trailing always',
+      plugins: [starlightLinksValidator({ errorOnFallbackPages: false })],
+      title: 'Starlight Links Validator Tests - base path',
     }),
   ],
 })
