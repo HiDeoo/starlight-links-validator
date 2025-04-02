@@ -45,14 +45,14 @@ export function expectValidationErrorCount(output: string, count: number, filesC
 export function expectValidationErrors(
   output: string,
   path: string,
-  validationErrors: [link: string, type: ValidationErrorType][],
+  validationErrors: [link: string, type: ValidationErrorType, site?: string | undefined][],
 ) {
   expect(output).toMatch(
     new RegExp(`▶ ${path}
 ${validationErrors
   .map(
-    ([link, type], index) =>
-      `.* ${index < validationErrors.length - 1 ? '├' : '└'}─ ${link.replaceAll('?', String.raw`\?`)} - ${type}`,
+    ([link, type, site], index) =>
+      `.* ${index < validationErrors.length - 1 ? '├' : '└'}─ ${link.replaceAll('?', String.raw`\?`)} - ${site ? type.replace('{{site}}', site) : type}`,
   )
   .join('\n')}`),
   )

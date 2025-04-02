@@ -175,3 +175,52 @@ export default defineConfig({
 You can use this [webpage](https://www.digitalocean.com/community/tools/glob) to generate and test glob patterns.
 
 :::
+
+### `sameSitePolicy`
+
+**Type:** `'error' | 'ignore' | 'validate'`  
+**Default:** `'ignore'`
+
+By default, the Starlight Links Validator plugin will ignore all external links, e.g. links starting with `http://` or `https://`, and will not validate them.
+
+The `sameSitePolicy` option provide a more granular control over how external links are handled when they point to the same [origin](https://developer.mozilla.org/en-US/docs/Web/API/URL/origin) as the one configured in the [Astro `site` configuration option](https://docs.astro.build/en/reference/configuration-reference/#site).
+
+- `ignore`: Ignore all external links and do not validate them.
+- `error`: Error on external links with an origin matching the Astro `site` configuration option and hint that the link can be rewritten without the origin.
+- `validate`: Validate external links with an origin matching the Astro `site` configuration option as if they were internal links.
+
+Other external links having a different origin will be ignored.
+
+The following configuration will error on the `https://example.com/test/` external link and hint that it can be rewritten as `/test/`:
+
+```js {6}
+export default defineConfig({
+  integrations: [
+    starlight({
+      plugins: [
+        starlightLinksValidator({
+          sameSitePolicy: 'error',
+        }),
+      ],
+    }),
+  ],
+  site: 'https://example.com',
+})
+```
+
+The following configuration will validate the `https://example.com/test/` external link as if it was written as `/test/`:
+
+```js {6}
+export default defineConfig({
+  integrations: [
+    starlight({
+      plugins: [
+        starlightLinksValidator({
+          sameSitePolicy: 'validate',
+        }),
+      ],
+    }),
+  ],
+  site: 'https://example.com',
+})
+```

@@ -6,7 +6,7 @@ export default defineConfig({
   integrations: [
     starlight({
       pagefind: false,
-      plugins: [starlightLinksValidator()],
+      plugins: [starlightLinksValidator({ sameSitePolicy: 'error' })],
       title: 'Starlight Links Validator Tests - invalid links',
     }),
   ],

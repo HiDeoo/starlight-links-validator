@@ -76,3 +76,11 @@ title: Index
 [ref-with-query-string]: /test?query=string
 [ref-with-query-string-and-hash-internal]: ?query=string#some-links
 [ref-with-query-string-and-hash-external]: /test?query=string#title
+
+## Same site URL
+
+- [Test page](https://example.com/test)
+- [Test page](https://example.com/test/)
+
+- [Unknown page](https://example.com/unknown)
+- [Unknown page](https://example.com/unknown/)
