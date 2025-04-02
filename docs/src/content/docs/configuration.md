@@ -28,6 +28,36 @@ export default defineConfig({
 
 You can pass the following options to the Starlight Links Validator plugin.
 
+### `components`
+
+**Type:** `[component: string, prop: string][]`  
+**Default:** `[]`
+
+Defines a list of additional components and their props that should be validated as links.
+
+By default, the Starlight Links Validator plugin will validate links defined in the `href` prop of the [`<LinkButton>`](https://starlight.astro.build/components/link-buttons/) and [`<LinkCard>`](https://starlight.astro.build/components/link-cards/) built-in Starlight components.
+Adding custom components to this list will allow the plugin to validate links in those components as well.
+
+```js {6}
+export default defineConfig({
+  integrations: [
+    starlight({
+      plugins: [
+        starlightLinksValidator({
+          components: [['CustomLink', 'url']],
+        }),
+      ],
+    }),
+  ],
+})
+```
+
+The example above will validate links in Starlight built-in components and also in the `url` prop of the `<CustomLink>` component.
+
+```mdx title="src/content/docs/example.mdx"
+<CustomLink url="/test/" />
+```
+
 ### `errorOnFallbackPages`
 
 **Type:** `boolean`  
@@ -193,7 +223,7 @@ Other external links having a different origin will be ignored.
 
 The following configuration will error on the `https://example.com/test/` external link and hint that it can be rewritten as `/test/`:
 
-```js {6}
+```js {6,11}
 export default defineConfig({
   integrations: [
     starlight({
@@ -210,7 +240,7 @@ export default defineConfig({
 
 The following configuration will validate the `https://example.com/test/` external link as if it was written as `/test/`:
 
-```js {6}
+```js {6,11}
 export default defineConfig({
   integrations: [
     starlight({

@@ -5,11 +5,21 @@ import { z } from 'astro/zod'
 
 import { clearContentLayerCache } from './libs/astro'
 import { pathnameToSlug, stripTrailingSlash } from './libs/path'
-import { remarkStarlightLinksValidator, type RemarkStarlightLinksValidatorOptions } from './libs/remark'
+import { remarkStarlightLinksValidator, type RemarkStarlightLinksValidatorConfig } from './libs/remark'
 import { logErrors, validateLinks } from './libs/validation'
 
 const starlightLinksValidatorOptionsSchema = z
   .object({
+    /**
+     * Defines a list of additional components and their props that should be validated as links.
+     *
+     * By default, the plugin will only validate links defined in the `href` prop of the `<LinkButton>` and `<LinkCard>`
+     * built-in Starlight components.
+     * Adding custom components to this list will allow the plugin to validate links in those components as well.
+     *
+     * @default []
+     */
+    components: z.tuple([z.string(), z.string()]).array().default([]),
     /**
      * Defines whether the plugin should error on fallback pages.
      *
@@ -108,10 +118,10 @@ export default function starlightLinksValidatorPlugin(
                       remarkStarlightLinksValidator,
                       {
                         base: astroConfig.base,
+                        options: options.data,
                         site,
-                        sameSitePolicy: options.data.sameSitePolicy,
                         srcDir: astroConfig.srcDir,
-                      } satisfies RemarkStarlightLinksValidatorOptions,
+                      } satisfies RemarkStarlightLinksValidatorConfig,
                     ],
                   ],
                 },

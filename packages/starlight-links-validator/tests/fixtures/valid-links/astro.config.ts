@@ -6,7 +6,7 @@ export default defineConfig({
   integrations: [
     starlight({
       pagefind: false,
-      plugins: [starlightLinksValidator()],
+      plugins: [starlightLinksValidator({ components: [['CustomLinkFoo', 'link']] })],
       title: 'Starlight Links Validator Tests - valid links',
     }),
   ],

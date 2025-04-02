@@ -20,13 +20,22 @@ import type { StarlightLinksValidatorOptions } from '..'
 import { ensureTrailingSlash, stripLeadingSlash } from './path'
 import { ValidationErrorType } from './validation'
 
+const builtInComponents: StarlightLinksValidatorOptions['components'] = [
+  ['LinkButton', 'href'],
+  ['LinkCard', 'href'],
+]
+
 // All the headings keyed by file path.
 const headings: Headings = new Map()
 // All the internal links keyed by file path.
 const links: Links = new Map()
 
-export const remarkStarlightLinksValidator: Plugin<[RemarkStarlightLinksValidatorOptions], Root> = function (options) {
-  const { base, srcDir } = options
+export const remarkStarlightLinksValidator: Plugin<[RemarkStarlightLinksValidatorConfig], Root> = function (config) {
+  const { base, options, srcDir } = config
+
+  const linkComponents: Record<string, string> = Object.fromEntries(
+    [...builtInComponents, ...options.components].map(([name, attribute]) => [name, attribute]),
+  )
 
   return (tree, file) => {
     if (file.data.astro?.frontmatter?.['draft']) return
@@ -67,7 +76,7 @@ export const remarkStarlightLinksValidator: Plugin<[RemarkStarlightLinksValidato
           break
         }
         case 'link': {
-          const link = getLinkToValidate(node.url, options)
+          const link = getLinkToValidate(node.url, config)
           if (link) fileLinks.push(link)
 
           break
@@ -76,7 +85,7 @@ export const remarkStarlightLinksValidator: Plugin<[RemarkStarlightLinksValidato
           const definition = fileDefinitions.get(node.identifier)
           if (!definition) break
 
-          const link = getLinkToValidate(definition, options)
+          const link = getLinkToValidate(definition, config)
           if (link) fileLinks.push(link)
 
           break
@@ -88,20 +97,26 @@ export const remarkStarlightLinksValidator: Plugin<[RemarkStarlightLinksValidato
             }
           }
 
-          if (node.name !== 'a' && node.name !== 'LinkCard' && node.name !== 'LinkButton') {
+          if (!node.name) {
+            break
+          }
+
+          const componentProp = linkComponents[node.name]
+
+          if (node.name !== 'a' && !componentProp) {
             break
           }
 
           for (const attribute of node.attributes) {
             if (
               attribute.type !== 'mdxJsxAttribute' ||
-              attribute.name !== 'href' ||
+              attribute.name !== (componentProp ?? 'href') ||
               typeof attribute.value !== 'string'
             ) {
               continue
             }
 
-            const link = getLinkToValidate(attribute.value, options)
+            const link = getLinkToValidate(attribute.value, config)
             if (link) fileLinks.push(link)
           }
 
@@ -130,7 +145,7 @@ export const remarkStarlightLinksValidator: Plugin<[RemarkStarlightLinksValidato
               hasProperty(htmlNode, 'href') &&
               typeof htmlNode.properties.href === 'string'
             ) {
-              const link = getLinkToValidate(htmlNode.properties.href, options)
+              const link = getLinkToValidate(htmlNode.properties.href, config)
               if (link) fileLinks.push(link)
             }
           })
@@ -149,7 +164,7 @@ export function getValidationData() {
   return { headings, links }
 }
 
-function getLinkToValidate(link: string, options: RemarkStarlightLinksValidatorOptions): Link | undefined {
+function getLinkToValidate(link: string, { options, site }: RemarkStarlightLinksValidatorConfig): Link | undefined {
   const linkTovalidate = { raw: link }
 
   if (!isAbsoluteUrl(link)) {
@@ -159,7 +174,7 @@ function getLinkToValidate(link: string, options: RemarkStarlightLinksValidatorO
   try {
     const url = new URL(link)
 
-    if (options.sameSitePolicy !== 'ignore' && url.origin === options.site) {
+    if (options.sameSitePolicy !== 'ignore' && url.origin === site) {
       if (options.sameSitePolicy === 'error') {
         return { ...linkTovalidate, error: ValidationErrorType.SameSite }
       } else {
@@ -210,9 +225,9 @@ function isMdxIdAttribute(attribute: MdxJsxAttribute | MdxJsxExpressionAttribute
   return attribute.type === 'mdxJsxAttribute' && attribute.name === 'id' && typeof attribute.value === 'string'
 }
 
-export interface RemarkStarlightLinksValidatorOptions {
+export interface RemarkStarlightLinksValidatorConfig {
   base: string
-  sameSitePolicy: StarlightLinksValidatorOptions['sameSitePolicy']
+  options: StarlightLinksValidatorOptions
   site: AstroConfig['site']
   srcDir: URL
 }
