@@ -1,5 +1,27 @@
 # starlight-links-validator
 
+## 0.15.0
+
+### Minor Changes
+
+- [#93](https://github.com/HiDeoo/starlight-links-validator/pull/93) [`6d7174b`](https://github.com/HiDeoo/starlight-links-validator/commit/6d7174bcc6a2bb39f287a50bbdda29a6af4c16c8) Thanks [@HiDeoo](https://github.com/HiDeoo)! - ⚠️ **BREAKING CHANGE:** The minimum supported version of Starlight is now version `0.32.0`.
+
+  Please use the `@astrojs/upgrade` command to upgrade your project:
+
+  ```sh
+  npx @astrojs/upgrade
+  ```
+
+- [#100](https://github.com/HiDeoo/starlight-links-validator/pull/100) [`b238cb7`](https://github.com/HiDeoo/starlight-links-validator/commit/b238cb7bd3db5f8fe848c317ba52d5ab44eb853e) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Adds a new [`sameSitePolicy` option](https://starlight-links-validator.vercel.app/configuration#samesitepolicy) to configure how external links pointing to the same origin as the one configured in the [Astro `site` option](https://docs.astro.build/en/reference/configuration-reference/#site) should be handled.
+
+  The current default behavior to ignore all external links remains unchanged. This new option allows to error on such links so they can be rewritten without the origin or to validate them as if they were internal links.
+
+- [#100](https://github.com/HiDeoo/starlight-links-validator/pull/100) [`b238cb7`](https://github.com/HiDeoo/starlight-links-validator/commit/b238cb7bd3db5f8fe848c317ba52d5ab44eb853e) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Adds a new [`components`](https://starlight-links-validator.vercel.app/configuration#components) option to define additional components and their props to validate as links on top of the built-in `<LinkButton>` and `<LinkCard>` Starlight components.
+
+### Patch Changes
+
+- [#99](https://github.com/HiDeoo/starlight-links-validator/pull/99) [`56ea78c`](https://github.com/HiDeoo/starlight-links-validator/commit/56ea78cefa40f554f88a32181daae1a82ec2fa9a) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes validation issue with the [Astro `base` option](https://docs.astro.build/en/reference/configuration-reference/#base) and the [`errorOnFallbackPages` plugin option](https://starlight-links-validator.vercel.app/configuration#erroronfallbackpages) set to `false` in a multilingual project.
+
 ## 0.14.3
 
 ### Patch Changes
