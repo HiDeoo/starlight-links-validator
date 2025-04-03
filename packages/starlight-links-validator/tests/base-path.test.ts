@@ -9,7 +9,7 @@ test('validates links when the `base` Astro option is set', async () => {
 
   expect(status).toBe('error')
 
-  expectValidationErrorCount(output, 20, 2)
+  expectValidationErrorCount(output, 28, 2)
 
   expectValidationErrors(output, 'test/test/', [
     ['/guides/example', ValidationErrorType.InvalidLink],
@@ -28,6 +28,14 @@ test('validates links when the `base` Astro option is set', async () => {
     ['/release/@pkg/v0.1.0/#some-content', ValidationErrorType.InvalidLink],
     ['/guides/page-with-custom-slug', ValidationErrorType.InvalidLink],
     ['/guides/page-with-custom-slug/', ValidationErrorType.InvalidLink],
+    ['https://example.com/guides/example', ValidationErrorType.InvalidLink],
+    ['https://example.com/guides/example/', ValidationErrorType.InvalidLink],
+    ['https://example.com/guides/example#description', ValidationErrorType.InvalidLink],
+    ['https://example.com/guides/example/#description', ValidationErrorType.InvalidLink],
+    ['https://example.com/unknown', ValidationErrorType.InvalidLink],
+    ['https://example.com/unknown/', ValidationErrorType.InvalidLink],
+    ['https://example.com/test/guides/example#unknown', ValidationErrorType.InvalidHash],
+    ['https://example.com/test/guides/example/#unknown', ValidationErrorType.InvalidHash],
   ])
 
   expectValidationErrors(output, 'test/fr/test/', [

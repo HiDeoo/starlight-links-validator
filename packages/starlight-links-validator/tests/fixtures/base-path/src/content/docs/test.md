@@ -44,3 +44,23 @@ title: Test
 
 - [Example page with custom slug and old link](/guides/page-with-custom-slug)
 - [Example page with custom slug and old link](/guides/page-with-custom-slug/)
+
+## Same site URL
+
+- [Example page](https://example.com/test/guides/example)
+- [Example page](https://example.com/test/guides/example/)
+
+- [Example page with hash](https://example.com/test/guides/example#description)
+- [Example page with hash](https://example.com/test/guides/example/#description)
+
+- [Example page with missing base](https://example.com/guides/example)
+- [Example page with missing base](https://example.com/guides/example/)
+
+- [Example page with missing base and hash](https://example.com/guides/example#description)
+- [Example page with missing base and hash](https://example.com/guides/example/#description)
+
+- [Unknown page](https://example.com/unknown)
+- [Unknown page](https://example.com/unknown/)
+
+- [Example page with unknown hash](https://example.com/test/guides/example#unknown)
+- [Example page with unknown hash](https://example.com/test/guides/example/#unknown)

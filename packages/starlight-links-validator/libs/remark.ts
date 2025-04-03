@@ -3,6 +3,7 @@ import 'mdast-util-mdx-jsx'
 import nodePath from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import type { AstroConfig } from 'astro'
 import GitHubSlugger, { slug } from 'github-slugger'
 import type { Nodes } from 'hast'
 import { fromHtml } from 'hast-util-from-html'
@@ -14,17 +15,28 @@ import { toString } from 'mdast-util-to-string'
 import type { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
 
+import type { StarlightLinksValidatorOptions } from '..'
+
 import { ensureTrailingSlash, stripLeadingSlash } from './path'
+import { ValidationErrorType } from './validation'
+
+const builtInComponents: StarlightLinksValidatorOptions['components'] = [
+  ['LinkButton', 'href'],
+  ['LinkCard', 'href'],
+]
 
 // All the headings keyed by file path.
 const headings: Headings = new Map()
 // All the internal links keyed by file path.
 const links: Links = new Map()
 
-export const remarkStarlightLinksValidator: Plugin<[{ base: string; srcDir: URL }], Root> = function ({
-  base,
-  srcDir,
-}) {
+export const remarkStarlightLinksValidator: Plugin<[RemarkStarlightLinksValidatorConfig], Root> = function (config) {
+  const { base, options, srcDir } = config
+
+  const linkComponents: Record<string, string> = Object.fromEntries(
+    [...builtInComponents, ...options.components].map(([name, attribute]) => [name, attribute]),
+  )
+
   return (tree, file) => {
     if (file.data.astro?.frontmatter?.['draft']) return
 
@@ -34,7 +46,7 @@ export const remarkStarlightLinksValidator: Plugin<[{ base: string; srcDir: URL 
       typeof file.data.astro?.frontmatter?.['slug'] === 'string' ? file.data.astro.frontmatter['slug'] : undefined
 
     const fileHeadings: string[] = []
-    const fileLinks: string[] = []
+    const fileLinks: Link[] = []
     const fileDefinitions = new Map<string, string>()
 
     visit(tree, 'definition', (node) => {
@@ -64,18 +76,17 @@ export const remarkStarlightLinksValidator: Plugin<[{ base: string; srcDir: URL 
           break
         }
         case 'link': {
-          if (shouldValidateLink(node.url)) {
-            fileLinks.push(node.url)
-          }
+          const link = getLinkToValidate(node.url, config)
+          if (link) fileLinks.push(link)
 
           break
         }
         case 'linkReference': {
           const definition = fileDefinitions.get(node.identifier)
+          if (!definition) break
 
-          if (definition && shouldValidateLink(definition)) {
-            fileLinks.push(definition)
-          }
+          const link = getLinkToValidate(definition, config)
+          if (link) fileLinks.push(link)
 
           break
         }
@@ -86,22 +97,27 @@ export const remarkStarlightLinksValidator: Plugin<[{ base: string; srcDir: URL 
             }
           }
 
-          if (node.name !== 'a' && node.name !== 'LinkCard' && node.name !== 'LinkButton') {
+          if (!node.name) {
+            break
+          }
+
+          const componentProp = linkComponents[node.name]
+
+          if (node.name !== 'a' && !componentProp) {
             break
           }
 
           for (const attribute of node.attributes) {
             if (
               attribute.type !== 'mdxJsxAttribute' ||
-              attribute.name !== 'href' ||
+              attribute.name !== (componentProp ?? 'href') ||
               typeof attribute.value !== 'string'
             ) {
               continue
             }
 
-            if (shouldValidateLink(attribute.value)) {
-              fileLinks.push(attribute.value)
-            }
+            const link = getLinkToValidate(attribute.value, config)
+            if (link) fileLinks.push(link)
           }
 
           break
@@ -127,10 +143,10 @@ export const remarkStarlightLinksValidator: Plugin<[{ base: string; srcDir: URL 
               htmlNode.type === 'element' &&
               htmlNode.tagName === 'a' &&
               hasProperty(htmlNode, 'href') &&
-              typeof htmlNode.properties.href === 'string' &&
-              shouldValidateLink(htmlNode.properties.href)
+              typeof htmlNode.properties.href === 'string'
             ) {
-              fileLinks.push(htmlNode.properties.href)
+              const link = getLinkToValidate(htmlNode.properties.href, config)
+              if (link) fileLinks.push(link)
             }
           })
 
@@ -148,17 +164,31 @@ export function getValidationData() {
   return { headings, links }
 }
 
-function shouldValidateLink(link: string) {
+function getLinkToValidate(link: string, { options, site }: RemarkStarlightLinksValidatorConfig): Link | undefined {
+  const linkTovalidate = { raw: link }
+
   if (!isAbsoluteUrl(link)) {
-    return true
+    return linkTovalidate
   }
 
   try {
     const url = new URL(link)
 
+    if (options.sameSitePolicy !== 'ignore' && url.origin === site) {
+      if (options.sameSitePolicy === 'error') {
+        return { ...linkTovalidate, error: ValidationErrorType.SameSite }
+      } else {
+        let transformed = link.replace(url.origin, '')
+        if (!transformed) transformed = '/'
+        return { ...linkTovalidate, transformed }
+      }
+    }
+
     return url.hostname === 'localhost' || url.hostname === '127.0.0.1'
+      ? { ...linkTovalidate, error: ValidationErrorType.LocalLink }
+      : undefined
   } catch {
-    return false
+    return undefined
   }
 }
 
@@ -195,8 +225,21 @@ function isMdxIdAttribute(attribute: MdxJsxAttribute | MdxJsxExpressionAttribute
   return attribute.type === 'mdxJsxAttribute' && attribute.name === 'id' && typeof attribute.value === 'string'
 }
 
+export interface RemarkStarlightLinksValidatorConfig {
+  base: string
+  options: StarlightLinksValidatorOptions
+  site: AstroConfig['site']
+  srcDir: URL
+}
+
 export type Headings = Map<string, string[]>
-export type Links = Map<string, string[]>
+export type Links = Map<string, Link[]>
+
+export interface Link {
+  error?: ValidationErrorType
+  raw: string
+  transformed?: string
+}
 
 interface MdxIdAttribute {
   name: 'id'

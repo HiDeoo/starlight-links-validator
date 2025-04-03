@@ -4,12 +4,22 @@ import { AstroError } from 'astro/errors'
 import { z } from 'astro/zod'
 
 import { clearContentLayerCache } from './libs/astro'
-import { pathnameToSlug } from './libs/path'
-import { remarkStarlightLinksValidator } from './libs/remark'
+import { pathnameToSlug, stripTrailingSlash } from './libs/path'
+import { remarkStarlightLinksValidator, type RemarkStarlightLinksValidatorConfig } from './libs/remark'
 import { logErrors, validateLinks } from './libs/validation'
 
 const starlightLinksValidatorOptionsSchema = z
   .object({
+    /**
+     * Defines a list of additional components and their props that should be validated as links.
+     *
+     * By default, the plugin will only validate links defined in the `href` prop of the `<LinkButton>` and `<LinkCard>`
+     * built-in Starlight components.
+     * Adding custom components to this list will allow the plugin to validate links in those components as well.
+     *
+     * @default []
+     */
+    components: z.tuple([z.string(), z.string()]).array().default([]),
     /**
      * Defines whether the plugin should error on fallback pages.
      *
@@ -58,6 +68,20 @@ const starlightLinksValidatorOptionsSchema = z
      * @default []
      */
     exclude: z.array(z.string()).default([]),
+    /**
+     * Defines the policy for external links with an origin matching the Astro `site` option.
+     *
+     * By default, all external links are ignored and not validated by the plugin.
+     * Setting this option to `error` will make the plugin error on external links with an origin matching the Astro
+     * `site` option and hint that the link can be rewritten without the origin.
+     * Setting this option to `validate` will make the plugin validate external links with an origin matching the Astro
+     * `site` option as if they were internal links.
+     *
+     * @default 'ignore'
+     * @see https://docs.astro.build/en/reference/configuration-reference/#site
+     * @see https://developer.mozilla.org/en-US/docs/Web/API/URL/origin
+     */
+    sameSitePolicy: z.enum(['error', 'ignore', 'validate']).default('ignore'),
   })
   .default({})
 
@@ -75,6 +99,7 @@ export default function starlightLinksValidatorPlugin(
     hooks: {
       'config:setup'({ addIntegration, astroConfig, config: starlightConfig, logger }) {
         let routes: IntegrationResolvedRoute[] = []
+        const site = astroConfig.site ? stripTrailingSlash(astroConfig.site) : undefined
 
         addIntegration({
           name: 'starlight-links-validator-integration',
@@ -89,7 +114,15 @@ export default function starlightLinksValidatorPlugin(
               updateConfig({
                 markdown: {
                   remarkPlugins: [
-                    [remarkStarlightLinksValidator, { base: astroConfig.base, srcDir: astroConfig.srcDir }],
+                    [
+                      remarkStarlightLinksValidator,
+                      {
+                        base: astroConfig.base,
+                        options: options.data,
+                        site,
+                        srcDir: astroConfig.srcDir,
+                      } satisfies RemarkStarlightLinksValidatorConfig,
+                    ],
                   ],
                 },
               })
@@ -111,7 +144,7 @@ export default function starlightLinksValidatorPlugin(
 
               const errors = validateLinks(pages, customPages, dir, astroConfig, starlightConfig, options.data)
 
-              const hasInvalidLinkToCustomPage = logErrors(logger, errors)
+              const hasInvalidLinkToCustomPage = logErrors(logger, errors, site)
 
               if (errors.size > 0) {
                 throwPluginError(

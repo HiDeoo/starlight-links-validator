@@ -11,8 +11,9 @@ export default defineConfig({
         fr: { label: 'Français', lang: 'fr' },
       },
       pagefind: false,
-      plugins: [starlightLinksValidator({ errorOnFallbackPages: false })],
+      plugins: [starlightLinksValidator({ errorOnFallbackPages: false, sameSitePolicy: 'validate' })],
       title: 'Starlight Links Validator Tests - base path',
     }),
   ],
+  site: 'https://example.com',
 })
