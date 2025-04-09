@@ -84,3 +84,9 @@ title: Index
 
 - [Unknown page](https://example.com/unknown)
 - [Unknown page](https://example.com/unknown/)
+
+## Local links
+
+- [Local link](http://localhost)
+- [Local link with port](http://localhost:4321/)
+- [Local link using HTTPS](https://127.0.0.1:4321/getting-started)
