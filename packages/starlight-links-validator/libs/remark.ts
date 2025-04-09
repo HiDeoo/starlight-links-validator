@@ -184,6 +184,8 @@ function getLinkToValidate(link: string, { options, site }: RemarkStarlightLinks
       }
     }
 
+    if (!options.errorOnLocalLinks) return
+
     return url.hostname === 'localhost' || url.hostname === '127.0.0.1'
       ? { ...linkTovalidate, error: ValidationErrorType.LocalLink }
       : undefined
