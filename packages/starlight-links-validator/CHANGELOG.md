@@ -1,5 +1,11 @@
 # starlight-links-validator
 
+## 0.15.1
+
+### Patch Changes
+
+- [#102](https://github.com/HiDeoo/starlight-links-validator/pull/102) [`88e66a8`](https://github.com/HiDeoo/starlight-links-validator/commit/88e66a8236eeb419ae50e4aac046500600951cc9) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes a regression with version `0.15.0` where the `errorOnLocalLinks` option was not being applied correctly.
+
 ## 0.15.0
 
 ### Minor Changes
