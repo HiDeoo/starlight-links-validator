@@ -1,5 +1,13 @@
 # starlight-links-validator
 
+## 0.16.0
+
+### Minor Changes
+
+- [#104](https://github.com/HiDeoo/starlight-links-validator/pull/104) [`cbeaa0f`](https://github.com/HiDeoo/starlight-links-validator/commit/cbeaa0f10d757947940af77e5e9de308f97993a8) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Ignores query strings when checking for [excluded links](https://starlight-links-validator.vercel.app/configuration#exclude).
+
+  Previously, to exclude links with query strings, you may have needed to rely on fairly loose glob patterns, e.g. `/playground/**` to exclude `/playground/`, `/playground/?id=foo` and `/playground/?id=bar`. With this change, excluding `/playground/` will ignore all query strings, so `/playground/`, `/playground/?id=foo` and `/playground/?id=bar` will all be excluded.
+
 ## 0.15.1
 
 ### Patch Changes
