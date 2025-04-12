@@ -9,10 +9,11 @@ test('ignores links that are excluded from validation', async () => {
 
   expect(status).toBe('error')
 
-  expectValidationErrorCount(output, 6, 1)
+  expectValidationErrorCount(output, 7, 1)
 
   expectValidationErrors(output, '/', [
     ['/excluded/', ValidationErrorType.InvalidLink],
+    ['/excluded/?something', ValidationErrorType.InvalidLink],
     ['/excluded#test', ValidationErrorType.InvalidLink],
     ['/test/excluded', ValidationErrorType.InvalidLink],
     ['/test/excluded/test', ValidationErrorType.InvalidLink],

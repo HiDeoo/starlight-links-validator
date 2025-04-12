@@ -249,7 +249,7 @@ function isValidAsset(path: string, context: ValidationContext) {
  * Check if a link is excluded from validation by the user.
  */
 function isExcludedLink(link: Link, context: ValidationContext) {
-  return picomatch(context.options.exclude)(link.raw)
+  return picomatch(context.options.exclude)(stripQueryString(link.raw))
 }
 
 function stripQueryString(path: string): string {
