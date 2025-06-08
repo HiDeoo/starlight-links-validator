@@ -61,13 +61,38 @@ const starlightLinksValidatorOptionsSchema = z
      */
     errorOnLocalLinks: z.boolean().default(true),
     /**
-     * Defines a list of links or glob patterns that should be excluded from validation.
+     * Defines a list of links or glob patterns that should be excluded from validation or a function that will be
+     * called for each link to determine if it should be excluded from validation or not.
      *
-     * The links in this list will be ignored by the plugin and will not be validated.
+     * The links in this list or links where the function returns `true` will be ignored by the plugin and will not be
+     * validated.
      *
      * @default []
      */
-    exclude: z.array(z.string()).default([]),
+    exclude: z
+      .union([
+        z.array(z.string()),
+        z
+          .function()
+          .args(
+            z.object({
+              /**
+               * The absolute path to the file where the link is defined.
+               */
+              file: z.string(),
+              /**
+               * The link to validate as authored in the content.
+               */
+              link: z.string(),
+              /**
+               * The slug of the page where the link is defined.
+               */
+              slug: z.string(),
+            }),
+          )
+          .returns(z.boolean()),
+      ])
+      .default([]),
     /**
      * Defines the policy for external links with an origin matching the Astro `site` option.
      *

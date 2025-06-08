@@ -166,6 +166,18 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/starlight-links-validator/tests/fixtures/exclude-fn:
+    dependencies:
+      '@astrojs/starlight':
+        specifier: ^0.32.0
+        version: 0.32.0(astro@5.3.0)
+      astro:
+        specifier: ^5.3.0
+        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+      starlight-links-validator:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/starlight-links-validator/tests/fixtures/fallback-invalid-links:
     dependencies:
       '@astrojs/starlight':

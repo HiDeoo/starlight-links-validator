@@ -25,10 +25,8 @@ const builtInComponents: StarlightLinksValidatorOptions['components'] = [
   ['LinkCard', 'href'],
 ]
 
-// All the headings keyed by file path.
-const headings: Headings = new Map()
-// All the internal links keyed by file path.
-const links: Links = new Map()
+// All the validation data keyed by file path.
+const data: ValidationData = new Map()
 
 export const remarkStarlightLinksValidator: Plugin<[RemarkStarlightLinksValidatorConfig], Root> = function (config) {
   const { base, options, srcDir } = config
@@ -40,8 +38,11 @@ export const remarkStarlightLinksValidator: Plugin<[RemarkStarlightLinksValidato
   return (tree, file) => {
     if (file.data.astro?.frontmatter?.['draft']) return
 
+    const originalPath = file.history[0]
+    if (!originalPath) throw new Error('Missing file path to validate links.')
+
     const slugger = new GitHubSlugger()
-    const filePath = normalizeFilePath(base, srcDir, file.history[0])
+    const filePath = normalizeFilePath(base, srcDir, originalPath)
     const slug: string | undefined =
       typeof file.data.astro?.frontmatter?.['slug'] === 'string' ? file.data.astro.frontmatter['slug'] : undefined
 
@@ -155,13 +156,16 @@ export const remarkStarlightLinksValidator: Plugin<[RemarkStarlightLinksValidato
       }
     })
 
-    headings.set(getFilePath(base, filePath, slug), fileHeadings)
-    links.set(getFilePath(base, filePath, slug), fileLinks)
+    data.set(getFilePath(base, filePath, slug), {
+      file: originalPath,
+      headings: fileHeadings,
+      links: fileLinks,
+    })
   }
 }
 
-export function getValidationData() {
-  return { headings, links }
+export function getValidationData(): ValidationData {
+  return data
 }
 
 function getLinkToValidate(link: string, { options, site }: RemarkStarlightLinksValidatorConfig): Link | undefined {
@@ -202,11 +206,7 @@ function getFilePath(base: string, filePath: string, slug: string | undefined) {
   return filePath
 }
 
-function normalizeFilePath(base: string, srcDir: URL, filePath?: string) {
-  if (!filePath) {
-    throw new Error('Missing file path to validate links.')
-  }
-
+function normalizeFilePath(base: string, srcDir: URL, filePath: string) {
   const path = nodePath
     .relative(nodePath.join(fileURLToPath(srcDir), 'content/docs'), filePath)
     .replace(/\.\w+$/, '')
@@ -234,8 +234,17 @@ export interface RemarkStarlightLinksValidatorConfig {
   srcDir: URL
 }
 
-export type Headings = Map<string, string[]>
-export type Links = Map<string, Link[]>
+export type ValidationData = Map<
+  string,
+  {
+    // The absolute path to the file.
+    file: string
+    // All the headings.
+    headings: string[]
+    // All the internal links.
+    links: Link[]
+  }
+>
 
 export interface Link {
   error?: ValidationErrorType

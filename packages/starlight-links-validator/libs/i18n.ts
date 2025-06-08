@@ -1,5 +1,5 @@
 import { ensureLeadingSlash, ensureTrailingSlash, stripLeadingSlash } from './path'
-import type { Headings } from './remark'
+import type { ValidationData } from './remark'
 import type { StarlightUserConfig } from './validation'
 
 export function getLocaleConfig(config: StarlightUserConfig): LocaleConfig | undefined {
@@ -30,7 +30,7 @@ export function getLocaleConfig(config: StarlightUserConfig): LocaleConfig | und
 
 export function getFallbackHeadings(
   path: string,
-  headings: Headings,
+  validationData: ValidationData,
   localeConfig: LocaleConfig | undefined,
   base: string,
 ): string[] | undefined {
@@ -48,7 +48,7 @@ export function getFallbackHeadings(
           (localeConfig.defaultLocale === '' ? localeConfig.defaultLocale : `${localeConfig.defaultLocale}/`),
       )
 
-      return headings.get(fallbackPath === '' ? '/' : fallbackPath)
+      return validationData.get(fallbackPath === '' ? '/' : fallbackPath)?.headings
     }
   }
 
