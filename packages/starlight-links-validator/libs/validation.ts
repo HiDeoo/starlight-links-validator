@@ -11,7 +11,7 @@ import type { StarlightLinksValidatorOptions } from '..'
 
 import { getFallbackHeadings, getLocaleConfig, isInconsistentLocaleLink, type LocaleConfig } from './i18n'
 import { ensureTrailingSlash, stripLeadingSlash, stripTrailingSlash } from './path'
-import { getValidationData, type Headings, type Link } from './remark'
+import { getValidationData, type Link, type ValidationData } from './remark'
 
 export const ValidationErrorType = {
   InconsistentLocale: 'inconsistent locale',
@@ -36,7 +36,7 @@ export function validateLinks(
   process.stdout.write(`\n${bgGreen(black(` validating links `))}\n`)
 
   const localeConfig = getLocaleConfig(starlightConfig)
-  const { headings, links } = getValidationData()
+  const validationData = getValidationData()
   const allPages: Pages = new Set(
     pages.map((page) =>
       ensureTrailingSlash(
@@ -49,19 +49,19 @@ export function validateLinks(
 
   const errors: ValidationErrors = new Map()
 
-  for (const [filePath, fileLinks] of links) {
+  for (const [filePath, { links: fileLinks }] of validationData) {
     for (const link of fileLinks) {
       const validationContext: ValidationContext = {
         astroConfig,
         customPages,
         errors,
         filePath,
-        headings,
         link,
         localeConfig,
         options,
         outputDir,
         pages: allPages,
+        validationData,
       }
 
       if (link.raw.startsWith('#') || link.raw.startsWith('?')) {
@@ -194,23 +194,29 @@ function validateLink(context: ValidationContext) {
   }
 }
 
-function getFileHeadings(path: string, { astroConfig, headings, localeConfig, options }: ValidationContext) {
-  let heading = headings.get(path === '' ? '/' : path)
+function getFileHeadings(path: string, { astroConfig, localeConfig, options, validationData }: ValidationContext) {
+  let headings = validationData.get(path === '' ? '/' : path)?.headings
 
-  if (!options.errorOnFallbackPages && !heading && localeConfig) {
-    heading = getFallbackHeadings(path, headings, localeConfig, astroConfig.base)
+  if (!options.errorOnFallbackPages && !headings && localeConfig) {
+    headings = getFallbackHeadings(path, validationData, localeConfig, astroConfig.base)
   }
 
-  return heading
+  return headings
 }
 
 /**
  * Validate a link to an hash in the same page.
  */
-function validateSelfHash({ errors, link, filePath, headings }: ValidationContext) {
+function validateSelfHash(context: ValidationContext) {
+  const { errors, link, filePath, validationData } = context
+
+  if (isExcludedLink(link, context)) {
+    return
+  }
+
   const hash = link.raw.split('#')[1] ?? link.raw
   const sanitizedHash = hash.replace(/^#/, '')
-  const fileHeadings = headings.get(filePath)
+  const fileHeadings = validationData.get(filePath)?.headings
 
   if (!fileHeadings) {
     throw new Error(`Failed to find headings for the file at '${filePath}'.`)
@@ -248,8 +254,17 @@ function isValidAsset(path: string, context: ValidationContext) {
 /**
  * Check if a link is excluded from validation by the user.
  */
-function isExcludedLink(link: Link, context: ValidationContext) {
-  return picomatch(context.options.exclude)(stripQueryString(link.raw))
+function isExcludedLink(link: Link, { filePath, options, validationData }: ValidationContext) {
+  if (Array.isArray(options.exclude)) return picomatch(options.exclude)(stripQueryString(link.raw))
+
+  const file = validationData.get(filePath)?.file
+  if (!file) throw new Error('Missing file path to check exclusion.')
+
+  return options.exclude({
+    file,
+    link: link.raw,
+    slug: stripTrailingSlash(filePath),
+  })
 }
 
 function stripQueryString(path: string): string {
@@ -294,12 +309,12 @@ interface ValidationContext {
   customPages: Set<string>
   errors: ValidationErrors
   filePath: string
-  headings: Headings
   link: Link
   localeConfig: LocaleConfig | undefined
   options: StarlightLinksValidatorOptions
   outputDir: URL
   pages: Pages
+  validationData: ValidationData
 }
 
 export type StarlightUserConfig = Omit<StarlightUserConfigWithPlugins, 'plugins'>
