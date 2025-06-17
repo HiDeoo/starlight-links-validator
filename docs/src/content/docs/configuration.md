@@ -179,12 +179,15 @@ export default defineConfig({
 
 ### `exclude`
 
-**Type:** `string[]`  
+**Type:** `string[] | ((infos: { file: string, link: string, slug: string }) => boolean)`
 **Default:** `[]`
 
 A list of links or [glob patterns](https://github.com/micromatch/picomatch#globbing-features) that should be excluded from validation.
+For more advanced use cases, a function can also be provided to dynamically determine whether a link should be excluded or not.
 
 This option should be used with caution but can be useful to exclude links that are not meant to be validated like redirects only existing in production or links to [custom pages](https://starlight.astro.build/guides/pages/#custom-pages) that are automatically generated or not part of your documentation.
+
+The following example uses glob patterns to exclude links to the `/social/twitter` page and all links to any pages in the `/api/interface/` and `/api/functions/` directories:
 
 ```js {6}
 export default defineConfig({
@@ -205,6 +208,31 @@ export default defineConfig({
 You can use this [webpage](https://www.digitalocean.com/community/tools/glob) to generate and test glob patterns.
 
 :::
+
+When using the function syntax, the function should return `true` for any link that should be excluded from validation or `false` otherwise.
+The function will be called for each link to validate and will receive an object with the following properties as the first argument:
+
+- `file` — The absolute path to the file where the link is defined.
+- `link` — The link to validate as authored in the content.
+- `slug` — The slug of the page where the link is defined.
+
+The following example will exclude all links starting with `/secret/` from validation using a function:
+
+```js {6-8}
+export default defineConfig({
+  integrations: [
+    starlight({
+      plugins: [
+        starlightLinksValidator({
+          exclude: ({ link }) => {
+            return link.startsWith('/secret/')
+          },
+        }),
+      ],
+    }),
+  ],
+})
+```
 
 ### `sameSitePolicy`
 
