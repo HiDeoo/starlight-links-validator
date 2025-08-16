@@ -1,5 +1,11 @@
 # starlight-links-validator
 
+## 0.17.1
+
+### Patch Changes
+
+- [#113](https://github.com/HiDeoo/starlight-links-validator/pull/113) [`3e0a88c`](https://github.com/HiDeoo/starlight-links-validator/commit/3e0a88cd2f7f6f84c57248ae72a8e8df32c22dbe) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Prevents plugin remark plugin from running on Markdown and MDX content when using the Astro [`renderMarkdown()`](https://docs.astro.build/en/reference/content-loader-reference/#rendermarkdown) content loader API.
+
 ## 0.17.0
 
 ### Minor Changes
