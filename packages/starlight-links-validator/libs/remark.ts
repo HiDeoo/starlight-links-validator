@@ -36,6 +36,9 @@ export const remarkStarlightLinksValidator: Plugin<[RemarkStarlightLinksValidato
   )
 
   return (tree, file) => {
+    // If the content does not have a path, e.g. when rendered using the content loader `renderMarkdown()` API, skip it.
+    if (!file.path) return
+
     if (file.data.astro?.frontmatter?.['draft']) return
 
     const originalPath = file.history[0]
