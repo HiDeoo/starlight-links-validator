@@ -17,9 +17,13 @@ title: Index
 - [Test page with invalid hash](/test#unknown)
 - [Test page with invalid hash](/test/#unknown)
 
+- [Test page with invalid hash (because \_top not valid when other page)](/test#_top)
+- [Test page with invalid hash (because \_top not valid when other page)](/test/#_top)
+
 # More links
 
 - [Link to valid hash in this page](#some-links)
+- [Link to valid hash in this page (special case)](#_top)
 - [Link to invalid hash in this page](#unknown)
 - [Link to valid hash in another MDX page](/guides/example/#some-links)
 - [Link to invalid hash in another MDX page](/guides/example/#unknown)
