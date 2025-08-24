@@ -28,7 +28,7 @@ importers:
         version: 2.0.1
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
       eslint:
         specifier: ^9.17.0
         version: 9.17.0
@@ -49,7 +49,7 @@ importers:
         version: 0.4.0(@astrojs/starlight@0.32.0)(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
       sharp:
         specifier: ^0.33.5
         version: 0.33.5
@@ -61,7 +61,7 @@ importers:
         version: 0.32.0(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
       sharp:
         specifier: ^0.33.5
         version: 0.33.5
@@ -117,6 +117,12 @@ importers:
       remark-custom-heading-id:
         specifier: ^2.0.0
         version: 2.0.0
+      remark-parse:
+        specifier: ^11.0.0
+        version: 11.0.0
+      remark-stringify:
+        specifier: ^11.0.0
+        version: 11.0.0
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -134,7 +140,7 @@ importers:
         version: 0.32.0(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
       starlight-links-validator:
         specifier: workspace:*
         version: link:../../..
@@ -146,7 +152,7 @@ importers:
         version: 0.32.0(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
       remark-custom-heading-id:
         specifier: ^2.0.0
         version: 2.0.0
@@ -161,7 +167,19 @@ importers:
         version: 0.32.0(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
+      starlight-links-validator:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/starlight-links-validator/tests/fixtures/exclude-fn:
+    dependencies:
+      '@astrojs/starlight':
+        specifier: ^0.32.0
+        version: 0.32.0(astro@5.3.0)
+      astro:
+        specifier: ^5.3.0
+        version: 5.3.0(typescript@5.7.2)
       starlight-links-validator:
         specifier: workspace:*
         version: link:../../..
@@ -173,7 +191,7 @@ importers:
         version: 0.32.0(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
       starlight-links-validator:
         specifier: workspace:*
         version: link:../../..
@@ -185,7 +203,7 @@ importers:
         version: 0.32.0(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
       starlight-links-validator:
         specifier: workspace:*
         version: link:../../..
@@ -197,7 +215,7 @@ importers:
         version: 0.32.0(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
       starlight-links-validator:
         specifier: workspace:*
         version: link:../../..
@@ -209,7 +227,7 @@ importers:
         version: 0.32.0(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
       starlight-links-validator:
         specifier: workspace:*
         version: link:../../..
@@ -221,7 +239,7 @@ importers:
         version: 0.32.0(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
       starlight-links-validator:
         specifier: workspace:*
         version: link:../../..
@@ -233,7 +251,7 @@ importers:
         version: 0.32.0(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
       starlight-links-validator:
         specifier: workspace:*
         version: link:../../..
@@ -245,7 +263,7 @@ importers:
         version: 0.32.0(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
       starlight-links-validator:
         specifier: workspace:*
         version: link:../../..
@@ -257,7 +275,7 @@ importers:
         version: 0.32.0(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
       starlight-links-validator:
         specifier: workspace:*
         version: link:../../..
@@ -269,7 +287,7 @@ importers:
         version: 0.32.0(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
       starlight-links-validator:
         specifier: workspace:*
         version: link:../../..
@@ -281,7 +299,7 @@ importers:
         version: 0.32.0(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
       starlight-links-validator:
         specifier: workspace:*
         version: link:../../..
@@ -293,7 +311,7 @@ importers:
         version: 0.32.0(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
       starlight-links-validator:
         specifier: workspace:*
         version: link:../../..
@@ -305,7 +323,31 @@ importers:
         version: 0.32.0(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
+      starlight-links-validator:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/starlight-links-validator/tests/fixtures/same-site-error:
+    dependencies:
+      '@astrojs/starlight':
+        specifier: ^0.32.0
+        version: 0.32.0(astro@5.3.0)
+      astro:
+        specifier: ^5.3.0
+        version: 5.3.0(typescript@5.7.2)
+      starlight-links-validator:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/starlight-links-validator/tests/fixtures/same-site-validate:
+    dependencies:
+      '@astrojs/starlight':
+        specifier: ^0.32.0
+        version: 0.32.0(astro@5.3.0)
+      astro:
+        specifier: ^5.3.0
+        version: 5.3.0(typescript@5.7.2)
       starlight-links-validator:
         specifier: workspace:*
         version: link:../../..
@@ -317,7 +359,7 @@ importers:
         version: 0.32.0(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
       starlight-links-validator:
         specifier: workspace:*
         version: link:../../..
@@ -329,7 +371,7 @@ importers:
         version: 0.32.0(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
       starlight-links-validator:
         specifier: workspace:*
         version: link:../../..
@@ -341,7 +383,7 @@ importers:
         version: 0.32.0(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
       starlight-links-validator:
         specifier: workspace:*
         version: link:../../..
@@ -353,7 +395,7 @@ importers:
         version: 0.32.0(astro@5.3.0)
       astro:
         specifier: ^5.3.0
-        version: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+        version: 5.3.0(typescript@5.7.2)
       starlight-links-validator:
         specifier: workspace:*
         version: link:../../..
@@ -371,7 +413,7 @@ packages:
       astro: ^2.0.0 || ^3.0.0-beta || ^4.0.0-beta || ^5.0.0-beta
     dependencies:
       '@astro-community/astro-embed-utils': 0.1.2
-      astro: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+      astro: 5.3.0(typescript@5.7.2)
     dev: false
 
   /@astro-community/astro-embed-utils@0.1.2:
@@ -385,7 +427,7 @@ packages:
     peerDependencies:
       astro: ^2.0.0 || ^3.0.0-beta || ^4.0.0-beta || ^5.0.0-beta
     dependencies:
-      astro: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+      astro: 5.3.0(typescript@5.7.2)
       lite-youtube-embed: 0.3.3
     dev: false
 
@@ -481,7 +523,7 @@ packages:
       '@astrojs/markdown-remark': 6.1.0
       '@mdx-js/mdx': 3.1.0(acorn@8.14.0)
       acorn: 8.14.0
-      astro: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+      astro: 5.3.0(typescript@5.7.2)
       es-module-lexer: 1.6.0
       estree-util-visit: 2.0.0
       hast-util-to-html: 9.0.4
@@ -521,7 +563,7 @@ packages:
       '@types/hast': 3.0.4
       '@types/js-yaml': 4.0.9
       '@types/mdast': 4.0.4
-      astro: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+      astro: 5.3.0(typescript@5.7.2)
       astro-expressive-code: 0.40.2(astro@5.3.0)
       bcp-47: 2.1.0
       hast-util-from-html: 2.0.3
@@ -2340,11 +2382,11 @@ packages:
     peerDependencies:
       astro: ^4.0.0-beta || ^5.0.0-beta || ^3.3.0
     dependencies:
-      astro: 5.3.0(@types/node@18.19.68)(typescript@5.7.2)
+      astro: 5.3.0(typescript@5.7.2)
       rehype-expressive-code: 0.40.2
     dev: false
 
-  /astro@5.3.0(@types/node@18.19.68)(typescript@5.7.2):
+  /astro@5.3.0(typescript@5.7.2):
     resolution: {integrity: sha512-e88l/Yk/6enR/ZDddLbqtM+oblBFk5mneNSmNesyVYGL/6Dj4UA67GPAZOk79VxT5dbLlclZSyyw/wlxN1aj3A==}
     engines: {node: ^18.17.1 || ^20.3.0 || >=22.0.0, npm: '>=9.6.5', pnpm: '>=7.1.0'}
     hasBin: true

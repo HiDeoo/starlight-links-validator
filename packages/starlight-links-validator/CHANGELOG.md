@@ -1,5 +1,57 @@
 # starlight-links-validator
 
+## 0.17.1
+
+### Patch Changes
+
+- [#113](https://github.com/HiDeoo/starlight-links-validator/pull/113) [`3e0a88c`](https://github.com/HiDeoo/starlight-links-validator/commit/3e0a88cd2f7f6f84c57248ae72a8e8df32c22dbe) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Prevents plugin remark plugin from running on Markdown and MDX content when using the Astro [`renderMarkdown()`](https://docs.astro.build/en/reference/content-loader-reference/#rendermarkdown) content loader API.
+
+## 0.17.0
+
+### Minor Changes
+
+- [#108](https://github.com/HiDeoo/starlight-links-validator/pull/108) [`82f8ec5`](https://github.com/HiDeoo/starlight-links-validator/commit/82f8ec5cff97d5b9e343440666a3bb67de216b00) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Adds support for [excluding](https://starlight-links-validator.vercel.app/configuration#exclude) links from validation using a function.
+
+  When using the function syntax, the function should return `true` for any link that should be excluded from validation or `false` otherwise. The function will be called for each link to validate and will receive an object containing various properties to help determine whether to exclude the link or not.
+
+  Check out the [`exclude` configuration option](https://starlight-links-validator.vercel.app/configuration#exclude) documentation for more details and examples.
+
+## 0.16.0
+
+### Minor Changes
+
+- [#104](https://github.com/HiDeoo/starlight-links-validator/pull/104) [`cbeaa0f`](https://github.com/HiDeoo/starlight-links-validator/commit/cbeaa0f10d757947940af77e5e9de308f97993a8) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Ignores query strings when checking for [excluded links](https://starlight-links-validator.vercel.app/configuration#exclude).
+
+  Previously, to exclude links with query strings, you may have needed to rely on fairly loose glob patterns, e.g. `/playground/**` to exclude `/playground/`, `/playground/?id=foo` and `/playground/?id=bar`. With this change, excluding `/playground/` will ignore all query strings, so `/playground/`, `/playground/?id=foo` and `/playground/?id=bar` will all be excluded.
+
+## 0.15.1
+
+### Patch Changes
+
+- [#102](https://github.com/HiDeoo/starlight-links-validator/pull/102) [`88e66a8`](https://github.com/HiDeoo/starlight-links-validator/commit/88e66a8236eeb419ae50e4aac046500600951cc9) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes a regression with version `0.15.0` where the `errorOnLocalLinks` option was not being applied correctly.
+
+## 0.15.0
+
+### Minor Changes
+
+- [#93](https://github.com/HiDeoo/starlight-links-validator/pull/93) [`6d7174b`](https://github.com/HiDeoo/starlight-links-validator/commit/6d7174bcc6a2bb39f287a50bbdda29a6af4c16c8) Thanks [@HiDeoo](https://github.com/HiDeoo)! - ⚠️ **BREAKING CHANGE:** The minimum supported version of Starlight is now version `0.32.0`.
+
+  Please use the `@astrojs/upgrade` command to upgrade your project:
+
+  ```sh
+  npx @astrojs/upgrade
+  ```
+
+- [#100](https://github.com/HiDeoo/starlight-links-validator/pull/100) [`b238cb7`](https://github.com/HiDeoo/starlight-links-validator/commit/b238cb7bd3db5f8fe848c317ba52d5ab44eb853e) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Adds a new [`sameSitePolicy` option](https://starlight-links-validator.vercel.app/configuration#samesitepolicy) to configure how external links pointing to the same origin as the one configured in the [Astro `site` option](https://docs.astro.build/en/reference/configuration-reference/#site) should be handled.
+
+  The current default behavior to ignore all external links remains unchanged. This new option allows to error on such links so they can be rewritten without the origin or to validate them as if they were internal links.
+
+- [#100](https://github.com/HiDeoo/starlight-links-validator/pull/100) [`b238cb7`](https://github.com/HiDeoo/starlight-links-validator/commit/b238cb7bd3db5f8fe848c317ba52d5ab44eb853e) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Adds a new [`components`](https://starlight-links-validator.vercel.app/configuration#components) option to define additional components and their props to validate as links on top of the built-in `<LinkButton>` and `<LinkCard>` Starlight components.
+
+### Patch Changes
+
+- [#99](https://github.com/HiDeoo/starlight-links-validator/pull/99) [`56ea78c`](https://github.com/HiDeoo/starlight-links-validator/commit/56ea78cefa40f554f88a32181daae1a82ec2fa9a) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes validation issue with the [Astro `base` option](https://docs.astro.build/en/reference/configuration-reference/#base) and the [`errorOnFallbackPages` plugin option](https://starlight-links-validator.vercel.app/configuration#erroronfallbackpages) set to `false` in a multilingual project.
+
 ## 0.14.3
 
 ### Patch Changes

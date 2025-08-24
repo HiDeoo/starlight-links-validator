@@ -21,7 +21,7 @@ test('does not build with invalid links', async () => {
 
   expect(status).toBe('error')
 
-  expectValidationErrorCount(output, 69, 4)
+  expectValidationErrorCount(output, 73, 4)
 
   expectValidationErrors(output, 'test/', [
     ['/https://starlight.astro.build/', ValidationErrorType.InvalidLink],
@@ -82,6 +82,10 @@ test('does not build with invalid links', async () => {
     ['/guidelines/ui.pdf?query=string', ValidationErrorType.InvalidLink],
     ['/linkcard/?query=string', ValidationErrorType.InvalidLink],
     ['/linkbutton/?query=string', ValidationErrorType.InvalidLink],
+    ['/customlink/', ValidationErrorType.InvalidLink],
+    ['/customlink/#links', ValidationErrorType.InvalidLink],
+    ['#customlink', ValidationErrorType.InvalidHash],
+    ['/customlink/?query=string', ValidationErrorType.InvalidLink],
   ])
 
   expectValidationErrors(output, 'guides/namespacetest/', [

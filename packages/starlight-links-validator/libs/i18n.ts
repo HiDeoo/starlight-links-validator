@@ -1,5 +1,5 @@
-import { ensureLeadingSlash, ensureTrailingSlash } from './path'
-import type { Headings } from './remark'
+import { ensureLeadingSlash, ensureTrailingSlash, stripLeadingSlash } from './path'
+import type { ValidationData } from './remark'
 import type { StarlightUserConfig } from './validation'
 
 export function getLocaleConfig(config: StarlightUserConfig): LocaleConfig | undefined {
@@ -30,19 +30,25 @@ export function getLocaleConfig(config: StarlightUserConfig): LocaleConfig | und
 
 export function getFallbackHeadings(
   path: string,
-  headings: Headings,
+  validationData: ValidationData,
   localeConfig: LocaleConfig | undefined,
+  base: string,
 ): string[] | undefined {
   if (!localeConfig) return
 
+  const isPathWithBase = base !== '/'
+  const normalizedBase = isPathWithBase ? ensureTrailingSlash(stripLeadingSlash(base)) : ''
+  const normalizedPath = isPathWithBase ? path.replace(normalizedBase, '') : path
+
   for (const locale of localeConfig.locales) {
-    if (path.startsWith(`${locale}/`)) {
+    if (normalizedPath.startsWith(`${locale}/`)) {
       const fallbackPath = path.replace(
-        new RegExp(`^${locale}/`),
-        localeConfig.defaultLocale === '' ? localeConfig.defaultLocale : `${localeConfig.defaultLocale}/`,
+        new RegExp(`^${normalizedBase}${locale}/`),
+        normalizedBase +
+          (localeConfig.defaultLocale === '' ? localeConfig.defaultLocale : `${localeConfig.defaultLocale}/`),
       )
 
-      return headings.get(fallbackPath === '' ? '/' : fallbackPath)
+      return validationData.get(fallbackPath === '' ? '/' : fallbackPath)?.headings
     }
   }
 

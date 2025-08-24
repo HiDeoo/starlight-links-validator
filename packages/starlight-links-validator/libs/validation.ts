@@ -11,7 +11,7 @@ import type { StarlightLinksValidatorOptions } from '..'
 
 import { getFallbackHeadings, getLocaleConfig, isInconsistentLocaleLink, type LocaleConfig } from './i18n'
 import { ensureTrailingSlash, stripLeadingSlash, stripTrailingSlash } from './path'
-import { getValidationData, type Headings } from './remark'
+import { getValidationData, type Link, type ValidationData } from './remark'
 
 export const ValidationErrorType = {
   InconsistentLocale: 'inconsistent locale',
@@ -20,6 +20,7 @@ export const ValidationErrorType = {
   InvalidLinkToCustomPage: 'invalid link to custom page',
   LocalLink: 'local link',
   RelativeLink: 'relative link',
+  SameSite: '{{site}} can be omitted',
   TrailingSlashMissing: 'missing trailing slash',
   TrailingSlashForbidden: 'forbidden trailing slash',
 } as const
@@ -35,7 +36,7 @@ export function validateLinks(
   process.stdout.write(`\n${bgGreen(black(` validating links `))}\n`)
 
   const localeConfig = getLocaleConfig(starlightConfig)
-  const { headings, links } = getValidationData()
+  const validationData = getValidationData()
   const allPages: Pages = new Set(
     pages.map((page) =>
       ensureTrailingSlash(
@@ -48,22 +49,22 @@ export function validateLinks(
 
   const errors: ValidationErrors = new Map()
 
-  for (const [filePath, fileLinks] of links) {
+  for (const [filePath, { links: fileLinks }] of validationData) {
     for (const link of fileLinks) {
       const validationContext: ValidationContext = {
         astroConfig,
         customPages,
         errors,
         filePath,
-        headings,
         link,
         localeConfig,
         options,
         outputDir,
         pages: allPages,
+        validationData,
       }
 
-      if (link.startsWith('#') || link.startsWith('?')) {
+      if (link.raw.startsWith('#') || link.raw.startsWith('?')) {
         if (options.errorOnInvalidHashes) {
           validateSelfHash(validationContext)
         }
@@ -76,7 +77,7 @@ export function validateLinks(
   return errors
 }
 
-export function logErrors(pluginLogger: AstroIntegrationLogger, errors: ValidationErrors) {
+export function logErrors(pluginLogger: AstroIntegrationLogger, errors: ValidationErrors, site: AstroConfig['site']) {
   const logger = pluginLogger.fork('')
 
   if (errors.size === 0) {
@@ -103,7 +104,7 @@ export function logErrors(pluginLogger: AstroIntegrationLogger, errors: Validati
     for (const [index, validationError] of validationErrors.entries()) {
       logger.info(
         `  ${blue(`${index < validationErrors.length - 1 ? '├' : '└'}─`)} ${validationError.link}${dim(
-          ` - ${validationError.type}`,
+          ` - ${formatValidationError(validationError, site)}`,
         )}`,
       )
       hasInvalidLinkToCustomPage = validationError.type === ValidationErrorType.InvalidLinkToCustomPage
@@ -125,15 +126,13 @@ function validateLink(context: ValidationContext) {
     return
   }
 
-  if (/^https?:\/\//.test(link)) {
-    if (options.errorOnLocalLinks) {
-      addError(errors, filePath, link, ValidationErrorType.LocalLink)
-    }
-
+  if (link.error) {
+    addError(errors, filePath, link, link.error)
     return
   }
 
-  const sanitizedLink = link.replace(/^\//, '')
+  const linkToValidate = link.transformed ?? link.raw
+  const sanitizedLink = linkToValidate.replace(/^\//, '')
   const segments = sanitizedLink.split('#')
 
   const path = segments[0]
@@ -143,7 +142,7 @@ function validateLink(context: ValidationContext) {
     throw new Error('Failed to validate a link with no path.')
   }
 
-  if (path.startsWith('.') || (!link.startsWith('/') && !link.startsWith('?'))) {
+  if (path.startsWith('.') || (!linkToValidate.startsWith('/') && !linkToValidate.startsWith('?'))) {
     if (options.errorOnRelativeLinks) {
       addError(errors, filePath, link, ValidationErrorType.RelativeLink)
     }
@@ -172,7 +171,7 @@ function validateLink(context: ValidationContext) {
     return
   }
 
-  if (options.errorOnInconsistentLocale && localeConfig && isInconsistentLocaleLink(filePath, link, localeConfig)) {
+  if (options.errorOnInconsistentLocale && localeConfig && isInconsistentLocaleLink(filePath, link.raw, localeConfig)) {
     addError(errors, filePath, link, ValidationErrorType.InconsistentLocale)
     return
   }
@@ -195,23 +194,29 @@ function validateLink(context: ValidationContext) {
   }
 }
 
-function getFileHeadings(path: string, { headings, localeConfig, options }: ValidationContext) {
-  let heading = headings.get(path === '' ? '/' : path)
+function getFileHeadings(path: string, { astroConfig, localeConfig, options, validationData }: ValidationContext) {
+  let headings = validationData.get(path === '' ? '/' : path)?.headings
 
-  if (!options.errorOnFallbackPages && !heading && localeConfig) {
-    heading = getFallbackHeadings(path, headings, localeConfig)
+  if (!options.errorOnFallbackPages && !headings && localeConfig) {
+    headings = getFallbackHeadings(path, validationData, localeConfig, astroConfig.base)
   }
 
-  return heading
+  return headings
 }
 
 /**
  * Validate a link to an hash in the same page.
  */
-function validateSelfHash({ errors, link, filePath, headings }: ValidationContext) {
-  const hash = link.split('#')[1] ?? link
+function validateSelfHash(context: ValidationContext) {
+  const { errors, link, filePath, validationData } = context
+
+  if (isExcludedLink(link, context)) {
+    return
+  }
+
+  const hash = link.raw.split('#')[1] ?? link.raw
   const sanitizedHash = hash.replace(/^#/, '')
-  const fileHeadings = headings.get(filePath)
+  const fileHeadings = validationData.get(filePath)?.headings
 
   if (!fileHeadings) {
     throw new Error(`Failed to find headings for the file at '${filePath}'.`)
@@ -249,23 +254,38 @@ function isValidAsset(path: string, context: ValidationContext) {
 /**
  * Check if a link is excluded from validation by the user.
  */
-function isExcludedLink(link: string, context: ValidationContext) {
-  return picomatch(context.options.exclude)(link)
+function isExcludedLink(link: Link, { filePath, options, validationData }: ValidationContext) {
+  if (Array.isArray(options.exclude)) return picomatch(options.exclude)(stripQueryString(link.raw))
+
+  const file = validationData.get(filePath)?.file
+  if (!file) throw new Error('Missing file path to check exclusion.')
+
+  return options.exclude({
+    file,
+    link: link.raw,
+    slug: stripTrailingSlash(filePath),
+  })
 }
 
 function stripQueryString(path: string): string {
   return path.split('?')[0] ?? path
 }
 
-function addError(errors: ValidationErrors, filePath: string, link: string, type: ValidationErrorType) {
+function addError(errors: ValidationErrors, filePath: string, link: Link, type: ValidationErrorType) {
   const fileErrors = errors.get(filePath) ?? []
-  fileErrors.push({ link, type })
+  fileErrors.push({ link: link.raw, type })
 
   errors.set(filePath, fileErrors)
 }
 
 function pluralize(count: number, singular: string) {
   return count === 1 ? singular : `${singular}s`
+}
+
+function formatValidationError(error: ValidationError, site: AstroConfig['site']) {
+  if (error.type !== ValidationErrorType.SameSite || !site) return error.type
+
+  return error.type.replace('{{site}}', site)
 }
 
 // The validation errors keyed by file path.
@@ -289,12 +309,12 @@ interface ValidationContext {
   customPages: Set<string>
   errors: ValidationErrors
   filePath: string
-  headings: Headings
-  link: string
+  link: Link
   localeConfig: LocaleConfig | undefined
   options: StarlightLinksValidatorOptions
   outputDir: URL
   pages: Pages
+  validationData: ValidationData
 }
 
 export type StarlightUserConfig = Omit<StarlightUserConfigWithPlugins, 'plugins'>

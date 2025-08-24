@@ -60,3 +60,12 @@ some content
 </CardGrid>
 
 <LinkButton href="/linkbutton/?query=string">LinkButton: unknown page with query string</LinkButton>
+
+## Custom link component
+
+import CustomLink from '../../../components/CustomLink.astro'
+
+<CustomLink link="/customlink/">CustomLink: unknown page</CustomLink>
+<CustomLink link="/customlink/#links">CustomLink: unknown page and hash</CustomLink>
+<CustomLink link="#customlink">CustomLink: unknown hash</CustomLink>
+<CustomLink link="/customlink/?query=string">CustomLink: unknown page with query string</CustomLink>

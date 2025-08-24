@@ -76,3 +76,17 @@ title: Index
 [ref-with-query-string]: /test?query=string
 [ref-with-query-string-and-hash-internal]: ?query=string#some-links
 [ref-with-query-string-and-hash-external]: /test?query=string#title
+
+## Same site URL
+
+- [Test page](https://example.com/test)
+- [Test page](https://example.com/test/)
+
+- [Unknown page](https://example.com/unknown)
+- [Unknown page](https://example.com/unknown/)
+
+## Local links
+
+- [Local link](http://localhost)
+- [Local link with port](http://localhost:4321/)
+- [Local link using HTTPS](https://127.0.0.1:4321/getting-started)

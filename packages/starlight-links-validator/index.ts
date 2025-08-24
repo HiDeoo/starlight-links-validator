@@ -1,70 +1,19 @@
 import type { StarlightPlugin } from '@astrojs/starlight/types'
 import type { IntegrationResolvedRoute } from 'astro'
 import { AstroError } from 'astro/errors'
-import { z } from 'astro/zod'
 
 import { clearContentLayerCache } from './libs/astro'
-import { pathnameToSlug } from './libs/path'
-import { remarkStarlightLinksValidator } from './libs/remark'
+import { StarlightLinksValidatorOptionsSchema, type StarlightLinksValidatorUserOptions } from './libs/config'
+import { pathnameToSlug, stripTrailingSlash } from './libs/path'
+import { remarkStarlightLinksValidator, type RemarkStarlightLinksValidatorConfig } from './libs/remark'
 import { logErrors, validateLinks } from './libs/validation'
 
-const starlightLinksValidatorOptionsSchema = z
-  .object({
-    /**
-     * Defines whether the plugin should error on fallback pages.
-     *
-     * If you do not expect to have all pages translated in all configured locales and want to use the fallback pages
-     * feature built-in into Starlight, you should set this option to `false`.
-     *
-     * @default true
-     * @see https://starlight.astro.build/guides/i18n/#fallback-content
-     */
-    errorOnFallbackPages: z.boolean().default(true),
-    /**
-     * Defines whether the plugin should error on inconsistent locale links.
-     *
-     * When set to `true`, the plugin will error on links that are pointing to a page in a different locale.
-     *
-     * @default false
-     */
-    errorOnInconsistentLocale: z.boolean().default(false),
-    /**
-     * Defines whether the plugin should error on internal relative links.
-     *
-     * When set to `false`, the plugin will ignore relative links (e.g. `./foo` or `../bar`).
-     *
-     * @default true
-     */
-    errorOnRelativeLinks: z.boolean().default(true),
-    /**
-     * Defines whether the plugin should error on invalid hashes.
-     *
-     * When set to `false`, the plugin will only validate link pages and ignore hashes.
-     *
-     * @default true
-     */
-    errorOnInvalidHashes: z.boolean().default(true),
-    /**
-     * Defines whether the plugin should error on local links, e.g. URLs with a hostname of `localhost` or `127.0.0.1`.
-     *
-     * @default true
-     */
-    errorOnLocalLinks: z.boolean().default(true),
-    /**
-     * Defines a list of links or glob patterns that should be excluded from validation.
-     *
-     * The links in this list will be ignored by the plugin and will not be validated.
-     *
-     * @default []
-     */
-    exclude: z.array(z.string()).default([]),
-  })
-  .default({})
+export type { StarlightLinksValidatorOptions } from './libs/config'
 
 export default function starlightLinksValidatorPlugin(
   userOptions?: StarlightLinksValidatorUserOptions,
 ): StarlightPlugin {
-  const options = starlightLinksValidatorOptionsSchema.safeParse(userOptions)
+  const options = StarlightLinksValidatorOptionsSchema.safeParse(userOptions)
 
   if (!options.success) {
     throwPluginError('Invalid options passed to the starlight-links-validator plugin.')
@@ -75,6 +24,7 @@ export default function starlightLinksValidatorPlugin(
     hooks: {
       'config:setup'({ addIntegration, astroConfig, config: starlightConfig, logger }) {
         let routes: IntegrationResolvedRoute[] = []
+        const site = astroConfig.site ? stripTrailingSlash(astroConfig.site) : undefined
 
         addIntegration({
           name: 'starlight-links-validator-integration',
@@ -89,7 +39,15 @@ export default function starlightLinksValidatorPlugin(
               updateConfig({
                 markdown: {
                   remarkPlugins: [
-                    [remarkStarlightLinksValidator, { base: astroConfig.base, srcDir: astroConfig.srcDir }],
+                    [
+                      remarkStarlightLinksValidator,
+                      {
+                        base: astroConfig.base,
+                        options: options.data,
+                        site,
+                        srcDir: astroConfig.srcDir,
+                      } satisfies RemarkStarlightLinksValidatorConfig,
+                    ],
                   ],
                 },
               })
@@ -111,7 +69,7 @@ export default function starlightLinksValidatorPlugin(
 
               const errors = validateLinks(pages, customPages, dir, astroConfig, starlightConfig, options.data)
 
-              const hasInvalidLinkToCustomPage = logErrors(logger, errors)
+              const hasInvalidLinkToCustomPage = logErrors(logger, errors, site)
 
               if (errors.size > 0) {
                 throwPluginError(
@@ -137,6 +95,3 @@ function throwPluginError(message: string, additionalHint?: string): never {
 
   throw new AstroError(message, hint)
 }
-
-type StarlightLinksValidatorUserOptions = z.input<typeof starlightLinksValidatorOptionsSchema>
-export type StarlightLinksValidatorOptions = z.output<typeof starlightLinksValidatorOptionsSchema>

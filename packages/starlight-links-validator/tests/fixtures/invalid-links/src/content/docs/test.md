@@ -91,3 +91,11 @@ some content
 - [Link to custom dynamic page with known param](/custom-dynamic-page/foo/)
 - [Link to custom dynamic page with known param including a dot](/custom-dynamic-page/foo.bar/)
 - [Link to custom dynamic page with unknown param](/custom-dynamic-page/bar/)
+
+## Same site URL
+
+- [Unknown page](https://example.com/unknown)
+- [Unknown page](https://example.com/unknown/)
+
+- [Unknown page with hash](https://example.com/unknown#title)
+- [Unknown page with hash](https://example.com/unknown/#title)

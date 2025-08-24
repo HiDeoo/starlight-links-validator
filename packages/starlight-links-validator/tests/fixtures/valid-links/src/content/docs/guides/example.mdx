@@ -44,9 +44,9 @@ some content
   <LinkCard title="LinkCard: hash" href="#steps" />
 </CardGrid>
 
-<LinkButton href="/test/">LinkCard: unknown page</LinkButton>
-<LinkButton href="/test/#title">LinkCard: unknown page and hash</LinkButton>
-<LinkButton href="#steps">LinkCard: unknown hash</LinkButton>
+<LinkButton href="/test/">LinkCard: page</LinkButton>
+<LinkButton href="/test/#title">LinkCard: page and hash</LinkButton>
+<LinkButton href="#steps">LinkCard: hash</LinkButton>
 
 import { Badge } from '@astrojs/starlight/components'
 
@@ -61,3 +61,15 @@ import { Badge } from '@astrojs/starlight/components'
 ## <Badge text="x"/> <Badge text="x">Foo</Badge> Heading with <Badge text="x"/> <Badge text="x">Foo</Badge> complex markup <Badge text="x">Foo</Badge> <Badge text="x"/> <Badge text="y"/>
 
 - [Link to heading with complex markup](#-foo-heading-with--foo-complex-markup-foo-)
+
+## Custom link component
+
+import CustomLinkFoo from '../../../components/CustomLinkFoo.astro'
+
+<CustomLinkFoo link="/test/">CustomLinkFoo: page</CustomLinkFoo>
+<CustomLinkFoo link="/test/#title">CustomLinkFoo: page and hash</CustomLinkFoo>
+<CustomLinkFoo link="#steps">CustomLinkFoo: hash</CustomLinkFoo>
+
+import CustomLinkBar from '../../../components/CustomLinkBar.astro'
+
+<CustomLinkBar href="/unknown/">CustomLinkBar: unknown page</CustomLinkBar>
