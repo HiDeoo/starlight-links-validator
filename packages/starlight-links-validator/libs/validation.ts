@@ -216,6 +216,7 @@ function validateSelfHash(context: ValidationContext) {
 
   const hash = link.raw.split('#')[1] ?? link.raw
   const sanitizedHash = hash.replace(/^#/, '')
+  if (sanitizedHash == '_top') return
   const fileHeadings = validationData.get(filePath)?.headings
 
   if (!fileHeadings) {
