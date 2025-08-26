@@ -176,7 +176,7 @@ function validateLink(context: ValidationContext) {
     return
   }
 
-  if (hash && !fileHeadings.includes(hash)) {
+  if (hash && hash !== '_top' && !fileHeadings.includes(hash)) {
     if (options.errorOnInvalidHashes) {
       addError(errors, filePath, link, ValidationErrorType.InvalidHash)
     }
@@ -216,7 +216,7 @@ function validateSelfHash(context: ValidationContext) {
 
   const hash = link.raw.split('#')[1] ?? link.raw
   const sanitizedHash = hash.replace(/^#/, '')
-  if (sanitizedHash == '_top') return
+  if (sanitizedHash === '_top') return
   const fileHeadings = validationData.get(filePath)?.headings
 
   if (!fileHeadings) {
