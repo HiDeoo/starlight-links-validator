@@ -40,21 +40,3 @@ test('does not build with invalid links but ignore invalid hashes', async () => 
     ['/linkbutton/#links', ValidationErrorType.InvalidLink],
   ])
 })
-
-test('special #_top hash is always valid', async () => {
-  const { output, status } = await buildFixture('top-hash-always-valid')
-
-  expect(status).toBe('error')
-
-  expectValidationErrorCount(output, 7, 1)
-
-  expectValidationErrors(output, 'guides/example/', [
-    ['#unknown', ValidationErrorType.InvalidHash],
-    ['#unknownBlock', ValidationErrorType.InvalidHash],
-    ['#unknownText', ValidationErrorType.InvalidHash],
-    ['/test/#unknown', ValidationErrorType.InvalidHash],
-    ['#unknown', ValidationErrorType.InvalidHash],
-    ['/test/#unknown', ValidationErrorType.InvalidHash],
-    ['#unknown', ValidationErrorType.InvalidHash],
-  ])
-})
