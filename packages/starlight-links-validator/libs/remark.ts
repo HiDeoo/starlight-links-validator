@@ -49,7 +49,7 @@ export const remarkStarlightLinksValidator: Plugin<[RemarkStarlightLinksValidato
     const slug: string | undefined =
       typeof file.data.astro?.frontmatter?.['slug'] === 'string' ? file.data.astro.frontmatter['slug'] : undefined
 
-    const fileHeadings: string[] = []
+    const fileHeadings: string[] = ['_top']
     const fileLinks: Link[] = []
     const fileDefinitions = new Map<string, string>()
 

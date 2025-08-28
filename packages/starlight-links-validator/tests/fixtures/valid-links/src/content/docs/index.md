@@ -14,6 +14,9 @@ title: Index
 - [Test page with hash](/test#title)
 - [Test page with hash](/test/#title)
 
+- [Test page with top hash](/test#_top)
+- [Test page with top hash](/test/#_top)
+
 - [Test page with duplicated hash](/test#title-1)
 
 - [An MDX nested page](/guides/example)
@@ -24,7 +27,9 @@ title: Index
 # More links
 
 - [Link to hash in this page](#some-links)
+- [Link to top hash in this page](#_top)
 - [Link to hash in another MDX page](/guides/example/#some-links)
+- [Link to top hash in another MDX page](/guides/example/#_top)
 - [Link to an asset](/favicon.svg)
 - [Link to another asset](/guidelines/dummy.pdf)
 
