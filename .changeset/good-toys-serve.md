@@ -2,4 +2,4 @@
 'starlight-links-validator': patch
 ---
 
-Accepts the hash `#_top` as valid because Starlight always includes a `<h1>` with the id `_top`.
+Fixes validation issue for links to Starlight page's title anchor, e.g. `/getting-started/#_top`.
