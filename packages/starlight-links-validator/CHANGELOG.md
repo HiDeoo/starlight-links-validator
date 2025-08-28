@@ -1,5 +1,11 @@
 # starlight-links-validator
 
+## 0.17.2
+
+### Patch Changes
+
+- [#115](https://github.com/HiDeoo/starlight-links-validator/pull/115) [`b042c61`](https://github.com/HiDeoo/starlight-links-validator/commit/b042c61d479ad6584a4065bf84dadb6f3078145a) Thanks [@trueberryless](https://github.com/trueberryless)! - Fixes validation issue for links to Starlight page's title anchor, e.g. `/getting-started/#_top`.
+
 ## 0.17.1
 
 ### Patch Changes
