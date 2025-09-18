@@ -1,5 +1,13 @@
 # starlight-links-validator
 
+## 0.18.0
+
+### Minor Changes
+
+- [#118](https://github.com/HiDeoo/starlight-links-validator/pull/118) [`efef54a`](https://github.com/HiDeoo/starlight-links-validator/commit/efef54a647f65072d33b70ad92a2ea90b52ddb57) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Adds [hyperlinks (OSC 8)](https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda) support to validation terminal output.
+
+  In [supported terminals](https://github.com/Alhadis/OSC8-Adoption/), error slugs can be conveniently used (e.g. with `Ctrl+Click`, `Opt+Click`, `Cmd+Click`, or a context menu) to open the corresponding file using the default associated application.
+
 ## 0.17.2
 
 ### Patch Changes
