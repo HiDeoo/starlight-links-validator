@@ -41,11 +41,11 @@ export const remarkStarlightLinksValidator: Plugin<[RemarkStarlightLinksValidato
 
     if (file.data.astro?.frontmatter?.['draft']) return
 
-    const originalPath = file.history[0]
-    if (!originalPath) throw new Error('Missing file path to validate links.')
+    const path = file.history[0]
+    if (!path) throw new Error('Missing file path to validate links.')
 
     const slugger = new GitHubSlugger()
-    const filePath = normalizeFilePath(base, srcDir, originalPath)
+    const id = normalizeId(base, srcDir, path)
     const slug: string | undefined =
       typeof file.data.astro?.frontmatter?.['slug'] === 'string' ? file.data.astro.frontmatter['slug'] : undefined
 
@@ -159,8 +159,8 @@ export const remarkStarlightLinksValidator: Plugin<[RemarkStarlightLinksValidato
       }
     })
 
-    data.set(getFilePath(base, filePath, slug), {
-      file: originalPath,
+    data.set(getValidationDataId(base, id, slug), {
+      file: path,
       headings: fileHeadings,
       links: fileLinks,
     })
@@ -201,15 +201,15 @@ function getLinkToValidate(link: string, { options, site }: RemarkStarlightLinks
   }
 }
 
-function getFilePath(base: string, filePath: string, slug: string | undefined) {
+function getValidationDataId(base: string, id: string, slug: string | undefined) {
   if (slug) {
     return nodePath.posix.join(stripLeadingSlash(base), stripLeadingSlash(ensureTrailingSlash(slug)))
   }
 
-  return filePath
+  return id
 }
 
-function normalizeFilePath(base: string, srcDir: URL, filePath: string) {
+function normalizeId(base: string, srcDir: URL, filePath: string) {
   const path = nodePath
     .relative(nodePath.join(fileURLToPath(srcDir), 'content/docs'), filePath)
     .replace(/\.\w+$/, '')
