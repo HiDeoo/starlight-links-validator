@@ -187,15 +187,25 @@ For more advanced use cases, a function can also be provided to dynamically dete
 
 This option should be used with caution but can be useful to exclude links that are not meant to be validated like redirects only existing in production or links to [custom pages](https://starlight.astro.build/guides/pages/#custom-pages) that are automatically generated or not part of your documentation.
 
-The following example uses glob patterns to exclude links to the `/social/twitter` page and all links to any pages in the `/api/interface/` and `/api/functions/` directories:
+The following example uses glob patterns to exclude links to the `/social/twitter` page, all links to any pages in the `/api/interface/` and `/api/functions/` directories, and all links to the `/changelog` page, no matter if a trailing slash is used or not, and also all links to any pages in the `/changelog/` directory:
 
-```js {6}
+```js {6-16}
 export default defineConfig({
   integrations: [
     starlight({
       plugins: [
         starlightLinksValidator({
-          exclude: ['/social/twitter', '/api/{interface,functions}/**/*'],
+          exclude: [
+            // Exclude links to the `/social/twitter` page.
+            '/social/twitter',
+            // Exclude all links to any pages in the `/api/interface/`
+            // and `/api/functions/` directories.
+            '/api/{interface,functions}/**/*',
+            // Exclude all links to the `/changelog` page, no matter if a
+            // trailing slash is used or not, and also exclude all links to
+            // any pages in the `/changelog/` directory.
+            '/changelog{,/**/*}',
+          ],
         }),
       ],
     }),
