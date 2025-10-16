@@ -1,5 +1,11 @@
 # starlight-links-validator
 
+## 0.18.1
+
+### Patch Changes
+
+- [#121](https://github.com/HiDeoo/starlight-links-validator/pull/121) [`242bc28`](https://github.com/HiDeoo/starlight-links-validator/commit/242bc2862aa7d911d5de0301e5caa29342e92ffd) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Setups trusted publishing using OpenID Connect (OIDC) authentication — no code changes.
+
 ## 0.18.0
 
 ### Minor Changes
