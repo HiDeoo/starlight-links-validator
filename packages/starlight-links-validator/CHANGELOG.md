@@ -1,5 +1,13 @@
 # starlight-links-validator
 
+## 0.19.0
+
+### Minor Changes
+
+- [#123](https://github.com/HiDeoo/starlight-links-validator/pull/123) [`e9cc59d`](https://github.com/HiDeoo/starlight-links-validator/commit/e9cc59de376c7602f70e9310e320fdd6d44a17d3) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Adds validation of [hero action links](https://starlight.astro.build/reference/frontmatter/#hero) in frontmatter.
+
+- [#123](https://github.com/HiDeoo/starlight-links-validator/pull/123) [`e9cc59d`](https://github.com/HiDeoo/starlight-links-validator/commit/e9cc59de376c7602f70e9310e320fdd6d44a17d3) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Adds validation of [previous](https://starlight.astro.build/reference/frontmatter/#prev) and [next](https://starlight.astro.build/reference/frontmatter/#next) page links in frontmatter.
+
 ## 0.18.1
 
 ### Patch Changes
