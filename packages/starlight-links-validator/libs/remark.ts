@@ -14,6 +14,7 @@ import type { MdxJsxAttribute, MdxJsxExpressionAttribute } from 'mdast-util-mdx-
 import { toString } from 'mdast-util-to-string'
 import type { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
+import type { DataMap } from 'vfile'
 
 import type { StarlightLinksValidatorOptions } from '..'
 
@@ -52,6 +53,8 @@ export const remarkStarlightLinksValidator: Plugin<[RemarkStarlightLinksValidato
     const fileHeadings: string[] = ['_top']
     const fileLinks: Link[] = []
     const fileDefinitions = new Map<string, string>()
+
+    extractFrontmatterLinks(file.data.astro?.frontmatter, fileLinks, config)
 
     visit(tree, 'definition', (node) => {
       fileDefinitions.set(node.identifier, node.url)
@@ -230,6 +233,54 @@ function isMdxIdAttribute(attribute: MdxJsxAttribute | MdxJsxExpressionAttribute
   return attribute.type === 'mdxJsxAttribute' && attribute.name === 'id' && typeof attribute.value === 'string'
 }
 
+function extractFrontmatterLinks(
+  frontmatter: Frontmatter,
+  fileLinks: Link[],
+  config: RemarkStarlightLinksValidatorConfig,
+) {
+  if (!frontmatter) return
+
+  if (isFrontmatterWithHeroActions(frontmatter)) {
+    for (const action of frontmatter.hero.actions) {
+      const link = getLinkToValidate(action.link, config)
+      if (link) fileLinks.push(link)
+    }
+  }
+
+  if (isFrontmatterPrevNextLink(frontmatter, 'prev')) {
+    const link = getLinkToValidate(frontmatter.prev.link, config)
+    if (link) fileLinks.push(link)
+  }
+
+  if (isFrontmatterPrevNextLink(frontmatter, 'next')) {
+    const link = getLinkToValidate(frontmatter.next.link, config)
+    if (link) fileLinks.push(link)
+  }
+}
+
+function isFrontmatterWithHeroActions(
+  frontmatter: Frontmatter,
+): frontmatter is Frontmatter & { hero: FrontmatterHeroActions } {
+  return (
+    frontmatter !== undefined &&
+    'hero' in frontmatter &&
+    typeof frontmatter['hero'] === 'object' &&
+    'actions' in frontmatter['hero']
+  )
+}
+
+function isFrontmatterPrevNextLink<T extends 'prev' | 'next'>(
+  frontmatter: Frontmatter,
+  type: T,
+): frontmatter is Frontmatter & Record<T, FrontmatterPrevNextLink> {
+  return (
+    frontmatter !== undefined &&
+    type in frontmatter &&
+    typeof frontmatter[type] === 'object' &&
+    'link' in frontmatter[type]
+  )
+}
+
 export interface RemarkStarlightLinksValidatorConfig {
   base: string
   options: StarlightLinksValidatorOptions
@@ -259,4 +310,14 @@ interface MdxIdAttribute {
   name: 'id'
   type: 'mdxJsxAttribute'
   value: string
+}
+
+type Frontmatter = DataMap['astro']['frontmatter']
+
+interface FrontmatterHeroActions {
+  actions: { link: string }[]
+}
+
+interface FrontmatterPrevNextLink {
+  link: string
 }
