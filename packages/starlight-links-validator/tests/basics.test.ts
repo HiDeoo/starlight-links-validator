@@ -21,7 +21,9 @@ test('does not build with invalid links', async () => {
 
   expect(status).toBe('error')
 
-  expectValidationErrorCount(output, 73, 4)
+  expectValidationErrorCount(output, 74, 5)
+
+  expectValidationErrors(output, 'frontmatter/', [['/unknown/', ValidationErrorType.InvalidLink]])
 
   expectValidationErrors(output, 'test/', [
     ['/https://starlight.astro.build/', ValidationErrorType.InvalidLink],
