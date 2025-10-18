@@ -246,6 +246,16 @@ function extractFrontmatterLinks(
       if (link) fileLinks.push(link)
     }
   }
+
+  if (isFrontmatterPrevNextLink(frontmatter, 'prev')) {
+    const link = getLinkToValidate(frontmatter.prev.link, config)
+    if (link) fileLinks.push(link)
+  }
+
+  if (isFrontmatterPrevNextLink(frontmatter, 'next')) {
+    const link = getLinkToValidate(frontmatter.next.link, config)
+    if (link) fileLinks.push(link)
+  }
 }
 
 function isFrontmatterWithHeroActions(
@@ -256,6 +266,18 @@ function isFrontmatterWithHeroActions(
     'hero' in frontmatter &&
     typeof frontmatter['hero'] === 'object' &&
     'actions' in frontmatter['hero']
+  )
+}
+
+function isFrontmatterPrevNextLink<T extends 'prev' | 'next'>(
+  frontmatter: Frontmatter,
+  type: T,
+): frontmatter is Frontmatter & Record<T, FrontmatterPrevNextLink> {
+  return (
+    frontmatter !== undefined &&
+    type in frontmatter &&
+    typeof frontmatter[type] === 'object' &&
+    'link' in frontmatter[type]
   )
 }
 
@@ -294,4 +316,8 @@ type Frontmatter = DataMap['astro']['frontmatter']
 
 interface FrontmatterHeroActions {
   actions: { link: string }[]
+}
+
+interface FrontmatterPrevNextLink {
+  link: string
 }

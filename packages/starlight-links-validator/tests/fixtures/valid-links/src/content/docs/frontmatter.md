@@ -6,6 +6,10 @@ hero:
       link: /test/
     - text: External link
       link: https://starlight.astro.build
+prev:
+  link: /test/
+next:
+  link: /test/
 ---
 
 Some content.
