@@ -9,7 +9,7 @@ test('validates links when the `trailingSlash` Astro option is set to `never`', 
 
   expect(status).toBe('error')
 
-  expectValidationErrorCount(output, 6, 1)
+  expectValidationErrorCount(output, 12, 1)
 
   expectValidationErrors(output, 'test/', [
     ['/guides/example/', ValidationErrorType.TrailingSlashForbidden],
@@ -18,6 +18,12 @@ test('validates links when the `trailingSlash` Astro option is set to `never`', 
     ['/unknown/', ValidationErrorType.InvalidLink],
     ['/guides/example#unknown', ValidationErrorType.InvalidHash],
     ['/guides/example/#unknown', ValidationErrorType.InvalidHash],
+    ['/test/?query=string', ValidationErrorType.TrailingSlashForbidden],
+    ['/test/?query=string#some-links', ValidationErrorType.TrailingSlashForbidden],
+    ['/unknown?query=string', ValidationErrorType.InvalidLink],
+    ['/unknown/?query=string', ValidationErrorType.InvalidLink],
+    ['/unknown?query=string#title', ValidationErrorType.InvalidLink],
+    ['/unknown/?query=string#title', ValidationErrorType.InvalidLink],
   ])
 })
 
@@ -26,7 +32,7 @@ test('validates links when the `trailingSlash` Astro option is set to `always`',
 
   expect(status).toBe('error')
 
-  expectValidationErrorCount(output, 6, 1)
+  expectValidationErrorCount(output, 12, 1)
 
   expectValidationErrors(output, 'test/', [
     ['/guides/example', ValidationErrorType.TrailingSlashMissing],
@@ -35,5 +41,11 @@ test('validates links when the `trailingSlash` Astro option is set to `always`',
     ['/unknown/', ValidationErrorType.InvalidLink],
     ['/guides/example#unknown', ValidationErrorType.InvalidHash],
     ['/guides/example/#unknown', ValidationErrorType.InvalidHash],
+    ['/test?query=string', ValidationErrorType.TrailingSlashMissing],
+    ['/test?query=string#some-links', ValidationErrorType.TrailingSlashMissing],
+    ['/unknown?query=string', ValidationErrorType.InvalidLink],
+    ['/unknown/?query=string', ValidationErrorType.InvalidLink],
+    ['/unknown?query=string#title', ValidationErrorType.InvalidLink],
+    ['/unknown/?query=string#title', ValidationErrorType.InvalidLink],
   ])
 })
