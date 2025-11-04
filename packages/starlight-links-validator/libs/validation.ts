@@ -140,12 +140,14 @@ function validateLink(context: ValidationContext) {
   const sanitizedLink = linkToValidate.replace(/^\//, '')
   const segments = sanitizedLink.split('#')
 
-  const path = segments[0]
+  let path = segments[0]
   const hash = segments[1]
 
   if (path === undefined) {
     throw new Error('Failed to validate a link with no path.')
   }
+
+  path = stripQueryString(path)
 
   if (path.startsWith('.') || (!linkToValidate.startsWith('/') && !linkToValidate.startsWith('?'))) {
     if (options.errorOnRelativeLinks) {
