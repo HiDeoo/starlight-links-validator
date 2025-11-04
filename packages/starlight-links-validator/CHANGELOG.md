@@ -1,5 +1,11 @@
 # starlight-links-validator
 
+## 0.19.1
+
+### Patch Changes
+
+- [#127](https://github.com/HiDeoo/starlight-links-validator/pull/127) [`2c0e83d`](https://github.com/HiDeoo/starlight-links-validator/commit/2c0e83d8abdbe9fca9eedfefc7a054a31c75979e) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes validation issues with links containing query strings when using the Astro `trailingSlash` option.
+
 ## 0.19.0
 
 ### Minor Changes
