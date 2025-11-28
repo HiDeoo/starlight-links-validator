@@ -38,7 +38,8 @@
     "vitest": "2.1.6"
   },
   "peerDependencies": {
-    "@astrojs/starlight": ">=0.32.0"
+    "@astrojs/starlight": ">=0.32.0",
+    "astro": ">=5.1.5"
   },
   "engines": {
     "node": ">=18.17.1"
