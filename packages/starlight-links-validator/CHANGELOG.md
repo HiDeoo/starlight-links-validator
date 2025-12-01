@@ -1,5 +1,11 @@
 # starlight-links-validator
 
+## 0.19.2
+
+### Patch Changes
+
+- [#131](https://github.com/HiDeoo/starlight-links-validator/pull/131) [`14f4d8d`](https://github.com/HiDeoo/starlight-links-validator/commit/14f4d8db5a6df3d95d3c4859b8a41468a99b3d63) Thanks [@DaniFoldi](https://github.com/DaniFoldi)! - Adds `astro` as a peer dependency to prevent potential build errors in monorepos with hoisting disabled.
+
 ## 0.19.1
 
 ### Patch Changes
