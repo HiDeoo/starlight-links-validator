@@ -18,13 +18,13 @@
     "@hideoo/eslint-config": "^4.1.1",
     "@hideoo/prettier-config": "^2.0.1",
     "@hideoo/tsconfig": "^2.0.3",
-    "astro": "^6.0.2",
+    "astro": "^6.0.3",
     "eslint": "^9.39.4",
     "prettier": "^3.8.1",
     "typescript": "^5.9.3"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.12.0"
   },
   "packageManager": "pnpm@10.32.1",
   "private": true,

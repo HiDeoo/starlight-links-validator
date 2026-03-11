@@ -1,9 +1,12 @@
 {
   "name": "@starlight-links-validator-tests/invalid-links",
   "version": "0.0.0",
+  "scripts": {
+    "build": "astro build"
+  },
   "dependencies": {
     "@astrojs/starlight": "^0.38.0",
-    "astro": "^6.0.2",
+    "astro": "^6.0.3",
     "starlight-links-validator": "workspace:*"
   },
   "private": true
