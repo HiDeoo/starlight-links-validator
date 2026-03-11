@@ -35,7 +35,7 @@
     "remark-stringify": "^11.0.0",
     "unified": "^11.0.5",
     "vfile": "^6.0.3",
-    "vitest": "2.1.6"
+    "vitest": "^4.0.18"
   },
   "peerDependencies": {
     "@astrojs/starlight": ">=0.38.0",
