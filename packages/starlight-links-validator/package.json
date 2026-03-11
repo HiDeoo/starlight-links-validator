@@ -29,7 +29,7 @@
   "devDependencies": {
     "@types/hast": "^3.0.4",
     "@types/mdast": "^4.0.4",
-    "@types/node": "^18.19.68",
+    "@types/node": "^22.19.15",
     "remark-custom-heading-id": "^2.0.0",
     "remark-parse": "^11.0.0",
     "remark-stringify": "^11.0.0",
@@ -38,13 +38,13 @@
     "vitest": "2.1.6"
   },
   "peerDependencies": {
-    "@astrojs/starlight": ">=0.32.0",
-    "astro": ">=5.1.5"
+    "@astrojs/starlight": ">=0.38.0",
+    "astro": ">=6.0.0"
   },
   "engines": {
-    "node": ">=18.17.1"
+    "node": ">=22"
   },
-  "packageManager": "pnpm@8.6.3",
+  "packageManager": "pnpm@10.32.1",
   "publishConfig": {
     "access": "public"
   },

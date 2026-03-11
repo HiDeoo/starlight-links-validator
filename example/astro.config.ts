@@ -20,9 +20,18 @@ export default defineConfig({
           autogenerate: { directory: 'reference' },
         },
       ],
-      social: {
-        github: 'https://github.com/HiDeoo/starlight-links-validator',
-      },
+      social: [
+        {
+          href: 'https://bsky.app/profile/hideoo.dev',
+          icon: 'blueSky',
+          label: 'Bluesky',
+        },
+        {
+          href: 'https://github.com/HiDeoo/starlight-links-validator',
+          icon: 'github',
+          label: 'GitHub',
+        },
+      ],
       title: 'Starlight Links Validator',
     }),
   ],

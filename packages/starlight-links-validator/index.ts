@@ -60,7 +60,7 @@ export default function starlightLinksValidatorPlugin(
 
               for (const [pattern, urls] of assets) {
                 const route = routes.find((route) => route.pattern === pattern)
-                if (!route || route.origin !== 'project') continue
+                if (route?.origin !== 'project') continue
 
                 for (const url of urls) {
                   customPages.add(pathnameToSlug(url.pathname.replace(astroConfig.outDir.pathname, '')))
