@@ -1,5 +1,15 @@
 # starlight-links-validator
 
+## 0.20.0
+
+### Minor Changes
+
+- [#136](https://github.com/HiDeoo/starlight-links-validator/pull/136) [`7f6b843`](https://github.com/HiDeoo/starlight-links-validator/commit/7f6b8434bac3d07511a16152226dea08067e5b7c) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Adds support for Astro v6, drops support for Astro v5.
+
+  ⚠️ **BREAKING CHANGE:** The minimum supported version of Starlight is now `0.38.0`.
+
+  Please follow the [upgrade guide](https://github.com/withastro/starlight/releases/tag/%40astrojs%2Fstarlight%400.38.0) to update your project.
+
 ## 0.19.2
 
 ### Patch Changes
