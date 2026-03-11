@@ -64,9 +64,8 @@ export const StarlightLinksValidatorOptionsSchema = z
     exclude: z
       .union([
         z.array(z.string()),
-        z
-          .function()
-          .args(
+        z.function({
+          input: [
             z.object({
               /**
                * The absolute path to the file where the link is defined.
@@ -81,8 +80,9 @@ export const StarlightLinksValidatorOptionsSchema = z
                */
               slug: z.string(),
             }),
-          )
-          .returns(z.boolean()),
+          ],
+          output: z.boolean(),
+        }),
       ])
       .default([]),
     /**
@@ -100,7 +100,7 @@ export const StarlightLinksValidatorOptionsSchema = z
      */
     sameSitePolicy: z.enum(['error', 'ignore', 'validate']).default('ignore'),
   })
-  .default({})
+  .prefault({})
 
 export type StarlightLinksValidatorUserOptions = z.input<typeof StarlightLinksValidatorOptionsSchema>
 export type StarlightLinksValidatorOptions = z.output<typeof StarlightLinksValidatorOptionsSchema>
