@@ -95,3 +95,9 @@ title: Index
 - [Local link](http://localhost)
 - [Local link with port](http://localhost:4321/)
 - [Local link using HTTPS](https://127.0.0.1:4321/getting-started)
+
+## Email links
+
+Email: user@example.org
+
+Email: [User](mailto:user@example.org)
