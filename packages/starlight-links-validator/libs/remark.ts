@@ -177,7 +177,7 @@ export function getValidationData(): ValidationData {
 function getLinkToValidate(link: string, { options, site }: RemarkStarlightLinksValidatorConfig): Link | undefined {
   const linkTovalidate = { raw: link }
 
-  if (!isAbsoluteUrl(link)) {
+  if (!isAbsoluteUrl(link, { httpOnly: false })) {
     return linkTovalidate
   }
 
