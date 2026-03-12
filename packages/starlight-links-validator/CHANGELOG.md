@@ -1,5 +1,11 @@
 # starlight-links-validator
 
+## 0.20.1
+
+### Patch Changes
+
+- [#139](https://github.com/HiDeoo/starlight-links-validator/pull/139) [`01c0073`](https://github.com/HiDeoo/starlight-links-validator/commit/01c0073153a3b7d723864f438f26a164ba9e9a7b) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes a regression in version `0.20.0` incorrectly reporting non HTTP-based URL links as invalid, e.g. `mailto:` links.
+
 ## 0.20.0
 
 ### Minor Changes
