@@ -41,16 +41,19 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Test
+        run: pnpm test
+
       - name: Generates docs TypeScript types
+        if: matrix.os != 'windows-latest'
         run: pnpm astro sync
         working-directory: docs
 
       - name: Generates example TypeScript types
+        if: matrix.os != 'windows-latest'
         run: pnpm astro sync
         working-directory: example
 
-      - name: Test
-        run: pnpm test
-
       - name: Lint
+        if: matrix.os != 'windows-latest'
         run: pnpm lint
