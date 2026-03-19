@@ -11,7 +11,7 @@ test('ignores links that are excluded from validation', async () => {
 
   expectValidationErrorCount(output, 7, 1)
 
-  expectValidationErrors(output, '/', [
+  expectValidationErrors(output, 'test/', [
     ['/excluded/', ValidationErrorType.InvalidLink],
     ['/excluded/?something', ValidationErrorType.InvalidLink],
     ['/excluded#test', ValidationErrorType.InvalidLink],
@@ -29,7 +29,7 @@ test('ignores links that are excluded from validation using a function', async (
 
   expectValidationErrorCount(output, 5, 1)
 
-  expectValidationErrors(output, '/', [
+  expectValidationErrors(output, 'test/', [
     ['/excluded/', ValidationErrorType.InvalidLink],
     ['/excluded/?something', ValidationErrorType.InvalidLink],
     ['/excluded#test', ValidationErrorType.InvalidLink],

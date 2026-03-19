@@ -4,4 +4,4 @@ title: Example
 
 ## Description
 
-This is a test page.
+This is an example page.
