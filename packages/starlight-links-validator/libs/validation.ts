@@ -12,7 +12,7 @@ import type { StarlightLinksValidatorOptions } from '..'
 
 import { getFallbackHeadings, getLocaleConfig, isInconsistentLocaleLink, type LocaleConfig } from './i18n'
 import { ensureTrailingSlash, stripLeadingSlash, stripTrailingSlash } from './path'
-import { getValidationData, type Link, type ValidationData } from './remark'
+import { getValidationData, type Link, type ValidationData } from './rehype'
 
 export const ValidationErrorType = {
   InconsistentLocale: 'inconsistent locale',

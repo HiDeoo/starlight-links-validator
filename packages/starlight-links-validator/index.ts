@@ -5,7 +5,7 @@ import { AstroError } from 'astro/errors'
 import { clearContentLayerCache } from './libs/astro'
 import { StarlightLinksValidatorOptionsSchema, type StarlightLinksValidatorUserOptions } from './libs/config'
 import { pathnameToSlug, stripTrailingSlash } from './libs/path'
-import { remarkStarlightLinksValidator, type RemarkStarlightLinksValidatorConfig } from './libs/remark'
+import { rehypeStarlightLinksValidator, type RehypeStarlightLinksValidatorConfig } from './libs/rehype'
 import { logErrors, validateLinks } from './libs/validation'
 
 export type { StarlightLinksValidatorOptions } from './libs/config'
@@ -38,15 +38,15 @@ export default function starlightLinksValidatorPlugin(
 
               updateConfig({
                 markdown: {
-                  remarkPlugins: [
+                  rehypePlugins: [
                     [
-                      remarkStarlightLinksValidator,
+                      rehypeStarlightLinksValidator,
                       {
                         base: astroConfig.base,
                         options: options.data,
                         site,
                         srcDir: astroConfig.srcDir,
-                      } satisfies RemarkStarlightLinksValidatorConfig,
+                      } satisfies RehypeStarlightLinksValidatorConfig,
                     ],
                   ],
                 },

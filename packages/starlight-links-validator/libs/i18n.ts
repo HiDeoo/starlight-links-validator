@@ -1,5 +1,5 @@
 import { ensureLeadingSlash, ensureTrailingSlash, stripLeadingSlash } from './path'
-import type { ValidationData } from './remark'
+import type { ValidationData } from './rehype'
 import type { StarlightUserConfig } from './validation'
 
 export function getLocaleConfig(config: StarlightUserConfig): LocaleConfig | undefined {
