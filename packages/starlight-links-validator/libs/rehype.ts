@@ -56,9 +56,7 @@ export const rehypeStarlightLinksValidator: Plugin<[RehypeStarlightLinksValidato
             fileHeadings.push(node.properties['id'])
           }
 
-          if (node.tagName !== 'a' || !hasStringProperty(node, 'href')) {
-            break
-          }
+          if (node.tagName !== 'a' || !hasStringProperty(node, 'href') || hasClass(node, 'sl-anchor-link')) break
 
           const link = getLinkToValidate(node.properties['href'], config)
           if (link) fileLinks.push(link)
@@ -124,20 +122,21 @@ export function getValidationData(): ValidationData {
 }
 
 function getLinkToValidate(link: string, { options, site }: RehypeStarlightLinksValidatorConfig): Link | undefined {
-  const linkTovalidate = { raw: link }
+  const normalizedLink = normalizeLink(link)
+  const linkTovalidate = { raw: normalizedLink }
 
-  if (!isAbsoluteUrl(link, { httpOnly: false })) {
+  if (!isAbsoluteUrl(normalizedLink, { httpOnly: false })) {
     return linkTovalidate
   }
 
   try {
-    const url = new URL(link)
+    const url = new URL(normalizedLink)
 
     if (options.sameSitePolicy !== 'ignore' && url.origin === site) {
       if (options.sameSitePolicy === 'error') {
         return { ...linkTovalidate, error: ValidationErrorType.SameSite }
       } else {
-        let transformed = link.replace(url.origin, '')
+        let transformed = normalizedLink.replace(url.origin, '')
         if (!transformed) transformed = '/'
         return { ...linkTovalidate, transformed }
       }
@@ -174,6 +173,21 @@ function normalizeId(base: string, srcDir: URL, filePath: string) {
   return path
 }
 
+function normalizeLink(link: string): string {
+  const hashIndex = link.indexOf('#')
+  if (hashIndex === -1) return link
+
+  const beforeHash = link.slice(0, hashIndex)
+  const hash = link.slice(hashIndex + 1)
+  if (hash.length === 0) return link
+
+  try {
+    return `${beforeHash}#${decodeURIComponent(hash)}`
+  } catch {
+    return link
+  }
+}
+
 function hasStringProperty<TName extends string>(
   node: Nodes,
   name: TName,
@@ -196,6 +210,19 @@ function isStringAttribute<TName extends string>(
     typeof attribute.value === 'string' &&
     attribute.value.length > 0
   )
+}
+
+function hasClass(node: Nodes, name: string): boolean {
+  if (node.type !== 'element') return false
+
+  if (hasStringProperty(node, 'class')) return node.properties['class'].split(/\s+/).includes(name)
+  if (hasStringProperty(node, 'className')) return node.properties['className'].split(/\s+/).includes(name)
+
+  if (Array.isArray(node.properties['className'])) {
+    return node.properties['className'].some((value) => typeof value === 'string' && value === name)
+  }
+
+  return false
 }
 
 function extractFrontmatterLinks(
