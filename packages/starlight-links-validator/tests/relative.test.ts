@@ -9,7 +9,7 @@ test('ignores relative links when the `errorOnRelativeLinks` option is set to `f
 
   expect(status).toBe('error')
 
-  expectValidationErrorCount(output, 4, 1)
+  expectValidationErrorCount(output, 5, 2)
 
   expectValidationErrors(output, 'test/', [
     ['/unknown', ValidationErrorType.InvalidLink],
@@ -17,4 +17,6 @@ test('ignores relative links when the `errorOnRelativeLinks` option is set to `f
     ['/guides/example#unknown', ValidationErrorType.InvalidHash],
     ['/guides/example/#unknown', ValidationErrorType.InvalidHash],
   ])
+
+  expectValidationErrors(output, 'transform/', [['/unknown', ValidationErrorType.InvalidLink]])
 })
