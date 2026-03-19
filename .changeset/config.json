@@ -8,5 +8,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["starlight-links-validator-docs", "starlight-links-validator-example", "@starlight-links-validator-tests/*"]
+  "ignore": ["starlight-links-validator-docs", "@starlight-links-validator-tests/*"]
 }

@@ -53,18 +53,7 @@ importers:
       sharp:
         specifier: ^0.34.5
         version: 0.34.5
-
-  example:
-    dependencies:
-      '@astrojs/starlight':
-        specifier: ^0.38.0
-        version: 0.38.0(astro@6.0.3(@types/node@24.12.0)(rollup@4.59.0)(typescript@5.9.3)(yaml@2.8.2))
-      astro:
-        specifier: ^6.0.3
-        version: 6.0.3(@types/node@24.12.0)(rollup@4.59.0)(typescript@5.9.3)(yaml@2.8.2)
-      sharp:
-        specifier: ^0.34.5
-        version: 0.34.5
+    devDependencies:
       starlight-links-validator:
         specifier: workspace:*
         version: link:../packages/starlight-links-validator
