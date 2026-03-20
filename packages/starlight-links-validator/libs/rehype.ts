@@ -1,23 +1,17 @@
-import 'mdast-util-mdx-jsx'
-
 import nodePath from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import type { AstroConfig } from 'astro'
-import GitHubSlugger, { slug } from 'github-slugger'
-import type { Nodes } from 'hast'
+import { slug as slugger } from 'github-slugger'
+import type { Element, Nodes, Root } from 'hast'
 import { fromHtml } from 'hast-util-from-html'
-import { hasProperty } from 'hast-util-has-property'
 import isAbsoluteUrl from 'is-absolute-url'
-import type { Root } from 'mdast'
 import type { MdxJsxAttribute, MdxJsxExpressionAttribute } from 'mdast-util-mdx-jsx'
-import { toString } from 'mdast-util-to-string'
 import type { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
 import type { DataMap } from 'vfile'
 
-import type { StarlightLinksValidatorOptions } from '..'
-
+import type { StarlightLinksValidatorOptions } from './config'
 import { ensureTrailingSlash, stripLeadingSlash } from './path'
 import { ValidationErrorType } from './validation'
 
@@ -29,7 +23,7 @@ const builtInComponents: StarlightLinksValidatorOptions['components'] = [
 // All the validation data keyed by file path.
 const data: ValidationData = new Map()
 
-export const remarkStarlightLinksValidator: Plugin<[RemarkStarlightLinksValidatorConfig], Root> = function (config) {
+export const rehypeStarlightLinksValidator: Plugin<[RehypeStarlightLinksValidatorConfig], Root> = function (config) {
   const { base, options, srcDir } = config
 
   const linkComponents: Record<string, string> = Object.fromEntries(
@@ -37,91 +31,51 @@ export const remarkStarlightLinksValidator: Plugin<[RemarkStarlightLinksValidato
   )
 
   return (tree, file) => {
+    const path = file.history[0]
+
     // If the content does not have a path, e.g. when rendered using the content loader `renderMarkdown()` API, skip it.
-    if (!file.path) return
+    if (!path) return
 
     if (file.data.astro?.frontmatter?.['draft']) return
 
-    const path = file.history[0]
-    if (!path) throw new Error('Missing file path to validate links.')
-
-    const slugger = new GitHubSlugger()
     const id = normalizeId(base, srcDir, path)
     const slug: string | undefined =
       typeof file.data.astro?.frontmatter?.['slug'] === 'string' ? file.data.astro.frontmatter['slug'] : undefined
 
     const fileHeadings: string[] = ['_top']
     const fileLinks: Link[] = []
-    const fileDefinitions = new Map<string, string>()
 
     extractFrontmatterLinks(file.data.astro?.frontmatter, fileLinks, config)
 
-    visit(tree, 'definition', (node) => {
-      fileDefinitions.set(node.identifier, node.url)
-    })
-
-    visit(tree, ['heading', 'html', 'link', 'linkReference', 'mdxJsxFlowElement', 'mdxJsxTextElement'], (node) => {
-      // https://github.com/syntax-tree/mdast#nodes
+    visit(tree, ['element', 'mdxJsxFlowElement', 'mdxJsxTextElement', 'raw'], (node) => {
+      // https://github.com/syntax-tree/hast#nodes
       // https://github.com/syntax-tree/mdast-util-mdx-jsx#nodes
       switch (node.type) {
-        case 'heading': {
-          if (node.data?.hProperties?.['id']) {
-            fileHeadings.push(String(node.data.hProperties['id']))
-            break
+        case 'element': {
+          if (hasStringProperty(node, 'id')) {
+            fileHeadings.push(node.properties['id'])
           }
 
-          const content = toString(node)
+          if (node.tagName !== 'a' || !hasStringProperty(node, 'href') || hasClass(node, 'sl-anchor-link')) break
 
-          if (content.length === 0) {
-            break
-          }
-
-          // Remove the last trailing hyphen from the slug like Astro does if it exists.
-          // https://github.com/withastro/astro/blob/74ee2e45ecc9edbe285eadee6d0b94fc47d0d125/packages/integrations/markdoc/src/heading-ids.ts#L21
-          fileHeadings.push(slugger.slug(content).replace(/-$/, ''))
-
-          break
-        }
-        case 'link': {
-          const link = getLinkToValidate(node.url, config)
-          if (link) fileLinks.push(link)
-
-          break
-        }
-        case 'linkReference': {
-          const definition = fileDefinitions.get(node.identifier)
-          if (!definition) break
-
-          const link = getLinkToValidate(definition, config)
+          const link = getLinkToValidate(node.properties['href'], config)
           if (link) fileLinks.push(link)
 
           break
         }
         case 'mdxJsxFlowElement': {
           for (const attribute of node.attributes) {
-            if (isMdxIdAttribute(attribute)) {
-              fileHeadings.push(attribute.value)
-            }
+            if (isStringAttribute(attribute, 'id')) fileHeadings.push(attribute.value)
           }
 
-          if (!node.name) {
-            break
-          }
+          if (!node.name) break
 
           const componentProp = linkComponents[node.name]
 
-          if (node.name !== 'a' && !componentProp) {
-            break
-          }
+          if (node.name !== 'a' && !componentProp) break
 
           for (const attribute of node.attributes) {
-            if (
-              attribute.type !== 'mdxJsxAttribute' ||
-              attribute.name !== (componentProp ?? 'href') ||
-              typeof attribute.value !== 'string'
-            ) {
-              continue
-            }
+            if (!isStringAttribute(attribute, componentProp ?? 'href')) continue
 
             const link = getLinkToValidate(attribute.value, config)
             if (link) fileLinks.push(link)
@@ -131,27 +85,20 @@ export const remarkStarlightLinksValidator: Plugin<[RemarkStarlightLinksValidato
         }
         case 'mdxJsxTextElement': {
           for (const attribute of node.attributes) {
-            if (isMdxIdAttribute(attribute)) {
-              fileHeadings.push(attribute.value)
-            }
+            if (isStringAttribute(attribute, 'id')) fileHeadings.push(attribute.value)
           }
 
           break
         }
-        case 'html': {
+        case 'raw': {
           const htmlTree = fromHtml(node.value, { fragment: true })
 
           visit(htmlTree, (htmlNode: Nodes) => {
-            if (hasProperty(htmlNode, 'id') && typeof htmlNode.properties.id === 'string') {
+            if (hasStringProperty(htmlNode, 'id')) {
               fileHeadings.push(htmlNode.properties.id)
             }
 
-            if (
-              htmlNode.type === 'element' &&
-              htmlNode.tagName === 'a' &&
-              hasProperty(htmlNode, 'href') &&
-              typeof htmlNode.properties.href === 'string'
-            ) {
+            if (htmlNode.type === 'element' && htmlNode.tagName === 'a' && hasStringProperty(htmlNode, 'href')) {
               const link = getLinkToValidate(htmlNode.properties.href, config)
               if (link) fileLinks.push(link)
             }
@@ -174,21 +121,22 @@ export function getValidationData(): ValidationData {
   return data
 }
 
-function getLinkToValidate(link: string, { options, site }: RemarkStarlightLinksValidatorConfig): Link | undefined {
-  const linkTovalidate = { raw: link }
+function getLinkToValidate(link: string, { options, site }: RehypeStarlightLinksValidatorConfig): Link | undefined {
+  const normalizedLink = normalizeLink(link)
+  const linkTovalidate = { raw: normalizedLink }
 
-  if (!isAbsoluteUrl(link, { httpOnly: false })) {
+  if (!isAbsoluteUrl(normalizedLink, { httpOnly: false })) {
     return linkTovalidate
   }
 
   try {
-    const url = new URL(link)
+    const url = new URL(normalizedLink)
 
     if (options.sameSitePolicy !== 'ignore' && url.origin === site) {
       if (options.sameSitePolicy === 'error') {
         return { ...linkTovalidate, error: ValidationErrorType.SameSite }
       } else {
-        let transformed = link.replace(url.origin, '')
+        let transformed = normalizedLink.replace(url.origin, '')
         if (!transformed) transformed = '/'
         return { ...linkTovalidate, transformed }
       }
@@ -205,9 +153,7 @@ function getLinkToValidate(link: string, { options, site }: RemarkStarlightLinks
 }
 
 function getValidationDataId(base: string, id: string, slug: string | undefined) {
-  if (slug) {
-    return nodePath.posix.join(stripLeadingSlash(base), stripLeadingSlash(ensureTrailingSlash(slug)))
-  }
+  if (slug) return nodePath.posix.join(stripLeadingSlash(base), stripLeadingSlash(ensureTrailingSlash(slug)))
 
   return id
 }
@@ -219,24 +165,70 @@ function normalizeId(base: string, srcDir: URL, filePath: string) {
     .replace(/(^|[/\\])index$/, '')
     .replace(/[/\\]?$/, '/')
     .split(/[/\\]/)
-    .map((segment) => slug(segment))
+    .map((segment) => slugger(segment))
     .join('/')
 
-  if (base !== '/') {
-    return nodePath.posix.join(stripLeadingSlash(base), path)
-  }
+  if (base !== '/') return nodePath.posix.join(stripLeadingSlash(base), path)
 
   return path
 }
 
-function isMdxIdAttribute(attribute: MdxJsxAttribute | MdxJsxExpressionAttribute): attribute is MdxIdAttribute {
-  return attribute.type === 'mdxJsxAttribute' && attribute.name === 'id' && typeof attribute.value === 'string'
+function normalizeLink(link: string): string {
+  const hashIndex = link.indexOf('#')
+  if (hashIndex === -1) return link
+
+  const beforeHash = link.slice(0, hashIndex)
+  const hash = link.slice(hashIndex + 1)
+  if (hash.length === 0) return link
+
+  try {
+    return `${beforeHash}#${decodeURIComponent(hash)}`
+  } catch {
+    return link
+  }
+}
+
+function hasStringProperty<TName extends string>(
+  node: Nodes,
+  name: TName,
+): node is Element & { properties: Element['properties'] & Record<TName, string> } {
+  return (
+    node.type === 'element' &&
+    node.properties[name] !== undefined &&
+    typeof node.properties[name] === 'string' &&
+    node.properties[name].length > 0
+  )
+}
+
+function isStringAttribute<TName extends string>(
+  attribute: MdxJsxAttribute | MdxJsxExpressionAttribute,
+  name: TName,
+): attribute is MdxStringAttribute<TName> {
+  return (
+    attribute.type === 'mdxJsxAttribute' &&
+    attribute.name === name &&
+    typeof attribute.value === 'string' &&
+    attribute.value.length > 0
+  )
+}
+
+function hasClass(node: Nodes, name: string): boolean {
+  if (node.type !== 'element') return false
+
+  if (hasStringProperty(node, 'class')) return node.properties['class'].split(/\s+/).includes(name)
+  if (hasStringProperty(node, 'className')) return node.properties['className'].split(/\s+/).includes(name)
+
+  if (Array.isArray(node.properties['className'])) {
+    return node.properties['className'].some((value) => typeof value === 'string' && value === name)
+  }
+
+  return false
 }
 
 function extractFrontmatterLinks(
   frontmatter: Frontmatter,
   fileLinks: Link[],
-  config: RemarkStarlightLinksValidatorConfig,
+  config: RehypeStarlightLinksValidatorConfig,
 ) {
   if (!frontmatter) return
 
@@ -281,7 +273,7 @@ function isFrontmatterPrevNextLink<T extends 'prev' | 'next'>(
   )
 }
 
-export interface RemarkStarlightLinksValidatorConfig {
+export interface RehypeStarlightLinksValidatorConfig {
   base: string
   options: StarlightLinksValidatorOptions
   site: AstroConfig['site']
@@ -306,8 +298,8 @@ export interface Link {
   transformed?: string
 }
 
-interface MdxIdAttribute {
-  name: 'id'
+interface MdxStringAttribute<TName extends string> {
+  name: TName
   type: 'mdxJsxAttribute'
   value: string
 }

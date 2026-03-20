@@ -1,5 +1,6 @@
 import starlight from '@astrojs/starlight'
 import { defineConfig } from 'astro/config'
+import starlightLinksValidator from 'starlight-links-validator'
 
 const site =
   process.env['VERCEL_ENV'] !== 'production' && process.env['VERCEL_URL']
@@ -20,6 +21,7 @@ export default defineConfig({
         },
         { tag: 'meta', attrs: { property: 'og:image:alt', content: 'Starlight plugin to validate internal links.' } },
       ],
+      plugins: process.env['CHECK_LINKS'] ? [starlightLinksValidator()] : [],
       sidebar: [
         {
           label: 'Start Here',

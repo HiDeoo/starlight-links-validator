@@ -9,5 +9,6 @@
     "vue",
     "markdown",
     "astro"
-  ]
+  ],
+  "markdown.validate.enabled": false
 }

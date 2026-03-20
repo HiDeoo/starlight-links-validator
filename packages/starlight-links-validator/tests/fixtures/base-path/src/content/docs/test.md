@@ -33,17 +33,17 @@ title: Test
 - [Example page with custom slug](/test/release/@pkg/v0.1.0)
 - [Example page with custom slug](/test/release/@pkg/v0.1.0/)
 
-- [Example page with custom slug and hash](/test/release/@pkg/v0.1.0#some-content)
-- [Example page with custom slug and hash](/test/release/@pkg/v0.1.0/#some-content)
+- [Example page with custom slug and hash](/test/release/@pkg/v0.1.0#some-heading)
+- [Example page with custom slug and hash](/test/release/@pkg/v0.1.0/#some-heading)
 
 - [Example page with custom slug and missing base](/release/@pkg/v0.1.0)
 - [Example page with custom slug and missing base](/release/@pkg/v0.1.0/)
 
-- [Example page with custom slug, hash, and missing baase](/release/@pkg/v0.1.0#some-content)
-- [Example page with custom slug, hash, and missing baase](/release/@pkg/v0.1.0/#some-content)
+- [Example page with custom slug, hash, and missing baase](/release/@pkg/v0.1.0#some-heading)
+- [Example page with custom slug, hash, and missing baase](/release/@pkg/v0.1.0/#some-heading)
 
-- [Example page with custom slug and old link](/guides/page-with-custom-slug)
-- [Example page with custom slug and old link](/guides/page-with-custom-slug/)
+- [Example page with custom slug and old slug](/guides/page-with-custom-slug)
+- [Example page with custom slug and old slug](/guides/page-with-custom-slug/)
 
 ## Same site URL
 

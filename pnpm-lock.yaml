@@ -53,18 +53,7 @@ importers:
       sharp:
         specifier: ^0.34.5
         version: 0.34.5
-
-  example:
-    dependencies:
-      '@astrojs/starlight':
-        specifier: ^0.38.0
-        version: 0.38.0(astro@6.0.3(@types/node@24.12.0)(rollup@4.59.0)(typescript@5.9.3)(yaml@2.8.2))
-      astro:
-        specifier: ^6.0.3
-        version: 6.0.3(@types/node@24.12.0)(rollup@4.59.0)(typescript@5.9.3)(yaml@2.8.2)
-      sharp:
-        specifier: ^0.34.5
-        version: 0.34.5
+    devDependencies:
       starlight-links-validator:
         specifier: workspace:*
         version: link:../packages/starlight-links-validator
@@ -86,9 +75,6 @@ importers:
       hast-util-from-html:
         specifier: ^2.0.3
         version: 2.0.3
-      hast-util-has-property:
-        specifier: ^3.0.0
-        version: 3.0.0
       is-absolute-url:
         specifier: ^5.0.0
         version: 5.0.0
@@ -98,9 +84,6 @@ importers:
       mdast-util-mdx-jsx:
         specifier: ^3.2.0
         version: 3.2.0
-      mdast-util-to-string:
-        specifier: ^4.0.0
-        version: 4.0.0
       picomatch:
         specifier: ^4.0.3
         version: 4.0.3
@@ -114,21 +97,15 @@ importers:
       '@types/hast':
         specifier: ^3.0.4
         version: 3.0.4
-      '@types/mdast':
-        specifier: ^4.0.4
-        version: 4.0.4
       '@types/node':
         specifier: ^22.19.15
         version: 22.19.15
-      remark-custom-heading-id:
-        specifier: ^2.0.0
-        version: 2.0.0
       remark-parse:
         specifier: ^11.0.0
         version: 11.0.0
-      remark-stringify:
-        specifier: ^11.0.0
-        version: 11.0.0
+      remark-rehype:
+        specifier: ^11.1.2
+        version: 11.1.2
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -333,6 +310,10 @@ importers:
       starlight-links-validator:
         specifier: workspace:*
         version: link:../../..
+    devDependencies:
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
 
   packages/starlight-links-validator/tests/fixtures/same-site-error:
     dependencies:

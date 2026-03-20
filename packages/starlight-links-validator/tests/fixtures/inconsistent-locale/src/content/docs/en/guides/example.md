@@ -4,7 +4,7 @@ title: Example
 
 ## Description
 
-This is a test page.
+This is an example page.
 
 - [Home page](/en)
 - [Home page in another locale](/fr)
