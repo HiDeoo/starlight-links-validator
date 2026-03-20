@@ -1,10 +1,10 @@
 import { statSync } from 'node:fs'
 import { posix } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { styleText } from 'node:util'
 
 import type { StarlightUserConfig as StarlightUserConfigWithPlugins } from '@astrojs/starlight/types'
 import type { AstroConfig, AstroIntegrationLogger } from 'astro'
-import { bgGreen, black, blue, dim, green, red } from 'kleur/colors'
 import picomatch from 'picomatch'
 import terminalLink from 'terminal-link'
 
@@ -34,7 +34,7 @@ export function validateLinks(
   starlightConfig: StarlightUserConfig,
   options: StarlightLinksValidatorOptions,
 ): ValidationErrors {
-  process.stdout.write(`\n${bgGreen(black(` validating links `))}\n`)
+  process.stdout.write(`\n${styleText(['bgGreen', 'black'], ` validating links `)}\n`)
 
   const localeConfig = getLocaleConfig(starlightConfig)
   const validationData = getValidationData()
@@ -83,7 +83,7 @@ export function logErrors(pluginLogger: AstroIntegrationLogger, errors: Validati
   const logger = pluginLogger.fork('')
 
   if (errors.size === 0) {
-    logger.info(green('✓ All internal links are valid.\n'))
+    logger.info(styleText('green', '✓ All internal links are valid.\n'))
     return
   }
 
@@ -93,7 +93,8 @@ export function logErrors(pluginLogger: AstroIntegrationLogger, errors: Validati
   )
 
   logger.error(
-    red(
+    styleText(
+      'red',
       `✗ Found ${errorCount} invalid ${pluralize(errorCount, 'link')} in ${errors.size} ${pluralize(
         errors.size,
         'file',
@@ -104,11 +105,17 @@ export function logErrors(pluginLogger: AstroIntegrationLogger, errors: Validati
   let hasInvalidLinkToCustomPage = false
 
   for (const [id, { errors: validationErrors, file }] of errors) {
-    logger.info(`${red('▶')} ${blue(terminalLink(id, pathToFileURL(file).toString(), { fallback: false }))}`)
+    logger.info(
+      `${styleText('red', '▶')} ${styleText(
+        'blue',
+        terminalLink(id, pathToFileURL(file).toString(), { fallback: false }),
+      )}`,
+    )
 
     for (const [index, validationError] of validationErrors.entries()) {
       logger.info(
-        `  ${blue(`${index < validationErrors.length - 1 ? '├' : '└'}─`)} ${validationError.link}${dim(
+        `  ${styleText('blue', `${index < validationErrors.length - 1 ? '├' : '└'}─`)} ${validationError.link}${styleText(
+          'dim',
           ` - ${formatValidationError(validationError, site)}`,
         )}`,
       )

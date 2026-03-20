@@ -18,7 +18,6 @@
     "github-slugger": "^2.0.0",
     "hast-util-from-html": "^2.0.3",
     "is-absolute-url": "^5.0.0",
-    "kleur": "^4.1.5",
     "mdast-util-mdx-jsx": "^3.2.0",
     "picomatch": "^4.0.3",
     "terminal-link": "^5.0.0",
