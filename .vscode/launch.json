@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "command": "./node_modules/.bin/astro build",
+      "cwd": "${workspaceFolder}/docs",
+      "env": {
+        "CHECK_LINKS": "true"
+      },
+      "name": "Validate links",
+      "request": "launch",
+      "type": "node-terminal"
+    }
+  ]
+}
