@@ -137,7 +137,7 @@ export async function logErrors(
 
 function logPosition(position: Position): string {
   // TODO(HiDeoo)
-  return position.type === 'unavailable' ? 'unknown position' : `line ${position.line}`
+  return position.type === 'unavailable' ? 'unknown position' : `line ${position.line} - column ${position.column}`
 }
 
 /**

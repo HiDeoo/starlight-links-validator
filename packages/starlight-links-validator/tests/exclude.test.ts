@@ -12,13 +12,13 @@ test('ignores links that are excluded from validation', async () => {
   expectValidationErrorCount(output, 7, 1)
 
   expectValidationErrors(output, 'test/', [
-    ['/excluded/', ValidationErrorType.InvalidLink, [16]],
-    ['/excluded/?something', ValidationErrorType.InvalidLink, [17]],
-    ['/excluded#test', ValidationErrorType.InvalidLink, [18]],
-    ['/test/excluded', ValidationErrorType.InvalidLink, [19]],
-    ['/test/excluded/test', ValidationErrorType.InvalidLink, [20]],
-    ['/api/getting-started', ValidationErrorType.InvalidLink, [28]],
-    ['/api/class/baz', ValidationErrorType.InvalidLink, [29]],
+    ['/excluded/', ValidationErrorType.InvalidLink, [16, 3]],
+    ['/excluded/?something', ValidationErrorType.InvalidLink, [17, 3]],
+    ['/excluded#test', ValidationErrorType.InvalidLink, [18, 3]],
+    ['/test/excluded', ValidationErrorType.InvalidLink, [19, 3]],
+    ['/test/excluded/test', ValidationErrorType.InvalidLink, [20, 3]],
+    ['/api/getting-started', ValidationErrorType.InvalidLink, [28, 3]],
+    ['/api/class/baz', ValidationErrorType.InvalidLink, [29, 3]],
   ])
 })
 
@@ -30,10 +30,10 @@ test('ignores links that are excluded from validation using a function', async (
   expectValidationErrorCount(output, 5, 1)
 
   expectValidationErrors(output, 'test/', [
-    ['/excluded/', ValidationErrorType.InvalidLink, [16]],
-    ['/excluded/?something', ValidationErrorType.InvalidLink, [17]],
-    ['/excluded#test', ValidationErrorType.InvalidLink, [18]],
-    ['/test/excluded', ValidationErrorType.InvalidLink, [19]],
-    ['/test/excluded/test', ValidationErrorType.InvalidLink, [20]],
+    ['/excluded/', ValidationErrorType.InvalidLink, [16, 3]],
+    ['/excluded/?something', ValidationErrorType.InvalidLink, [17, 3]],
+    ['/excluded#test', ValidationErrorType.InvalidLink, [18, 3]],
+    ['/test/excluded', ValidationErrorType.InvalidLink, [19, 3]],
+    ['/test/excluded/test', ValidationErrorType.InvalidLink, [20, 3]],
   ])
 })

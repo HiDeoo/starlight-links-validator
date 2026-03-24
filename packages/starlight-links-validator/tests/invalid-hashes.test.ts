@@ -18,25 +18,25 @@ test('does not build with invalid links but ignore invalid hashes', async () => 
   expectValidationErrorCount(output, 17, 2)
 
   expectValidationErrors(output, 'test/', [
-    ['/https://starlight.astro.build/', ValidationErrorType.InvalidLink, [9]],
-    ['/', ValidationErrorType.InvalidLink, [11]],
-    ['/unknown', ValidationErrorType.InvalidLink, [13]],
-    ['/unknown/', ValidationErrorType.InvalidLink, [14]],
-    ['/unknown#title', ValidationErrorType.InvalidLink, [16]],
-    ['/unknown/#title', ValidationErrorType.InvalidLink, [17]],
-    ['/icon.svg', ValidationErrorType.InvalidLink, [25]],
-    ['/guidelines/ui.pdf', ValidationErrorType.InvalidLink, [26]],
-    ['/unknown-ref', ValidationErrorType.InvalidLink, [30]],
+    ['/https://starlight.astro.build/', ValidationErrorType.InvalidLink, [9, 3]],
+    ['/', ValidationErrorType.InvalidLink, [11, 3]],
+    ['/unknown', ValidationErrorType.InvalidLink, [13, 3]],
+    ['/unknown/', ValidationErrorType.InvalidLink, [14, 3]],
+    ['/unknown#title', ValidationErrorType.InvalidLink, [16, 3]],
+    ['/unknown/#title', ValidationErrorType.InvalidLink, [17, 3]],
+    ['/icon.svg', ValidationErrorType.InvalidLink, [25, 3]],
+    ['/guidelines/ui.pdf', ValidationErrorType.InvalidLink, [26, 3]],
+    ['/unknown-ref', ValidationErrorType.InvalidLink, [30, 3]],
   ])
 
   expectValidationErrors(output, 'guides/example/', [
-    ['/unknown/#links', ValidationErrorType.InvalidLink, [17]],
-    ['/unknown', ValidationErrorType.InvalidLink, [19]],
-    ['/icon.svg', ValidationErrorType.InvalidLink, [35]],
-    ['/guidelines/ui.pdf', ValidationErrorType.InvalidLink, [36]],
-    ['/linkcard/', ValidationErrorType.InvalidLink, [39]],
-    ['/linkcard/#links', ValidationErrorType.InvalidLink, [40]],
-    ['/linkbutton/', ValidationErrorType.InvalidLink, [44]],
-    ['/linkbutton/#links', ValidationErrorType.InvalidLink, [45]],
+    ['/unknown/#links', ValidationErrorType.InvalidLink, [17, 3]],
+    ['/unknown', ValidationErrorType.InvalidLink, [19, 1]],
+    ['/icon.svg', ValidationErrorType.InvalidLink, [35, 1]],
+    ['/guidelines/ui.pdf', ValidationErrorType.InvalidLink, [36, 1]],
+    ['/linkcard/', ValidationErrorType.InvalidLink, [39, 3]],
+    ['/linkcard/#links', ValidationErrorType.InvalidLink, [40, 3]],
+    ['/linkbutton/', ValidationErrorType.InvalidLink, [44, 1]],
+    ['/linkbutton/#links', ValidationErrorType.InvalidLink, [45, 1]],
   ])
 })

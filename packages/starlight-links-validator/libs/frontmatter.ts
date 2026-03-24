@@ -20,7 +20,7 @@ function getYamlFrontmatterPosition(content: string, path: FrontmatterReference[
   const position = lineCounter.linePos(node.range[0])
 
   // Account for the starting '---' line of the frontmatter.
-  return { type: 'source', line: position.line + 1 }
+  return { type: 'source', line: position.line + 1, column: position.col }
 }
 
 function getTomlFrontmatterPosition(): Position {

@@ -12,11 +12,11 @@ test('ignores relative links when the `errorOnRelativeLinks` option is set to `f
   expectValidationErrorCount(output, 5, 2)
 
   expectValidationErrors(output, 'test/', [
-    ['/unknown', ValidationErrorType.InvalidLink, [15]],
-    ['/unknown/', ValidationErrorType.InvalidLink, [16]],
-    ['/guides/example#unknown', ValidationErrorType.InvalidHash, [18]],
-    ['/guides/example/#unknown', ValidationErrorType.InvalidHash, [19]],
+    ['/unknown', ValidationErrorType.InvalidLink, [15, 3]],
+    ['/unknown/', ValidationErrorType.InvalidLink, [16, 3]],
+    ['/guides/example#unknown', ValidationErrorType.InvalidHash, [18, 3]],
+    ['/guides/example/#unknown', ValidationErrorType.InvalidHash, [19, 3]],
   ])
 
-  expectValidationErrors(output, 'transform/', [['/unknown', ValidationErrorType.InvalidLink, [8]]])
+  expectValidationErrors(output, 'transform/', [['/unknown', ValidationErrorType.InvalidLink, [8, 1]]])
 })

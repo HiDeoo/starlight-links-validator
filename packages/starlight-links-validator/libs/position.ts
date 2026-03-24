@@ -12,6 +12,7 @@ export function getNodeReference(node: Element | MdxJsxFlowElementHast | Raw, ne
       ? {
           type: 'source',
           line: node.position.start.line + (nestedNode?.position ? nestedNode.position.start.line - 1 : 0),
+          column: nestedNode?.position?.start.column ?? node.position.start.column,
         }
       : makeUnavailablePosition(),
   }
@@ -61,6 +62,7 @@ export type Position = SourcePosition | UnavailablePosition
 interface SourcePosition {
   type: 'source'
   line: number
+  column: number
 }
 
 interface UnavailablePosition {

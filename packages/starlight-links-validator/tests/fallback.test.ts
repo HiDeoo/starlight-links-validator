@@ -12,10 +12,10 @@ test('does not build with ignored fallback links', async () => {
   expectValidationErrorCount(output, 4, 1)
 
   expectValidationErrors(output, 'fr/', [
-    ['/fr/guides/example', ValidationErrorType.InvalidLink, [12]],
-    ['/fr/guides/example/', ValidationErrorType.InvalidLink, [13]],
-    ['/fr/guides/example#description', ValidationErrorType.InvalidLink, [15]],
-    ['/fr/guides/example/#description', ValidationErrorType.InvalidLink, [16]],
+    ['/fr/guides/example', ValidationErrorType.InvalidLink, [12, 3]],
+    ['/fr/guides/example/', ValidationErrorType.InvalidLink, [13, 3]],
+    ['/fr/guides/example#description', ValidationErrorType.InvalidLink, [15, 3]],
+    ['/fr/guides/example/#description', ValidationErrorType.InvalidLink, [16, 3]],
   ])
 })
 
@@ -33,22 +33,22 @@ test('does not build with invalid fallback links', async () => {
   expectValidationErrorCount(output, 11, 3)
 
   expectValidationErrors(output, 'en/', [
-    ['/en/guides/unknown', ValidationErrorType.InvalidLink, [9]],
-    ['/en/guides/unknown/', ValidationErrorType.InvalidLink, [10]],
-    ['/en/guides/example#unknown', ValidationErrorType.InvalidHash, [12]],
-    ['/en/guides/example/#unknown', ValidationErrorType.InvalidHash, [13]],
-    ['/es/guides/example', ValidationErrorType.InvalidLink, [15]],
-    ['/es/guides/example/', ValidationErrorType.InvalidLink, [16]],
+    ['/en/guides/unknown', ValidationErrorType.InvalidLink, [9, 3]],
+    ['/en/guides/unknown/', ValidationErrorType.InvalidLink, [10, 3]],
+    ['/en/guides/example#unknown', ValidationErrorType.InvalidHash, [12, 3]],
+    ['/en/guides/example/#unknown', ValidationErrorType.InvalidHash, [13, 3]],
+    ['/es/guides/example', ValidationErrorType.InvalidLink, [15, 3]],
+    ['/es/guides/example/', ValidationErrorType.InvalidLink, [16, 3]],
   ])
 
   expectValidationErrors(output, 'fr/', [
-    ['/fr/guides/unknown', ValidationErrorType.InvalidLink, [8]],
-    ['/fr/guides/unknown/', ValidationErrorType.InvalidLink, [9]],
-    ['/fr/guides/example#unknown', ValidationErrorType.InvalidHash, [11]],
-    ['/fr/guides/example/#unknown', ValidationErrorType.InvalidHash, [12]],
+    ['/fr/guides/unknown', ValidationErrorType.InvalidLink, [8, 3]],
+    ['/fr/guides/unknown/', ValidationErrorType.InvalidLink, [9, 3]],
+    ['/fr/guides/example#unknown', ValidationErrorType.InvalidHash, [11, 3]],
+    ['/fr/guides/example/#unknown', ValidationErrorType.InvalidHash, [12, 3]],
   ])
 
-  expectValidationErrors(output, 'fr/guides/test/', [['/', ValidationErrorType.InvalidLink, [5]]])
+  expectValidationErrors(output, 'fr/guides/test/', [['/', ValidationErrorType.InvalidLink, [5, 3]]])
 })
 
 test('builds with a root locale and valid fallback links', async () => {
@@ -65,20 +65,20 @@ test('does not build with a root locale and invalid fallback links', async () =>
   expectValidationErrorCount(output, 11, 3)
 
   expectValidationErrors(output, '/', [
-    ['/guides/unknown', ValidationErrorType.InvalidLink, [9]],
-    ['/guides/unknown/', ValidationErrorType.InvalidLink, [10]],
-    ['/guides/example#unknown', ValidationErrorType.InvalidHash, [12]],
-    ['/guides/example/#unknown', ValidationErrorType.InvalidHash, [13]],
-    ['/es/guides/example', ValidationErrorType.InvalidLink, [15]],
-    ['/es/guides/example/', ValidationErrorType.InvalidLink, [16]],
+    ['/guides/unknown', ValidationErrorType.InvalidLink, [9, 3]],
+    ['/guides/unknown/', ValidationErrorType.InvalidLink, [10, 3]],
+    ['/guides/example#unknown', ValidationErrorType.InvalidHash, [12, 3]],
+    ['/guides/example/#unknown', ValidationErrorType.InvalidHash, [13, 3]],
+    ['/es/guides/example', ValidationErrorType.InvalidLink, [15, 3]],
+    ['/es/guides/example/', ValidationErrorType.InvalidLink, [16, 3]],
   ])
 
   expectValidationErrors(output, 'fr/', [
-    ['/fr/guides/unknown', ValidationErrorType.InvalidLink, [8]],
-    ['/fr/guides/unknown/', ValidationErrorType.InvalidLink, [9]],
-    ['/fr/guides/example#unknown', ValidationErrorType.InvalidHash, [11]],
-    ['/fr/guides/example/#unknown', ValidationErrorType.InvalidHash, [12]],
+    ['/fr/guides/unknown', ValidationErrorType.InvalidLink, [8, 3]],
+    ['/fr/guides/unknown/', ValidationErrorType.InvalidLink, [9, 3]],
+    ['/fr/guides/example#unknown', ValidationErrorType.InvalidHash, [11, 3]],
+    ['/fr/guides/example/#unknown', ValidationErrorType.InvalidHash, [12, 3]],
   ])
 
-  expectValidationErrors(output, 'guides/test/', [['/en', ValidationErrorType.InvalidLink, [5]]])
+  expectValidationErrors(output, 'guides/test/', [['/en', ValidationErrorType.InvalidLink, [5, 3]]])
 })

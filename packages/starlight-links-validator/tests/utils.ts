@@ -49,7 +49,7 @@ export const expectValidationErrors = vi.defineHelper(
     validationErrors: [
       link: string,
       type: ValidationErrorType,
-      position: [line: number] | undefined,
+      position: [line: number, column: number] | undefined,
       site?: string | undefined,
     ][],
   ) => {
@@ -58,7 +58,7 @@ export const expectValidationErrors = vi.defineHelper(
 ${validationErrors
   .map(
     ([link, type, position, site], index) =>
-      `.* ${index < validationErrors.length - 1 ? '├' : '└'}─ ${link.replaceAll('?', String.raw`\?`)} - ${site ? type.replace('{{site}}', site) : type} - ${position ? `line ${position[0]}` : 'unknown position'}`,
+      `.* ${index < validationErrors.length - 1 ? '├' : '└'}─ ${link.replaceAll('?', String.raw`\?`)} - ${site ? type.replace('{{site}}', site) : type} - ${position ? `line ${position[0]} - column ${position[1]}` : 'unknown position'}`,
   )
   .join('\n')}`),
     )
