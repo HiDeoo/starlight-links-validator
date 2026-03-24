@@ -42,18 +42,25 @@ export function expectValidationErrorCount(output: string, count: number, filesC
   )
 }
 
-export function expectValidationErrors(
-  output: string,
-  path: string,
-  validationErrors: [link: string, type: ValidationErrorType, site?: string | undefined][],
-) {
-  expect(output).toMatch(
-    new RegExp(`▶ ${path}
+export const expectValidationErrors = vi.defineHelper(
+  (
+    output: string,
+    path: string,
+    validationErrors: [
+      link: string,
+      type: ValidationErrorType,
+      position: [line: number] | undefined,
+      site?: string | undefined,
+    ][],
+  ) => {
+    expect(output).toMatch(
+      new RegExp(`▶ ${path}
 ${validationErrors
   .map(
-    ([link, type, site], index) =>
-      `.* ${index < validationErrors.length - 1 ? '├' : '└'}─ ${link.replaceAll('?', String.raw`\?`)} - ${site ? type.replace('{{site}}', site) : type}`,
+    ([link, type, position, site], index) =>
+      `.* ${index < validationErrors.length - 1 ? '├' : '└'}─ ${link.replaceAll('?', String.raw`\?`)} - ${site ? type.replace('{{site}}', site) : type} - ${position ? `line ${position[0]}` : 'unknown position'}`,
   )
   .join('\n')}`),
-  )
-}
+    )
+  },
+)

@@ -12,6 +12,7 @@ import type { StarlightLinksValidatorOptions } from '..'
 
 import { getFallbackHeadings, getLocaleConfig, isInconsistentLocaleLink, type LocaleConfig } from './i18n'
 import { ensureTrailingSlash, stripLeadingSlash, stripTrailingSlash } from './path'
+import { getErrorPosition, type Position, type Reference } from './position'
 import { getValidationData, type Link, type ValidationData } from './rehype'
 
 export const ValidationErrorType = {
@@ -79,7 +80,13 @@ export function validateLinks(
   return errors
 }
 
-export function logErrors(pluginLogger: AstroIntegrationLogger, errors: ValidationErrors, site: AstroConfig['site']) {
+// TODO(HiDeoo) console.log/console.error
+
+export async function logErrors(
+  pluginLogger: AstroIntegrationLogger,
+  errors: ValidationErrors,
+  site: AstroConfig['site'],
+) {
   const logger = pluginLogger.fork('')
 
   if (errors.size === 0) {
@@ -116,7 +123,7 @@ export function logErrors(pluginLogger: AstroIntegrationLogger, errors: Validati
       logger.info(
         `  ${styleText('blue', `${index < validationErrors.length - 1 ? '├' : '└'}─`)} ${validationError.link}${styleText(
           'dim',
-          ` - ${formatValidationError(validationError, site)}`,
+          ` - ${formatValidationError(validationError, site)} - ${logPosition(await getErrorPosition(validationError.reference, file))}`,
         )}`,
       )
       hasInvalidLinkToCustomPage = validationError.type === ValidationErrorType.InvalidLinkToCustomPage
@@ -126,6 +133,11 @@ export function logErrors(pluginLogger: AstroIntegrationLogger, errors: Validati
   process.stdout.write('\n')
 
   return hasInvalidLinkToCustomPage
+}
+
+function logPosition(position: Position): string {
+  // TODO(HiDeoo)
+  return position.type === 'unavailable' ? 'unknown position' : `line ${position.line}`
 }
 
 /**
@@ -288,7 +300,7 @@ function stripQueryString(path: string): string {
 
 function addError(errors: ValidationErrors, id: string, file: string, link: Link, type: ValidationErrorType) {
   const fileErrors = errors.get(id) ?? { errors: [], file }
-  fileErrors.errors.push({ link: link.raw, type })
+  fileErrors.errors.push({ link: link.raw, reference: link.reference, type })
 
   errors.set(id, fileErrors)
 }
@@ -310,6 +322,7 @@ export type ValidationErrorType = (typeof ValidationErrorType)[keyof typeof Vali
 
 interface ValidationError {
   link: string
+  reference: Reference
   type: ValidationErrorType
 }
 

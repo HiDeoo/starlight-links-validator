@@ -12,35 +12,35 @@ test('does not build with inconsistent locale links when enabled ', async () => 
   expectValidationErrorCount(output, 20, 4)
 
   expectValidationErrors(output, 'en/', [
-    ['/fr/guides/example', ValidationErrorType.InconsistentLocale],
-    ['/fr/guides/example/', ValidationErrorType.InconsistentLocale],
-    ['/fr/guides/example#description', ValidationErrorType.InconsistentLocale],
-    ['/fr/guides/example/#description', ValidationErrorType.InconsistentLocale],
-    ['/guides/example', ValidationErrorType.InvalidLink],
-    ['/guides/example/', ValidationErrorType.InvalidLink],
-    ['/guides/example#description', ValidationErrorType.InvalidLink],
-    ['/guides/example/#description', ValidationErrorType.InvalidLink],
+    ['/fr/guides/example', ValidationErrorType.InconsistentLocale, [15]],
+    ['/fr/guides/example/', ValidationErrorType.InconsistentLocale, [16]],
+    ['/fr/guides/example#description', ValidationErrorType.InconsistentLocale, [18]],
+    ['/fr/guides/example/#description', ValidationErrorType.InconsistentLocale, [19]],
+    ['/guides/example', ValidationErrorType.InvalidLink, [21]],
+    ['/guides/example/', ValidationErrorType.InvalidLink, [22]],
+    ['/guides/example#description', ValidationErrorType.InvalidLink, [24]],
+    ['/guides/example/#description', ValidationErrorType.InvalidLink, [25]],
   ])
 
   expectValidationErrors(output, 'en/guides/example/', [
-    ['/fr', ValidationErrorType.InconsistentLocale],
-    ['/', ValidationErrorType.InvalidLink],
+    ['/fr', ValidationErrorType.InconsistentLocale, [10]],
+    ['/', ValidationErrorType.InvalidLink, [11]],
   ])
 
   expectValidationErrors(output, 'fr/', [
-    ['/en/guides/example', ValidationErrorType.InconsistentLocale],
-    ['/en/guides/example/', ValidationErrorType.InconsistentLocale],
-    ['/en/guides/example#description', ValidationErrorType.InconsistentLocale],
-    ['/en/guides/example/#description', ValidationErrorType.InconsistentLocale],
-    ['/guides/example', ValidationErrorType.InvalidLink],
-    ['/guides/example/', ValidationErrorType.InvalidLink],
-    ['/guides/example#description', ValidationErrorType.InvalidLink],
-    ['/guides/example/#description', ValidationErrorType.InvalidLink],
+    ['/en/guides/example', ValidationErrorType.InconsistentLocale, [13]],
+    ['/en/guides/example/', ValidationErrorType.InconsistentLocale, [14]],
+    ['/en/guides/example#description', ValidationErrorType.InconsistentLocale, [16]],
+    ['/en/guides/example/#description', ValidationErrorType.InconsistentLocale, [17]],
+    ['/guides/example', ValidationErrorType.InvalidLink, [19]],
+    ['/guides/example/', ValidationErrorType.InvalidLink, [20]],
+    ['/guides/example#description', ValidationErrorType.InvalidLink, [22]],
+    ['/guides/example/#description', ValidationErrorType.InvalidLink, [23]],
   ])
 
   expectValidationErrors(output, 'fr/guides/example/', [
-    ['/en', ValidationErrorType.InconsistentLocale],
-    ['/', ValidationErrorType.InvalidLink],
+    ['/en', ValidationErrorType.InconsistentLocale, [10]],
+    ['/', ValidationErrorType.InvalidLink, [11]],
   ])
 })
 
@@ -52,27 +52,27 @@ test('does not build with a root locale and inconsistent locale links when enabl
   expectValidationErrorCount(output, 15, 4)
 
   expectValidationErrors(output, '/', [
-    ['/fr/guides/example', ValidationErrorType.InconsistentLocale],
-    ['/fr/guides/example/', ValidationErrorType.InconsistentLocale],
-    ['/fr/guides/example#description', ValidationErrorType.InconsistentLocale],
-    ['/fr/guides/example/#description', ValidationErrorType.InconsistentLocale],
+    ['/fr/guides/example', ValidationErrorType.InconsistentLocale, [15]],
+    ['/fr/guides/example/', ValidationErrorType.InconsistentLocale, [16]],
+    ['/fr/guides/example#description', ValidationErrorType.InconsistentLocale, [18]],
+    ['/fr/guides/example/#description', ValidationErrorType.InconsistentLocale, [19]],
   ])
 
-  expectValidationErrors(output, 'guides/example/', [['/fr', ValidationErrorType.InconsistentLocale]])
+  expectValidationErrors(output, 'guides/example/', [['/fr', ValidationErrorType.InconsistentLocale, [10]]])
 
   expectValidationErrors(output, 'fr/', [
-    ['/es/guides/example', ValidationErrorType.InconsistentLocale],
-    ['/es/guides/example/', ValidationErrorType.InconsistentLocale],
-    ['/es/guides/example#description', ValidationErrorType.InconsistentLocale],
-    ['/es/guides/example/#description', ValidationErrorType.InconsistentLocale],
-    ['/guides/example', ValidationErrorType.InconsistentLocale],
-    ['/guides/example/', ValidationErrorType.InconsistentLocale],
-    ['/guides/example#description', ValidationErrorType.InconsistentLocale],
-    ['/guides/example/#description', ValidationErrorType.InconsistentLocale],
+    ['/es/guides/example', ValidationErrorType.InconsistentLocale, [13]],
+    ['/es/guides/example/', ValidationErrorType.InconsistentLocale, [14]],
+    ['/es/guides/example#description', ValidationErrorType.InconsistentLocale, [16]],
+    ['/es/guides/example/#description', ValidationErrorType.InconsistentLocale, [17]],
+    ['/guides/example', ValidationErrorType.InconsistentLocale, [19]],
+    ['/guides/example/', ValidationErrorType.InconsistentLocale, [20]],
+    ['/guides/example#description', ValidationErrorType.InconsistentLocale, [22]],
+    ['/guides/example/#description', ValidationErrorType.InconsistentLocale, [23]],
   ])
 
   expectValidationErrors(output, 'fr/guides/example/', [
-    ['/es', ValidationErrorType.InconsistentLocale],
-    ['/', ValidationErrorType.InconsistentLocale],
+    ['/es', ValidationErrorType.InconsistentLocale, [10]],
+    ['/', ValidationErrorType.InconsistentLocale, [11]],
   ])
 })

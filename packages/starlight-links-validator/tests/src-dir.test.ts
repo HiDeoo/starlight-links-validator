@@ -12,9 +12,9 @@ test('validates links when the `srcDir` Astro option is set', async () => {
   expectValidationErrorCount(output, 4, 1)
 
   expectValidationErrors(output, 'test/', [
-    ['/unknown', ValidationErrorType.InvalidLink],
-    ['/unknown/', ValidationErrorType.InvalidLink],
-    ['/guides/example#unknown', ValidationErrorType.InvalidHash],
-    ['/guides/example/#unknown', ValidationErrorType.InvalidHash],
+    ['/unknown', ValidationErrorType.InvalidLink, [15]],
+    ['/unknown/', ValidationErrorType.InvalidLink, [16]],
+    ['/guides/example#unknown', ValidationErrorType.InvalidHash, [18]],
+    ['/guides/example/#unknown', ValidationErrorType.InvalidHash, [19]],
   ])
 })
