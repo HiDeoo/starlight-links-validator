@@ -80,15 +80,7 @@ export function validateLinks(
   return errors
 }
 
-// TODO(HiDeoo) console.log/console.error
-
-export async function logErrors(
-  pluginLogger: AstroIntegrationLogger,
-  errors: ValidationErrors,
-  site: AstroConfig['site'],
-) {
-  const logger = pluginLogger.fork('')
-
+export async function logErrors(logger: AstroIntegrationLogger, errors: ValidationErrors, site: AstroConfig['site']) {
   if (errors.size === 0) {
     logger.info(styleText('green', '✓ All internal links are valid.\n'))
     return
@@ -99,10 +91,12 @@ export async function logErrors(
     0,
   )
 
-  logger.error(
+  logger.error('Links validation failed.')
+
+  console.error(
     styleText(
       'red',
-      `✗ Found ${errorCount} invalid ${pluralize(errorCount, 'link')} in ${errors.size} ${pluralize(
+      `\n✗ Found ${errorCount} invalid ${pluralize(errorCount, 'link')} in ${errors.size} ${pluralize(
         errors.size,
         'file',
       )}.`,
@@ -112,7 +106,7 @@ export async function logErrors(
   let hasInvalidLinkToCustomPage = false
 
   for (const [id, { errors: validationErrors, file }] of errors) {
-    logger.info(
+    console.error(
       `${styleText('red', '▶')} ${styleText(
         'blue',
         terminalLink(id, pathToFileURL(file).toString(), { fallback: false }),
@@ -120,7 +114,7 @@ export async function logErrors(
     )
 
     for (const [index, validationError] of validationErrors.entries()) {
-      logger.info(
+      console.error(
         `  ${styleText('blue', `${index < validationErrors.length - 1 ? '├' : '└'}─`)} ${validationError.link}${styleText(
           'dim',
           ` - ${formatValidationError(validationError, site)} - ${logPosition(await getErrorPosition(validationError.reference, file))}`,

@@ -20,14 +20,14 @@ export default function starlightLinksValidatorPlugin(
   }
 
   return {
-    name: 'starlight-links-validator-plugin',
+    name: 'starlight-links-validator',
     hooks: {
       'config:setup'({ addIntegration, astroConfig, config: starlightConfig, logger }) {
         let routes: IntegrationResolvedRoute[] = []
         const site = astroConfig.site ? stripTrailingSlash(astroConfig.site) : undefined
 
         addIntegration({
-          name: 'starlight-links-validator-integration',
+          name: 'starlight-links-validator',
           hooks: {
             'astro:config:setup': async ({ command, updateConfig }) => {
               if (command !== 'build') {
