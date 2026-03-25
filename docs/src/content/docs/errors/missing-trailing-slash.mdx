@@ -1,0 +1,79 @@
+---
+title: Missing Trailing Slash
+sidebar:
+  order: 3
+---
+
+The `missing trailing slash` error indicates that a link points to an existing page, but the link is missing the trailing slash required by Astro's [`trailingSlash`](https://docs.astro.build/en/reference/configuration-reference/#trailingslash) option when it is set to `'always'`.
+If your site uses `trailingSlash: 'always'`, `/guides/usage` should be written as `/guides/usage/`.
+
+## Example
+
+For example, given the following project structure:
+
+import { FileTree } from '@astrojs/starlight/components'
+
+<FileTree>
+
+- src/
+  - content/
+    - docs/
+      - guides/
+        - installation.md
+        - usage.mdx
+      - getting-started.md
+- astro.config.mjs
+
+</FileTree>
+
+With the following configuration in `astro.config.mjs`:
+
+```js title="astro.config.mjs" /trailingSlash: 'always'/
+import starlight from '@astrojs/starlight'
+import { defineConfig } from 'astro/config'
+import starlightLinksValidator from 'starlight-links-validator'
+
+export default defineConfig({
+  integrations: [
+    starlight({
+      plugins: [starlightLinksValidator()],
+      title: 'My Docs',
+    }),
+  ],
+  trailingSlash: 'always',
+})
+```
+
+And the following content in `src/content/docs/getting-started.md`:
+
+```md title="src/content/docs/getting-started.md"
+---
+title: Getting Started
+---
+
+## Next Steps
+
+- [Usage guide](/guides/usage)
+- [Installation guide](/guides/installation/)
+```
+
+Running a [production build](https://docs.astro.build/en/reference/cli-reference/#astro-build) reports the following error:
+
+```ansi title="astro build"
+  ╭─ [34mgetting-started.md[0m
+  ·
+[2m7[0m | /guides/usage
+  ·            [2m╰── missing trailing slash[0m
+
+[31m╭─                               ─╮[0m
+[31m·[0m Found [31m1[0m invalid link in [31m1[0m file. [31m·[0m
+[31m╰─                               ─╯[0m
+```
+
+## How to fix
+
+To fix `missing trailing slash` errors, update each affected link so it matches the trailing slash style required by your Astro configuration.
+
+For this example:
+
+- Update `/guides/usage` to `/guides/usage/`.

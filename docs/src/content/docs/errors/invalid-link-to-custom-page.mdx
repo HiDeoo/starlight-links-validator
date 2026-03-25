@@ -1,0 +1,68 @@
+---
+title: Invalid Link to Custom Page
+sidebar:
+  order: 9
+---
+
+The `invalid link to custom page` error indicates that a link points to a known [custom page](https://starlight.astro.build/guides/pages/#custom-pages) route that the plugin cannot validate with the same level of detail as regular documentation pages.
+
+If needed, use the [`exclude`](/configuration/#exclude) option to ignore these errors for expected custom pages.
+
+## Example
+
+For example, given the following project structure:
+
+import { FileTree } from '@astrojs/starlight/components'
+
+<FileTree>
+
+- src/
+  - content/
+    - docs/
+      - guides/
+        - setup.mdx
+      - getting-started.md
+  - pages/
+    - custom-page.astro
+
+</FileTree>
+
+And the following content in `src/content/docs/getting-started.md`:
+
+```md title="src/content/docs/getting-started.md"
+---
+title: Getting Started
+---
+
+## Next Steps
+
+- [Setup guide](/guides/setup/)
+- [Custom page](/custom-page/)
+```
+
+Running a [production build](https://docs.astro.build/en/reference/cli-reference/#astro-build) reports the following error:
+
+```ansi title="astro build"
+  ╭─ [34mgetting-started.md[0m
+  ·
+[2m7[0m | /custom-page/
+  ·            [2m╰── invalid link to custom page[0m
+
+[31m╭─                               ─╮[0m
+[31m·[0m Found [31m1[0m invalid link in [31m1[0m file. [31m·[0m
+[31m╰─                               ─╯[0m
+```
+
+## How to fix
+
+Use the [`exclude`](/configuration#exclude) option to ignore these errors when links to custom pages are expected.
+
+For this example:
+
+- Exclude `/custom-page/` using the `exclude` option.
+
+  ```js
+  starlightLinksValidator({
+    exclude: ['/custom-page/'],
+  })
+  ```

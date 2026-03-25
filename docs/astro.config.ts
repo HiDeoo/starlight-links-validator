@@ -32,6 +32,10 @@ export default defineConfig({
           items: ['guides/conditional-validation'],
         },
         {
+          label: 'Errors',
+          autogenerate: { directory: 'errors' },
+        },
+        {
           label: 'Resources',
           items: [{ label: 'Plugins and Tools', link: '/resources/starlight/' }],
         },

@@ -1,0 +1,87 @@
+---
+title: Same Site
+sidebar:
+  order: 8
+---
+
+The `same site` error indicates that a link uses a full external URL whose [origin](https://developer.mozilla.org/en-US/docs/Web/API/URL/origin) matches the one configured in Astro's [`site`](https://docs.astro.build/en/reference/configuration-reference/#site) option.
+For example, if your site is `https://example.com`, then `https://example.com/guides/usage/` points to the same site and can usually be written as `/guides/usage/` instead.
+
+This behavior is controlled by the [`sameSitePolicy`](/configuration#samesitepolicy) option. By default, all external links are ignored and are not validated. When `sameSitePolicy` is set to `error`, external links with the same origin as your site report a `same site` error. When it is set to `validate`, they are treated like internal links and validated as if they were written without the origin.
+
+## Example
+
+For example, given the following project structure:
+
+import { FileTree } from '@astrojs/starlight/components'
+
+<FileTree>
+
+- src/
+  - content/
+    - docs/
+      - guides/
+        - usage.mdx
+      - getting-started.md
+- astro.config.mjs
+
+</FileTree>
+
+With the following configuration in `astro.config.mjs`:
+
+```js title="astro.config.mjs" /sameSitePolicy: 'error'/ /site: 'https://example.com'/
+import starlight from '@astrojs/starlight'
+import { defineConfig } from 'astro/config'
+import starlightLinksValidator from 'starlight-links-validator'
+
+export default defineConfig({
+  integrations: [
+    starlight({
+      plugins: [starlightLinksValidator({ sameSitePolicy: 'error' })],
+      title: 'My Docs',
+    }),
+  ],
+  site: 'https://example.com',
+})
+```
+
+And the following content in `src/content/docs/getting-started.md`:
+
+```md title="src/content/docs/getting-started.md"
+---
+title: Getting Started
+---
+
+## Next Steps
+
+- [Usage guide](https://example.com/guides/usage/)
+- [Updating](https://example.com/getting-started/#updating)
+
+## Updating
+
+Some content.
+```
+
+Running a [production build](https://docs.astro.build/en/reference/cli-reference/#astro-build) reports the following errors:
+
+```ansi title="astro build"
+  ╭─ [34mgetting-started.md[0m
+  ·
+[2m7[0m | https://example.com/guides/usage/
+  ·                                [2m╰── https://example.com can be omitted[0m
+[2m8[0m | https://example.com/getting-started/#updating
+  ·                                            [2m╰── https://example.com can be omitted[0m
+
+[31m╭─                                ─╮[0m
+[31m·[0m Found [31m2[0m invalid links in [31m1[0m file. [31m·[0m
+[31m╰─                                ─╯[0m
+```
+
+## How to fix
+
+To fix `same site` errors, replace each same-origin absolute URL with the equivalent root-relative path.
+
+For this example:
+
+- Update `https://example.com/guides/usage/` to `/guides/usage/`.
+- Update `https://example.com/getting-started/#updating` to `#updating` because the target heading is in the same page and only the hash is needed.

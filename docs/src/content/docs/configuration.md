@@ -88,9 +88,9 @@ export default defineConfig({
 **Default:** `false`
 
 When translating a page in multilingual websites, forgetting to update a link to point to the same language is a common mistake.
-If not invalid, such links can be confusing for users as they will move the user from their current language to another one.
+If not invalid, such links can be confusing for users as they will move the user to a different locale.
 
-By default, the Starlight Links Validator plugin will not error if a link points to a page in another locale.
+By default, the Starlight Links Validator plugin will not error if a link points to a different locale.
 If you want to prevent such links, you can set this option to `true`.
 
 ```js {6}
@@ -112,10 +112,10 @@ export default defineConfig({
 **Type:** `boolean`  
 **Default:** `true`
 
-Relative internal links, such as `./test` or `../test`, are usually considered confusing as they can be difficult to reason about, figure out where they point to and require more maintenance when a page is moved.
+Relative internal links, such as `./test` or `../test`, are usually considered confusing because they can be difficult to reason about, figure out where they point to and require more maintenance when a page is moved.
 
 By default, the Starlight Links Validator plugin will error if a relative internal link is found.
-If you want to allow relative internal links, you can set this option to `false` but note that theses links will not be validated.
+If you prefer to ignore relative links instead of erroring on them, you can set this option to `false` but note that theses links will not be validated.
 
 ```js {6}
 export default defineConfig({
@@ -136,10 +136,10 @@ export default defineConfig({
 **Type:** `boolean`  
 **Default:** `true`
 
-By default, the Starlight Links Validator plugin will error if an internal link points to an [hash](https://developer.mozilla.org/en-US/docs/Web/API/URL/hash) that does not exist in the target page.
+By default, the Starlight Links Validator plugin will error if an internal link points to an [hash fragment](https://developer.mozilla.org/en-US/docs/Web/API/URL/hash) that does not exist in the target page.
 If you want to only validate that pages exist but ignore hashes, you can set this option to `false`.
 
-This option should be used with caution but can be useful in large documentation with many contributors where hashes always being up-to-date can be difficult to maintain and validated on a different schedule, e.g. once a week.
+This option should be used with caution but can be useful in large documentation with many contributors where keeping hashes fully up to date may be difficult, and hash validation may happen on a different schedule, for example once a week.
 
 ```js {6}
 export default defineConfig({
@@ -160,8 +160,8 @@ export default defineConfig({
 **Type:** `boolean`  
 **Default:** `true`
 
-By default, the Starlight Links Validator plugin will error on local links, e.g. URLs with a hostname of `localhost` or `127.0.0.1`, as they are usually used for development purposes and should not be present in production.
-If you want to allow such links, you can set this option to `false`.
+By default, the Starlight Links Validator plugin will error on local links, e.g. URLs with the `localhost` or `127.0.0.1` hostname, as they are usually intended only for development and should not be present in production content.
+If you prefer to ignore local links instead of erroring on them, you can set this option to `false`.
 
 ```js {6}
 export default defineConfig({
