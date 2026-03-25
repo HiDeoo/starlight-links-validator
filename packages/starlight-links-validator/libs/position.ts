@@ -42,6 +42,11 @@ export function makeUnavailablePosition(): UnavailablePosition {
   return { type: 'unavailable' }
 }
 
+export function isSameLineSourcePosition(a: Position, b: Position): boolean {
+  if (a.type === 'unavailable' || b.type === 'unavailable') return false
+  return a.line === b.line
+}
+
 async function getPositionOffset(filePath: string): Promise<number> {
   let offset = 0
 

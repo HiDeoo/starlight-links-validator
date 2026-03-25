@@ -50,16 +50,24 @@ export const expectValidationErrors = vi.defineHelper(
   (
     output: string,
     path: string,
-    validationErrors: [link: string, type: ValidationErrorType, line: number | undefined, site?: string | undefined][],
+    validationErrors: [
+      link: string,
+      type: ValidationErrorType,
+      line: number | undefined,
+      site?: string | undefined,
+      count?: number,
+    ][],
   ) => {
     const pattern = [
       String.raw`(?:^|\n)\s*╭─\s+${escapeRegex(path)}`,
       String.raw`\n\s*·`,
-      ...validationErrors.flatMap(([link, type, line, site]) => {
+      ...validationErrors.flatMap(([link, type, line, site, count]) => {
         const message = site ? type.replace('{{site}}', site) : type
+        const suffix = count && count > 1 ? ` (x${count})` : ''
+
         return [
           String.raw`\n\s*${line ?? String.raw`\s*`}\s+\|\s+${escapeRegex(link)}`,
-          String.raw`\n\s*·\s+.*╰──\s+${escapeRegex(message)}`,
+          String.raw`\n\s*·\s+.*╰──\s+${escapeRegex(`${message}${suffix}`)}`,
         ]
       }),
     ].join('')

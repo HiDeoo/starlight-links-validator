@@ -11,7 +11,7 @@ import type { StarlightLinksValidatorOptions } from '..'
 import { blue, dim, fileLink, logStep, logSummary, pad, red, underline } from './cli'
 import { getFallbackHeadings, getLocaleConfig, isInconsistentLocaleLink, type LocaleConfig } from './i18n'
 import { ensureTrailingSlash, stripLeadingSlash, stripTrailingSlash } from './path'
-import { getErrorPosition, type Position, type Reference } from './position'
+import { getErrorPosition, isSameLineSourcePosition, type Position, type Reference } from './position'
 import { getValidationData, type Link, type ValidationData } from './rehype'
 
 export const ValidationErrorType = {
@@ -99,8 +99,38 @@ export async function logErrors(
   let hasInvalidLinkToCustomPage = false
 
   for (const [, { errors: validationErrors, file }] of errors) {
-    const positions = await Promise.all(validationErrors.map(({ reference }) => getErrorPosition(reference, file)))
-    const maxLine = Math.max(...positions.map((position) => (position.type === 'unavailable' ? 0 : position.line)))
+    const errorsWithPositions = await Promise.all(
+      validationErrors.map(async (error) => ({
+        error,
+        position: await getErrorPosition(error.reference, file),
+      })),
+    )
+
+    const errorGroups: { errors: [ValidationError, ...ValidationError[]]; position: Position }[] = []
+
+    for (const { error, position } of errorsWithPositions) {
+      const previousGroup = errorGroups.at(-1)
+      const previousError = previousGroup?.errors[0]
+
+      if (
+        previousGroup &&
+        previousError &&
+        previousError.link === error.link &&
+        previousError.type === error.type &&
+        isSameLineSourcePosition(previousGroup.position, position)
+      ) {
+        previousGroup.errors.push(error)
+      } else {
+        errorGroups.push({
+          errors: [error],
+          position,
+        })
+      }
+    }
+
+    const maxLine = Math.max(
+      ...errorGroups.map(({ position }) => (position.type === 'unavailable' ? 0 : position.line)),
+    )
     const maxLineLength = String(maxLine).length
 
     // TODO(HiDeoo) test on Windows
@@ -112,21 +142,18 @@ export async function logErrors(
     console.error(`\n${pad(maxLineLength)} ╭─ ${blue(fileLink(filePath, file))}`)
     console.error(`${pad(maxLineLength)} ·`)
 
-    for (const [index, validationError] of validationErrors.entries()) {
-      const position = positions[index]
-      if (!position) throw new Error(`Failed to get link error position for '${validationError.link}' in '${file}'.`)
+    for (const { errors, position } of errorGroups) {
+      const error = errors[0]
+      const errorOffset = Math.max(error.link.length - 2, error.link.length === 2 ? 1 : 0)
+      const count = errors.length > 1 ? ` (x${errors.length})` : ''
 
-      const errorOffset = Math.max(validationError.link.length - 2, validationError.link.length === 2 ? 1 : 0)
+      console.error(`${logPosition(position, maxLineLength)} | ${underline(fileLink(error.link, file, position))}`)
+      console.error(
+        `${pad(maxLineLength)} · ${pad(errorOffset)}${dim(`╰── ${formatValidationError(error, context.site)}${count}`)}`,
+      )
 
-      console.error(
-        `${logPosition(position, maxLineLength)} | ${underline(fileLink(validationError.link, file, position))}`,
-      )
-      console.error(
-        `${pad(maxLineLength)} · ${pad(errorOffset)}${dim(
-          `╰── ${formatValidationError(validationError, context.site)}`,
-        )}`,
-      )
-      hasInvalidLinkToCustomPage = validationError.type === ValidationErrorType.InvalidLinkToCustomPage
+      // TODO(HiDeoo) test
+      hasInvalidLinkToCustomPage ||= error.type === ValidationErrorType.InvalidLinkToCustomPage
     }
   }
 
