@@ -12,13 +12,13 @@ test('does not build with same site links with the option set to `error`', async
 
   expectValidationErrorCount(output, 6, 1)
 
-  expectValidationErrors(output, 'test/', [
-    ['https://example.com', ValidationErrorType.SameSite, [11, 3], config.site],
-    ['https://example.com/', ValidationErrorType.SameSite, [12, 3], config.site],
-    ['https://example.com/guides/example/', ValidationErrorType.SameSite, [14, 3], config.site],
-    ['https://example.com/unknown/', ValidationErrorType.SameSite, [15, 3], config.site],
-    ['https://example.com/guides/example/#content', ValidationErrorType.SameSite, [17, 3], config.site],
-    ['https://example.com/guides/example/#unknown', ValidationErrorType.SameSite, [18, 3], config.site],
+  expectValidationErrors(output, 'test.md', [
+    ['https://example.com', ValidationErrorType.SameSite, 11, config.site],
+    ['https://example.com/', ValidationErrorType.SameSite, 12, config.site],
+    ['https://example.com/guides/example/', ValidationErrorType.SameSite, 14, config.site],
+    ['https://example.com/unknown/', ValidationErrorType.SameSite, 15, config.site],
+    ['https://example.com/guides/example/#content', ValidationErrorType.SameSite, 17, config.site],
+    ['https://example.com/guides/example/#unknown', ValidationErrorType.SameSite, 18, config.site],
   ])
 })
 
@@ -29,8 +29,8 @@ test('does not build with invalid same site links with the option set to `valida
 
   expectValidationErrorCount(output, 2, 1)
 
-  expectValidationErrors(output, 'test/', [
-    ['https://example.com/unknown/', ValidationErrorType.InvalidLink, [15, 3]],
-    ['https://example.com/guides/example/#unknown', ValidationErrorType.InvalidHash, [18, 3]],
+  expectValidationErrors(output, 'test.md', [
+    ['https://example.com/unknown/', ValidationErrorType.InvalidLink, 15],
+    ['https://example.com/guides/example/#unknown', ValidationErrorType.InvalidHash, 18],
   ])
 })

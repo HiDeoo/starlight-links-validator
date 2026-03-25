@@ -25,6 +25,7 @@ export default function starlightLinksValidatorPlugin(
       'config:setup'({ addIntegration, astroConfig, config: starlightConfig, logger }) {
         let routes: IntegrationResolvedRoute[] = []
         const site = astroConfig.site ? stripTrailingSlash(astroConfig.site) : undefined
+        const srcDir = astroConfig.srcDir
 
         addIntegration({
           name: 'starlight-links-validator',
@@ -69,7 +70,7 @@ export default function starlightLinksValidatorPlugin(
 
               const errors = validateLinks(pages, customPages, dir, astroConfig, starlightConfig, options.data)
 
-              const hasInvalidLinkToCustomPage = await logErrors(logger, errors, site)
+              const hasInvalidLinkToCustomPage = await logErrors(logger, errors, { site, srcDir })
 
               if (errors.size > 0) {
                 throwPluginError(

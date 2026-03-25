@@ -1,15 +1,14 @@
 import { statSync } from 'node:fs'
-import { posix } from 'node:path'
-import { fileURLToPath, pathToFileURL } from 'node:url'
-import { styleText } from 'node:util'
+import { posix, relative, sep } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import type { StarlightUserConfig as StarlightUserConfigWithPlugins } from '@astrojs/starlight/types'
 import type { AstroConfig, AstroIntegrationLogger } from 'astro'
 import picomatch from 'picomatch'
-import terminalLink from 'terminal-link'
 
 import type { StarlightLinksValidatorOptions } from '..'
 
+import { blue, dim, fileLink, logStep, logSummary, pad, red, underline } from './cli'
 import { getFallbackHeadings, getLocaleConfig, isInconsistentLocaleLink, type LocaleConfig } from './i18n'
 import { ensureTrailingSlash, stripLeadingSlash, stripTrailingSlash } from './path'
 import { getErrorPosition, type Position, type Reference } from './position'
@@ -35,7 +34,7 @@ export function validateLinks(
   starlightConfig: StarlightUserConfig,
   options: StarlightLinksValidatorOptions,
 ): ValidationErrors {
-  process.stdout.write(`\n${styleText(['bgGreen', 'black'], ` validating links `)}\n`)
+  logStep('validating links')
 
   const localeConfig = getLocaleConfig(starlightConfig)
   const validationData = getValidationData()
@@ -80,9 +79,13 @@ export function validateLinks(
   return errors
 }
 
-export async function logErrors(logger: AstroIntegrationLogger, errors: ValidationErrors, site: AstroConfig['site']) {
+export async function logErrors(
+  logger: AstroIntegrationLogger,
+  errors: ValidationErrors,
+  context: { site: AstroConfig['site']; srcDir: AstroConfig['srcDir'] },
+) {
   if (errors.size === 0) {
-    logger.info(styleText('green', '✓ All internal links are valid.\n'))
+    logSummary('success', 'All internal links are valid.')
     return
   }
 
@@ -93,45 +96,54 @@ export async function logErrors(logger: AstroIntegrationLogger, errors: Validati
 
   logger.error('Links validation failed.')
 
-  console.error(
-    styleText(
-      'red',
-      `\n✗ Found ${errorCount} invalid ${pluralize(errorCount, 'link')} in ${errors.size} ${pluralize(
-        errors.size,
-        'file',
-      )}.`,
-    ),
-  )
-
   let hasInvalidLinkToCustomPage = false
 
-  for (const [id, { errors: validationErrors, file }] of errors) {
-    console.error(
-      `${styleText('red', '▶')} ${styleText(
-        'blue',
-        terminalLink(id, pathToFileURL(file).toString(), { fallback: false }),
-      )}`,
-    )
+  for (const [, { errors: validationErrors, file }] of errors) {
+    const positions = await Promise.all(validationErrors.map(({ reference }) => getErrorPosition(reference, file)))
+    const maxLine = Math.max(...positions.map((position) => (position.type === 'unavailable' ? 0 : position.line)))
+    const maxLineLength = String(maxLine).length
+
+    // TODO(HiDeoo) test on Windows
+    const filePath = relative(fileURLToPath(context.srcDir), file)
+      .split(sep)
+      .join(posix.sep)
+      .replace('content/docs/', '')
+
+    console.error(`\n${pad(maxLineLength)} ╭─ ${blue(fileLink(filePath, file))}`)
+    console.error(`${pad(maxLineLength)} ·`)
 
     for (const [index, validationError] of validationErrors.entries()) {
+      const position = positions[index]
+      if (!position) throw new Error(`Failed to get link error position for '${validationError.link}' in '${file}'.`)
+
+      const errorOffset = Math.max(validationError.link.length - 2, validationError.link.length === 2 ? 1 : 0)
+
       console.error(
-        `  ${styleText('blue', `${index < validationErrors.length - 1 ? '├' : '└'}─`)} ${validationError.link}${styleText(
-          'dim',
-          ` - ${formatValidationError(validationError, site)} - ${logPosition(await getErrorPosition(validationError.reference, file))}`,
+        `${logPosition(position, maxLineLength)} | ${underline(fileLink(validationError.link, file, position))}`,
+      )
+      console.error(
+        `${pad(maxLineLength)} · ${pad(errorOffset)}${dim(
+          `╰── ${formatValidationError(validationError, context.site)}`,
         )}`,
       )
       hasInvalidLinkToCustomPage = validationError.type === ValidationErrorType.InvalidLinkToCustomPage
     }
   }
 
-  process.stdout.write('\n')
+  logSummary(
+    'error',
+    `Found ${red(String(errorCount))} invalid ${pluralize(errorCount, 'link')} in ${red(String(errors.size))} ${pluralize(errors.size, 'file')}.`,
+  )
 
   return hasInvalidLinkToCustomPage
 }
 
-function logPosition(position: Position): string {
-  // TODO(HiDeoo)
-  return position.type === 'unavailable' ? 'unknown position' : `line ${position.line} - column ${position.column}`
+function logPosition(position: Position, maxLinePositionLength: number): string {
+  if (position.type === 'unavailable') return pad(maxLinePositionLength)
+
+  const linePositionLength = String(position.line).length
+
+  return `${' '.repeat(maxLinePositionLength - linePositionLength)}${dim(String(position.line))}`
 }
 
 /**

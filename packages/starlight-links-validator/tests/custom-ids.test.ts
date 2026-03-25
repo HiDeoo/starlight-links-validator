@@ -11,5 +11,5 @@ test('validates links with custom IDs', async () => {
 
   expectValidationErrorCount(output, 1, 1)
 
-  expectValidationErrors(output, 'test/', [['#heading-with-custom-id', ValidationErrorType.InvalidHash, [12, 3]]])
+  expectValidationErrors(output, 'test.md', [['#heading-with-custom-id', ValidationErrorType.InvalidHash, 12]])
 })
