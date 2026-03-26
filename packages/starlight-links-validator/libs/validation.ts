@@ -14,8 +14,7 @@ import { ensureTrailingSlash, stripLeadingSlash, stripTrailingSlash } from './pa
 import { getErrorPosition, isSameLineSourcePosition, type Position, type Reference } from './position'
 import { getValidationData, type Link, type ValidationData } from './rehype'
 
-// const docsUrl = 'https://starlight-links-validator.vercel.app/'
-const docsUrl = 'http://localhost:4321/'
+const docsUrl = 'https://starlight-links-validator.vercel.app/'
 
 const validationErrorDefinitions = {
   InconsistentLocale: {
