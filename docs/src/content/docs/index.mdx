@@ -4,6 +4,14 @@ description: Starlight plugin to validate internal links.
 head:
   - tag: title
     content: Starlight Links Validator
+  - tag: style
+    content: |
+      .hero-html {
+        --size: 12rem;
+        font-size: var(--size);
+        justify-content: center;
+        line-height: var(--size);
+      }
 template: splash
 editUrl: false
 lastUpdated: false
@@ -16,6 +24,10 @@ hero:
       link: /getting-started/
       icon: rocket
       variant: primary
+    - text: View on GitHub
+      icon: external
+      variant: minimal
+      link: https://github.com/HiDeoo/starlight-links-validator
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components'
@@ -24,10 +36,10 @@ import { Card, CardGrid } from '@astrojs/starlight/components'
 
 <CardGrid stagger>
   <Card title="Install the plugin" icon="puzzle">
-    Check the [getting started guide](/getting-started/) for installation instructions.
+    Check the ["Getting Started" guide](/getting-started/) for installation instructions.
   </Card>
   <Card title="Configure the plugin" icon="setting">
-    Edit your config in `astro.config.mjs`.
+    Edit the plugin configuration in the `astro.config.mjs` file.
   </Card>
   <Card title="Build your site" icon="error">
     Get errors on broken links before deploying your site.

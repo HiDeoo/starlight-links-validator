@@ -10,7 +10,6 @@ const site =
 export default defineConfig({
   integrations: [
     starlight({
-      customCss: ['./src/styles/custom.css'],
       editLink: {
         baseUrl: 'https://github.com/HiDeoo/starlight-links-validator/edit/main/docs/',
       },
