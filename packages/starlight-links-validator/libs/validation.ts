@@ -8,7 +8,7 @@ import picomatch from 'picomatch'
 
 import type { StarlightLinksValidatorOptions } from '..'
 
-import { blue, dim, fileLink, urlLink, logStep, logSummary, pad, red, underline } from './cli'
+import { blue, dim, fileLink, urlLink, logStep, logSummary, pad, red, underline, getMessageOffset } from './cli'
 import { getFallbackHeadings, getLocaleConfig, isInconsistentLocaleLink, type LocaleConfig } from './i18n'
 import { ensureTrailingSlash, stripLeadingSlash, stripTrailingSlash } from './path'
 import { getErrorPosition, isSameLineSourcePosition, type Position, type Reference } from './position'
@@ -186,13 +186,13 @@ export async function logErrors(
 
     for (const { errors, position } of errorGroups) {
       const error = errors[0]
-      const errorOffset = Math.max(error.link.length - 2, error.link.length === 2 ? 1 : 0)
       const count = errors.length > 1 ? ` (x${errors.length})` : ''
+      const prefix = `${pad(maxLineLength)} · `
+      const message = `╰── ${getValidationErrorMessageLink(error.type, { site: context.site })}${count}`
+      const offset = getMessageOffset(prefix, message, Math.max(error.link.length - 2, error.link.length === 2 ? 1 : 0))
 
       console.error(`${logPosition(position, maxLineLength)} | ${underline(fileLink(error.link, file, position))}`)
-      console.error(
-        `${pad(maxLineLength)} · ${pad(errorOffset)}${dim(`╰── ${getValidationErrorMessageLink(error.type, { site: context.site })}${count}`)}`,
-      )
+      console.error(`${prefix}${pad(offset)}${dim(message)}`)
 
       hasInvalidLinkToCustomPage ||= error.type === ValidationErrorType.InvalidLinkToCustomPage
     }

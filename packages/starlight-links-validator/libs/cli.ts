@@ -55,3 +55,16 @@ export function underline(text: string) {
 export function dim(text: string) {
   return styleText('dim', text)
 }
+
+export function getMessageOffset(prefix: string, message: string, offset: number): number {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- I am not 100% sure if these values are always available.
+  const terminalWidth = process.stderr.columns ?? process.stdout.columns ?? 80
+  const prefixWidth = stripVTControlCharacters(prefix).length
+  const messageWidth = stripVTControlCharacters(message).length
+  const availableWidth = Math.max(0, terminalWidth - prefixWidth)
+
+  const halfWidthOffset = Math.max(0, Math.floor(availableWidth / 2))
+  const fitMessageOffset = Math.max(0, availableWidth - messageWidth)
+
+  return Math.min(offset, halfWidthOffset, fitMessageOffset)
+}
