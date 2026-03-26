@@ -1,0 +1,71 @@
+---
+title: Relative Link
+sidebar:
+  order: 6
+---
+
+The `relative link` error indicates that an internal link uses a relative path instead of an absolute path.
+For example, in `./guides/usage/`, `./` makes the link relative.
+
+Relative internal links are usually considered confusing because they can be difficult to reason about, figure out where they point to, and require more maintenance when a page is moved.
+If you prefer to ignore relative links instead of erroring on them, you can disable this error using the [`errorOnRelativeLinks`](/configuration/#erroronrelativelinks) option.
+
+## Example
+
+For example, given the following project structure:
+
+import { FileTree } from '@astrojs/starlight/components'
+
+<FileTree>
+
+- src/
+  - content/
+    - docs/
+      - guides/
+        - installation.md
+        - usage.mdx
+      - getting-started.md
+
+</FileTree>
+
+With the following content in `src/content/docs/getting-started.md`:
+
+```md title="src/content/docs/getting-started.md"
+---
+title: Getting Started
+---
+
+## Next Steps
+
+- [Usage guide](./guides/usage/)
+- [Installation guide](/guides/installation/)
+- [Updating](./#updating)
+
+## Updating
+
+Some content.
+```
+
+Running a [production build](https://docs.astro.build/en/reference/cli-reference/#astro-build) reports the following errors:
+
+```ansi title="astro build"
+  ╭─ [34mgetting-started.md[0m
+  ·
+[2m7[0m | ./guides/usage/
+  ·              [2m╰── relative link[0m
+[2m9[0m | ./#updating
+  ·          [2m╰── relative link[0m
+
+[31m╭─                                ─╮[0m
+[31m·[0m Found [31m2[0m invalid links in [31m1[0m file. [31m·[0m
+[31m╰─                                ─╯[0m
+```
+
+## How to fix
+
+To fix `relative link` errors, replace each relative path with the equivalent absolute path from the root of your docs site.
+
+For this example:
+
+- Update `./guides/usage/` to `/guides/usage/`.
+- Update `./#updating` to `#updating` because the target heading is in the same page and only the hash is needed.

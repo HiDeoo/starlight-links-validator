@@ -1,0 +1,65 @@
+---
+title: Local Link
+sidebar:
+  order: 7
+---
+
+The `local link` error indicates that a link uses a local development URL, such as a URL with the `localhost` or `127.0.0.1` hostname.
+
+Local links are usually intended only for development and should not be present in production content.
+If you prefer to ignore local links instead of erroring on them, you can disable this error using the [`errorOnLocalLinks`](/configuration/#erroronlocallinks) option.
+
+## Example
+
+For example, given the following project structure:
+
+import { FileTree } from '@astrojs/starlight/components'
+
+<FileTree>
+
+- src/
+  - content/
+    - docs/
+      - guides/
+        - installation.md
+        - usage.mdx
+      - getting-started.md
+
+</FileTree>
+
+With the following content in `src/content/docs/getting-started.md`:
+
+```md title="src/content/docs/getting-started.md"
+---
+title: Getting Started
+---
+
+## Next Steps
+
+- [Installation guide](http://localhost:4321/guides/installation/)
+- [Usage guide](https://127.0.0.1:4321/guides/usage/)
+```
+
+Running a [production build](https://docs.astro.build/en/reference/cli-reference/#astro-build) reports the following errors:
+
+```ansi title="astro build"
+  ╭─ [34mgetting-started.md[0m
+  ·
+[2m7[0m | http://localhost:4321/guides/installation/
+  ·                                         [2m╰── local link[0m
+[2m8[0m | https://127.0.0.1:4321/guides/usage/
+  ·                                   [2m╰── local link[0m
+
+[31m╭─                                ─╮[0m
+[31m·[0m Found [31m2[0m invalid links in [31m1[0m file. [31m·[0m
+[31m╰─                                ─╯[0m
+```
+
+## How to fix
+
+To fix `local link` errors, replace each local development URL with the correct production URL or root-relative path.
+
+For this example:
+
+- Update `http://localhost:4321/guides/installation/` to `/guides/installation/`.
+- Update `https://127.0.0.1:4321/guides/usage/` to `/guides/usage/`.

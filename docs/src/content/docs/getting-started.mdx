@@ -4,12 +4,6 @@ title: Getting Started
 
 A [Starlight](https://starlight.astro.build) plugin to validate **_internal_** links in Markdown and MDX files.
 
-- Validate internal links to other pages
-- Validate internal links to hashes in other pages
-- Validate internal links to hashes in the same page
-- Ignore external links
-- Run only during a production build
-
 ## Prerequisites
 
 You will need to have a Starlight website set up.
@@ -46,11 +40,24 @@ import { PackageManagers } from '@hideoo/starlight-plugins-docs-components'
 
 3. Run a [production build](https://docs.astro.build/en/reference/cli-reference/#astro-build) to validate all internal links in your Markdown and MDX files.
 
+   ```ansi title="astro build"
+     ╭─ [34mgetting-started.md[0m
+     ·
+   [2m7[0m | /guides/setup/
+     ·             [2m╰── invalid link[0m
+   [2m9[0m | #troubleshooting
+     ·               [2m╰── invalid hash[0m
+
+   [31m╭─                                ─╮[0m
+   [31m·[0m Found [31m2[0m invalid links in [31m1[0m file. [31m·[0m
+   [31m╰─                                ─╯[0m
+   ```
+
    :::tip
    When using the Starlight Links Validator plugin with the [Content Layer API](https://docs.astro.build/en/guides/content-collections/), the plugin will automatically invalidate the content layer cache so that all links can be properly validated.
-   To avoid unnecessary cache invalidation, it is recommended to [conditionally use](/guides/conditional-validation) the plugin only when necessary.
+   To avoid unnecessary cache invalidation, it is recommended to [conditionally use](/guides/conditional-validation/) the plugin only when necessary.
    :::
 
 </Steps>
 
-The Starlight Links Validator plugin behavior can be tweaked using various [configuration options](/configuration).
+The Starlight Links Validator plugin behavior can be tweaked using various [configuration options](/configuration/).

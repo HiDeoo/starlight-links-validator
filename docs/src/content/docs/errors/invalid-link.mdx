@@ -1,0 +1,65 @@
+---
+title: Invalid Link
+sidebar:
+  order: 1
+---
+
+The `invalid link` error indicates that an internal link in your Markdown or MDX files does not point to an existing page or asset in your docs site.
+Common causes include typos, renamed or deleted pages, links to draft pages excluded from production builds, and links to assets that do not exist.
+
+## Example
+
+For example, given the following project structure:
+
+import { FileTree } from '@astrojs/starlight/components'
+
+<FileTree>
+
+- public/
+  - whitepaper.pdf
+- src/
+  - content/
+    - docs/
+      - guides/
+        - usage.mdx
+      - getting-started.md
+
+</FileTree>
+
+With the following content in `src/content/docs/getting-started.md`:
+
+```md title="src/content/docs/getting-started.md"
+---
+title: Getting Started
+---
+
+## Next Steps
+
+- [Setup guide](/guides/setup/)
+- [Usage guide](/guides/usage/)
+- [Whitepaper](/whitepape.pdf)
+```
+
+Running a [production build](https://docs.astro.build/en/reference/cli-reference/#astro-build) reports the following errors:
+
+```ansi title="astro build"
+  ╭─ [34mgetting-started.md[0m
+  ·
+[2m7[0m | /guides/setup/
+  ·             [2m╰── invalid link[0m
+[2m9[0m | /whitepape.pdf
+  ·             [2m╰── invalid link[0m
+
+[31m╭─                                ─╮[0m
+[31m·[0m Found [31m2[0m invalid links in [31m1[0m file. [31m·[0m
+[31m╰─                                ─╯[0m
+```
+
+## How to fix
+
+To fix `invalid link` errors, update each broken link so it points to an existing page or asset.
+
+For this example:
+
+- Update `/guides/setup/` to point to an existing page, or create the missing page if it should exist.
+- Update `/whitepape.pdf` to `/whitepaper.pdf` so the asset path matches the actual file name.

@@ -1,30 +1,71 @@
 import { statSync } from 'node:fs'
-import { posix } from 'node:path'
-import { fileURLToPath, pathToFileURL } from 'node:url'
+import { posix, relative, sep } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import type { StarlightUserConfig as StarlightUserConfigWithPlugins } from '@astrojs/starlight/types'
 import type { AstroConfig, AstroIntegrationLogger } from 'astro'
-import { bgGreen, black, blue, dim, green, red } from 'kleur/colors'
 import picomatch from 'picomatch'
-import terminalLink from 'terminal-link'
 
 import type { StarlightLinksValidatorOptions } from '..'
 
+import { blue, dim, fileLink, urlLink, logStep, logSummary, pad, red, underline, getMessageOffset } from './cli'
 import { getFallbackHeadings, getLocaleConfig, isInconsistentLocaleLink, type LocaleConfig } from './i18n'
 import { ensureTrailingSlash, stripLeadingSlash, stripTrailingSlash } from './path'
+import { getErrorPosition, isSameLineSourcePosition, type Position, type Reference } from './position'
 import { getValidationData, type Link, type ValidationData } from './rehype'
 
-export const ValidationErrorType = {
-  InconsistentLocale: 'inconsistent locale',
-  InvalidHash: 'invalid hash',
-  InvalidLink: 'invalid link',
-  InvalidLinkToCustomPage: 'invalid link to custom page',
-  LocalLink: 'local link',
-  RelativeLink: 'relative link',
-  SameSite: '{{site}} can be omitted',
-  TrailingSlashMissing: 'missing trailing slash',
-  TrailingSlashForbidden: 'forbidden trailing slash',
-} as const
+const docsUrl = 'https://starlight-links-validator.vercel.app/'
+
+const validationErrorDefinitions = {
+  InconsistentLocale: {
+    message: 'inconsistent locale',
+    slug: 'inconsistent-locale',
+  },
+  InvalidHash: {
+    message: 'invalid hash',
+    slug: 'invalid-hash',
+  },
+  InvalidLink: {
+    message: 'invalid link',
+    slug: 'invalid-link',
+  },
+  InvalidLinkToCustomPage: {
+    message: 'invalid link to custom page',
+    slug: 'invalid-link-to-custom-page',
+  },
+  LocalLink: {
+    message: 'local link',
+    slug: 'local-link',
+  },
+  RelativeLink: {
+    message: 'relative link',
+    slug: 'relative-link',
+  },
+  SameSite: {
+    message: ({ site }) => `${site} can be omitted`,
+    slug: 'same-site',
+  },
+  TrailingSlashMissing: {
+    message: 'missing trailing slash',
+    slug: 'missing-trailing-slash',
+  },
+  TrailingSlashForbidden: {
+    message: 'forbidden trailing slash',
+    slug: 'forbidden-trailing-slash',
+  },
+} as const satisfies Record<
+  string,
+  {
+    slug: string
+    message: string | ((context: ValidationErrorMessageContext) => string)
+  }
+>
+
+export const ValidationErrorType = Object.freeze(
+  Object.fromEntries(Object.keys(validationErrorDefinitions).map((type) => [type, type])) as {
+    [Key in ValidationErrorType]: Key
+  },
+)
 
 export function validateLinks(
   pages: PageData[],
@@ -34,7 +75,7 @@ export function validateLinks(
   starlightConfig: StarlightUserConfig,
   options: StarlightLinksValidatorOptions,
 ): ValidationErrors {
-  process.stdout.write(`\n${bgGreen(black(` validating links `))}\n`)
+  logStep('validating links')
 
   const localeConfig = getLocaleConfig(starlightConfig)
   const validationData = getValidationData()
@@ -79,11 +120,13 @@ export function validateLinks(
   return errors
 }
 
-export function logErrors(pluginLogger: AstroIntegrationLogger, errors: ValidationErrors, site: AstroConfig['site']) {
-  const logger = pluginLogger.fork('')
-
+export async function logErrors(
+  logger: AstroIntegrationLogger,
+  errors: ValidationErrors,
+  context: { site: AstroConfig['site']; srcDir: AstroConfig['srcDir'] },
+) {
   if (errors.size === 0) {
-    logger.info(green('✓ All internal links are valid.\n'))
+    logSummary('success', 'All internal links are valid.')
     return
   }
 
@@ -92,33 +135,93 @@ export function logErrors(pluginLogger: AstroIntegrationLogger, errors: Validati
     0,
   )
 
-  logger.error(
-    red(
-      `✗ Found ${errorCount} invalid ${pluralize(errorCount, 'link')} in ${errors.size} ${pluralize(
-        errors.size,
-        'file',
-      )}.`,
-    ),
-  )
+  logger.error('Links validation failed.')
 
   let hasInvalidLinkToCustomPage = false
 
-  for (const [id, { errors: validationErrors, file }] of errors) {
-    logger.info(`${red('▶')} ${blue(terminalLink(id, pathToFileURL(file).toString(), { fallback: false }))}`)
+  for (const [, { errors: validationErrors, file }] of errors) {
+    const errorsWithPositions = await Promise.all(
+      validationErrors.map(async (error) => ({
+        error,
+        position: await getErrorPosition(error.reference, file),
+      })),
+    )
 
-    for (const [index, validationError] of validationErrors.entries()) {
-      logger.info(
-        `  ${blue(`${index < validationErrors.length - 1 ? '├' : '└'}─`)} ${validationError.link}${dim(
-          ` - ${formatValidationError(validationError, site)}`,
-        )}`,
-      )
-      hasInvalidLinkToCustomPage = validationError.type === ValidationErrorType.InvalidLinkToCustomPage
+    const errorGroups: { errors: [ValidationError, ...ValidationError[]]; position: Position }[] = []
+
+    for (const { error, position } of errorsWithPositions) {
+      const previousGroup = errorGroups.at(-1)
+      const previousError = previousGroup?.errors[0]
+
+      if (
+        previousGroup &&
+        previousError &&
+        previousError.link === error.link &&
+        previousError.type === error.type &&
+        isSameLineSourcePosition(previousGroup.position, position)
+      ) {
+        previousGroup.errors.push(error)
+      } else {
+        errorGroups.push({
+          errors: [error],
+          position,
+        })
+      }
+    }
+
+    const maxLine = Math.max(
+      ...errorGroups.map(({ position }) => (position.type === 'unavailable' ? 0 : position.line)),
+    )
+    const maxLineLength = String(maxLine).length
+
+    // TODO(HiDeoo) test on Windows
+    const filePath = relative(fileURLToPath(context.srcDir), file)
+      .split(sep)
+      .join(posix.sep)
+      .replace('content/docs/', '')
+
+    console.error(`\n${pad(maxLineLength)} ╭─ ${blue(fileLink(filePath, file))}`)
+    console.error(`${pad(maxLineLength)} ·`)
+
+    for (const { errors, position } of errorGroups) {
+      const error = errors[0]
+      const count = errors.length > 1 ? ` (x${errors.length})` : ''
+      const prefix = `${pad(maxLineLength)} · `
+      const message = `╰── ${getValidationErrorMessageLink(error.type, { site: context.site })}${count}`
+      const offset = getMessageOffset(prefix, message, Math.max(error.link.length - 2, error.link.length === 2 ? 1 : 0))
+
+      console.error(`${logPosition(position, maxLineLength)} | ${underline(fileLink(error.link, file, position))}`)
+      console.error(`${prefix}${pad(offset)}${dim(message)}`)
+
+      hasInvalidLinkToCustomPage ||= error.type === ValidationErrorType.InvalidLinkToCustomPage
     }
   }
 
-  process.stdout.write('\n')
+  logSummary(
+    'error',
+    `Found ${red(String(errorCount))} invalid ${pluralize(errorCount, 'link')} in ${red(String(errors.size))} ${pluralize(errors.size, 'file')}.`,
+  )
 
   return hasInvalidLinkToCustomPage
+}
+
+function logPosition(position: Position, maxLinePositionLength: number): string {
+  if (position.type === 'unavailable') return pad(maxLinePositionLength)
+
+  const linePositionLength = String(position.line).length
+
+  return `${' '.repeat(maxLinePositionLength - linePositionLength)}${dim(String(position.line))}`
+}
+
+export function getValidationErrorMessage(type: ValidationErrorType, context: ValidationErrorMessageContext) {
+  const { message } = validationErrorDefinitions[type]
+  return typeof message === 'function' ? message(context) : message
+}
+
+function getValidationErrorMessageLink(type: ValidationErrorType, context: ValidationErrorMessageContext) {
+  const message = getValidationErrorMessage(type, context)
+
+  return urlLink(message, new URL(`errors/${validationErrorDefinitions[type].slug}/`, docsUrl).href)
 }
 
 /**
@@ -281,7 +384,7 @@ function stripQueryString(path: string): string {
 
 function addError(errors: ValidationErrors, id: string, file: string, link: Link, type: ValidationErrorType) {
   const fileErrors = errors.get(id) ?? { errors: [], file }
-  fileErrors.errors.push({ link: link.raw, type })
+  fileErrors.errors.push({ link: link.raw, reference: link.reference, type })
 
   errors.set(id, fileErrors)
 }
@@ -290,19 +393,14 @@ function pluralize(count: number, singular: string) {
   return count === 1 ? singular : `${singular}s`
 }
 
-function formatValidationError(error: ValidationError, site: AstroConfig['site']) {
-  if (error.type !== ValidationErrorType.SameSite || !site) return error.type
-
-  return error.type.replace('{{site}}', site)
-}
-
 // The validation errors keyed by file path.
 type ValidationErrors = Map<string, { errors: ValidationError[]; file: string }>
 
-export type ValidationErrorType = (typeof ValidationErrorType)[keyof typeof ValidationErrorType]
+export type ValidationErrorType = keyof typeof validationErrorDefinitions
 
 interface ValidationError {
   link: string
+  reference: Reference
   type: ValidationErrorType
 }
 
@@ -327,3 +425,7 @@ interface ValidationContext {
 }
 
 export type StarlightUserConfig = Omit<StarlightUserConfigWithPlugins, 'plugins'>
+
+interface ValidationErrorMessageContext {
+  site: AstroConfig['site']
+}

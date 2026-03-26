@@ -20,14 +20,15 @@ export default function starlightLinksValidatorPlugin(
   }
 
   return {
-    name: 'starlight-links-validator-plugin',
+    name: 'starlight-links-validator',
     hooks: {
       'config:setup'({ addIntegration, astroConfig, config: starlightConfig, logger }) {
         let routes: IntegrationResolvedRoute[] = []
         const site = astroConfig.site ? stripTrailingSlash(astroConfig.site) : undefined
+        const srcDir = astroConfig.srcDir
 
         addIntegration({
-          name: 'starlight-links-validator-integration',
+          name: 'starlight-links-validator',
           hooks: {
             'astro:config:setup': async ({ command, updateConfig }) => {
               if (command !== 'build') {
@@ -55,7 +56,7 @@ export default function starlightLinksValidatorPlugin(
             'astro:routes:resolved': (params) => {
               routes = params.routes
             },
-            'astro:build:done': ({ dir, pages, assets }) => {
+            'astro:build:done': async ({ dir, pages, assets }) => {
               const customPages = new Set<string>()
 
               for (const [pattern, urls] of assets) {
@@ -69,7 +70,7 @@ export default function starlightLinksValidatorPlugin(
 
               const errors = validateLinks(pages, customPages, dir, astroConfig, starlightConfig, options.data)
 
-              const hasInvalidLinkToCustomPage = logErrors(logger, errors, site)
+              const hasInvalidLinkToCustomPage = await logErrors(logger, errors, { site, srcDir })
 
               if (errors.size > 0) {
                 throwPluginError(

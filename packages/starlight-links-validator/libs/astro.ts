@@ -7,7 +7,7 @@ const dataStoreFile = 'data-store.json'
 export async function clearContentLayerCache(config: AstroConfig, logger: AstroIntegrationLogger) {
   const dataStore = getDataStoreFile(config)
   if (fs.existsSync(dataStore)) {
-    logger.info('Invalidating content layer cache…')
+    logger.info('Invalidating content layer cache...')
     await fs.promises.rm(dataStore, { force: true })
   }
 }

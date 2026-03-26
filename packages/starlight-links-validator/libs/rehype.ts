@@ -13,6 +13,7 @@ import type { DataMap } from 'vfile'
 
 import type { StarlightLinksValidatorOptions } from './config'
 import { ensureTrailingSlash, stripLeadingSlash } from './path'
+import { getFrontmatterReference, getNodeReference, type Reference } from './position'
 import { ValidationErrorType } from './validation'
 
 const builtInComponents: StarlightLinksValidatorOptions['components'] = [
@@ -58,7 +59,7 @@ export const rehypeStarlightLinksValidator: Plugin<[RehypeStarlightLinksValidato
 
           if (node.tagName !== 'a' || !hasStringProperty(node, 'href') || hasClass(node, 'sl-anchor-link')) break
 
-          const link = getLinkToValidate(node.properties['href'], config)
+          const link = getLinkToValidate(node.properties['href'], getNodeReference(node), config)
           if (link) fileLinks.push(link)
 
           break
@@ -77,7 +78,7 @@ export const rehypeStarlightLinksValidator: Plugin<[RehypeStarlightLinksValidato
           for (const attribute of node.attributes) {
             if (!isStringAttribute(attribute, componentProp ?? 'href')) continue
 
-            const link = getLinkToValidate(attribute.value, config)
+            const link = getLinkToValidate(attribute.value, getNodeReference(node), config)
             if (link) fileLinks.push(link)
           }
 
@@ -99,7 +100,7 @@ export const rehypeStarlightLinksValidator: Plugin<[RehypeStarlightLinksValidato
             }
 
             if (htmlNode.type === 'element' && htmlNode.tagName === 'a' && hasStringProperty(htmlNode, 'href')) {
-              const link = getLinkToValidate(htmlNode.properties.href, config)
+              const link = getLinkToValidate(htmlNode.properties.href, getNodeReference(node, htmlNode), config)
               if (link) fileLinks.push(link)
             }
           })
@@ -121,9 +122,13 @@ export function getValidationData(): ValidationData {
   return data
 }
 
-function getLinkToValidate(link: string, { options, site }: RehypeStarlightLinksValidatorConfig): Link | undefined {
+function getLinkToValidate(
+  link: string,
+  reference: Reference,
+  { options, site }: RehypeStarlightLinksValidatorConfig,
+): Link | undefined {
   const normalizedLink = normalizeLink(link)
-  const linkTovalidate = { raw: normalizedLink }
+  const linkTovalidate = { reference, raw: normalizedLink }
 
   if (!isAbsoluteUrl(normalizedLink, { httpOnly: false })) {
     return linkTovalidate
@@ -233,19 +238,19 @@ function extractFrontmatterLinks(
   if (!frontmatter) return
 
   if (isFrontmatterWithHeroActions(frontmatter)) {
-    for (const action of frontmatter.hero.actions) {
-      const link = getLinkToValidate(action.link, config)
+    for (const [index, action] of frontmatter.hero.actions.entries()) {
+      const link = getLinkToValidate(action.link, getFrontmatterReference(['hero', 'actions', index, 'link']), config)
       if (link) fileLinks.push(link)
     }
   }
 
   if (isFrontmatterPrevNextLink(frontmatter, 'prev')) {
-    const link = getLinkToValidate(frontmatter.prev.link, config)
+    const link = getLinkToValidate(frontmatter.prev.link, getFrontmatterReference(['prev', 'link']), config)
     if (link) fileLinks.push(link)
   }
 
   if (isFrontmatterPrevNextLink(frontmatter, 'next')) {
-    const link = getLinkToValidate(frontmatter.next.link, config)
+    const link = getLinkToValidate(frontmatter.next.link, getFrontmatterReference(['next', 'link']), config)
     if (link) fileLinks.push(link)
   }
 }
@@ -295,6 +300,7 @@ export type ValidationData = Map<
 export interface Link {
   error?: ValidationErrorType
   raw: string
+  reference: Reference
   transformed?: string
 }
 

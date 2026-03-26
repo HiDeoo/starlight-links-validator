@@ -10,7 +10,6 @@ const site =
 export default defineConfig({
   integrations: [
     starlight({
-      customCss: ['./src/styles/custom.css'],
       editLink: {
         baseUrl: 'https://github.com/HiDeoo/starlight-links-validator/edit/main/docs/',
       },
@@ -21,7 +20,7 @@ export default defineConfig({
         },
         { tag: 'meta', attrs: { property: 'og:image:alt', content: 'Starlight plugin to validate internal links.' } },
       ],
-      plugins: process.env['CHECK_LINKS'] ? [starlightLinksValidator()] : [],
+      plugins: process.env['CHECK_LINKS'] ? [starlightLinksValidator({ sameSitePolicy: 'error' })] : [],
       sidebar: [
         {
           label: 'Start Here',
@@ -30,6 +29,10 @@ export default defineConfig({
         {
           label: 'Guides',
           items: ['guides/conditional-validation'],
+        },
+        {
+          label: 'Errors',
+          autogenerate: { directory: 'errors' },
         },
         {
           label: 'Resources',
@@ -52,4 +55,5 @@ export default defineConfig({
     }),
   ],
   site,
+  trailingSlash: 'always',
 })

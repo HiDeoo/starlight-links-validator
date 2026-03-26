@@ -1,0 +1,87 @@
+---
+title: Invalid Hash
+sidebar:
+  order: 2
+---
+
+The `invalid hash` error indicates that an internal link points to an existing page, but the [hash fragment](https://developer.mozilla.org/en-US/docs/Web/API/URL/hash), the part after `#`, does not match any heading or element ID on that page.
+For example, in `/guides/usage/#overview`, `#overview` is the hash fragment.
+Common causes include typos in the hash, links to headings that were renamed or removed, and links to hashes that do not exist on the target page.
+
+If you prefer to only validate that pages exist but ignore hashes, you can disable this error using the [`errorOnInvalidHashes`](/configuration/#erroroninvalidhashes) option.
+This can be useful in large documentation sites with many contributors, where keeping hashes fully up to date may be difficult, and hash validation may happen on a different schedule, for example once a week.
+
+## Example
+
+For example, given the following project structure:
+
+import { FileTree } from '@astrojs/starlight/components'
+
+<FileTree>
+
+- src/
+  - content/
+    - docs/
+      - guides/
+        - usage.mdx
+      - getting-started.md
+
+</FileTree>
+
+With the following content in `src/content/docs/guides/usage.mdx`:
+
+```mdx title="src/content/docs/guides/usage.mdx"
+---
+title: Usage
+---
+
+## Overview
+
+Some content.
+
+## Setup
+
+Some content.
+```
+
+And this content in `src/content/docs/getting-started.md`:
+
+```md title="src/content/docs/getting-started.md"
+---
+title: Getting Started
+---
+
+## Next Steps
+
+- [Usage overview](/guides/usage/#overveiw)
+- [Setup guide](/guides/usage/#setup)
+- [Troubleshooting](#troubleshooting)
+
+## Updating
+
+Some content.
+```
+
+A [production build](https://docs.astro.build/en/reference/cli-reference/#astro-build) would report the following errors:
+
+```ansi title="astro build"
+  ╭─ [34mgetting-started.md[0m
+  ·
+[2m7[0m | /guides/usage/#overveiw
+  ·                      [2m╰── invalid hash[0m
+[2m9[0m | #troubleshooting
+  ·               [2m╰── invalid hash[0m
+
+[31m╭─                                ─╮[0m
+[31m·[0m Found [31m2[0m invalid links in [31m1[0m file. [31m·[0m
+[31m╰─                                ─╯[0m
+```
+
+## How to fix
+
+To fix `invalid hash` errors, update each broken hash so it matches an existing heading or element ID.
+
+For the example above, you would:
+
+- Update `/guides/usage/#overveiw` to `/guides/usage/#overview` so the hash matches the existing heading ID.
+- Update `#troubleshooting` to match an existing heading or element ID in `src/content/docs/getting-started.md`, or create the missing heading if it should exist.
