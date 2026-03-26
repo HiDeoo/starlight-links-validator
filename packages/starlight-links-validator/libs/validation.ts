@@ -8,23 +8,65 @@ import picomatch from 'picomatch'
 
 import type { StarlightLinksValidatorOptions } from '..'
 
-import { blue, dim, fileLink, logStep, logSummary, pad, red, underline } from './cli'
+import { blue, dim, fileLink, urlLink, logStep, logSummary, pad, red, underline } from './cli'
 import { getFallbackHeadings, getLocaleConfig, isInconsistentLocaleLink, type LocaleConfig } from './i18n'
 import { ensureTrailingSlash, stripLeadingSlash, stripTrailingSlash } from './path'
 import { getErrorPosition, isSameLineSourcePosition, type Position, type Reference } from './position'
 import { getValidationData, type Link, type ValidationData } from './rehype'
 
-export const ValidationErrorType = {
-  InconsistentLocale: 'inconsistent locale',
-  InvalidHash: 'invalid hash',
-  InvalidLink: 'invalid link',
-  InvalidLinkToCustomPage: 'invalid link to custom page',
-  LocalLink: 'local link',
-  RelativeLink: 'relative link',
-  SameSite: '{{site}} can be omitted',
-  TrailingSlashMissing: 'missing trailing slash',
-  TrailingSlashForbidden: 'forbidden trailing slash',
-} as const
+// const docsUrl = 'https://starlight-links-validator.vercel.app/'
+const docsUrl = 'http://localhost:4321/'
+
+const validationErrorDefinitions = {
+  InconsistentLocale: {
+    message: 'inconsistent locale',
+    slug: 'inconsistent-locale',
+  },
+  InvalidHash: {
+    message: 'invalid hash',
+    slug: 'invalid-hash',
+  },
+  InvalidLink: {
+    message: 'invalid link',
+    slug: 'invalid-link',
+  },
+  InvalidLinkToCustomPage: {
+    message: 'invalid link to custom page',
+    slug: 'invalid-link-to-custom-page',
+  },
+  LocalLink: {
+    message: 'local link',
+    slug: 'local-link',
+  },
+  RelativeLink: {
+    message: 'relative link',
+    slug: 'relative-link',
+  },
+  SameSite: {
+    message: ({ site }) => `${site} can be omitted`,
+    slug: 'same-site',
+  },
+  TrailingSlashMissing: {
+    message: 'missing trailing slash',
+    slug: 'missing-trailing-slash',
+  },
+  TrailingSlashForbidden: {
+    message: 'forbidden trailing slash',
+    slug: 'forbidden-trailing-slash',
+  },
+} as const satisfies Record<
+  string,
+  {
+    slug: string
+    message: string | ((context: ValidationErrorMessageContext) => string)
+  }
+>
+
+export const ValidationErrorType = Object.freeze(
+  Object.fromEntries(Object.keys(validationErrorDefinitions).map((type) => [type, type])) as {
+    [Key in ValidationErrorType]: Key
+  },
+)
 
 export function validateLinks(
   pages: PageData[],
@@ -149,10 +191,9 @@ export async function logErrors(
 
       console.error(`${logPosition(position, maxLineLength)} | ${underline(fileLink(error.link, file, position))}`)
       console.error(
-        `${pad(maxLineLength)} · ${pad(errorOffset)}${dim(`╰── ${formatValidationError(error, context.site)}${count}`)}`,
+        `${pad(maxLineLength)} · ${pad(errorOffset)}${dim(`╰── ${getValidationErrorMessageLink(error.type, { site: context.site })}${count}`)}`,
       )
 
-      // TODO(HiDeoo) test
       hasInvalidLinkToCustomPage ||= error.type === ValidationErrorType.InvalidLinkToCustomPage
     }
   }
@@ -171,6 +212,17 @@ function logPosition(position: Position, maxLinePositionLength: number): string 
   const linePositionLength = String(position.line).length
 
   return `${' '.repeat(maxLinePositionLength - linePositionLength)}${dim(String(position.line))}`
+}
+
+export function getValidationErrorMessage(type: ValidationErrorType, context: ValidationErrorMessageContext) {
+  const { message } = validationErrorDefinitions[type]
+  return typeof message === 'function' ? message(context) : message
+}
+
+function getValidationErrorMessageLink(type: ValidationErrorType, context: ValidationErrorMessageContext) {
+  const message = getValidationErrorMessage(type, context)
+
+  return urlLink(message, new URL(`errors/${validationErrorDefinitions[type].slug}/`, docsUrl).href)
 }
 
 /**
@@ -342,16 +394,10 @@ function pluralize(count: number, singular: string) {
   return count === 1 ? singular : `${singular}s`
 }
 
-function formatValidationError(error: ValidationError, site: AstroConfig['site']) {
-  if (error.type !== ValidationErrorType.SameSite || !site) return error.type
-
-  return error.type.replace('{{site}}', site)
-}
-
 // The validation errors keyed by file path.
 type ValidationErrors = Map<string, { errors: ValidationError[]; file: string }>
 
-export type ValidationErrorType = (typeof ValidationErrorType)[keyof typeof ValidationErrorType]
+export type ValidationErrorType = keyof typeof validationErrorDefinitions
 
 interface ValidationError {
   link: string
@@ -380,3 +426,7 @@ interface ValidationContext {
 }
 
 export type StarlightUserConfig = Omit<StarlightUserConfigWithPlugins, 'plugins'>
+
+interface ValidationErrorMessageContext {
+  site: AstroConfig['site']
+}

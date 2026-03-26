@@ -25,6 +25,10 @@ export function fileLink(text: string, path: string, position?: Position) {
     url += `#${position.line}:${position.column}`
   }
 
+  return urlLink(text, url)
+}
+
+export function urlLink(text: string, url: string) {
   return terminalLink(text, url, { fallback: false })
 }
 

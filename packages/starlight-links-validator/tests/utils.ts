@@ -4,7 +4,7 @@ import { format, stripVTControlCharacters } from 'node:util'
 import { build } from 'astro'
 import { expect, vi } from 'vitest'
 
-import type { ValidationErrorType } from '../libs/validation'
+import { getValidationErrorMessage, type ValidationErrorType } from '../libs/validation'
 
 export async function buildFixture(name: string) {
   const fixturePath = fileURLToPath(new URL(`fixtures/${name}/`, import.meta.url))
@@ -62,7 +62,7 @@ export const expectValidationErrors = vi.defineHelper(
       String.raw`(?:^|\n)\s*╭─\s+${escapeRegex(path)}`,
       String.raw`\n\s*·`,
       ...validationErrors.flatMap(([link, type, line, site, count]) => {
-        const message = site ? type.replace('{{site}}', site) : type
+        const message = getValidationErrorMessage(type, { site })
         const suffix = count && count > 1 ? ` (x${count})` : ''
 
         return [
