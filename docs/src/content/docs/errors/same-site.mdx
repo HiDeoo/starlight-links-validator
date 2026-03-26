@@ -7,7 +7,7 @@ sidebar:
 The `same site` error indicates that a link uses a full external URL whose [origin](https://developer.mozilla.org/en-US/docs/Web/API/URL/origin) matches the one configured in Astro's [`site`](https://docs.astro.build/en/reference/configuration-reference/#site) option.
 For example, if your site is `https://example.com`, then `https://example.com/guides/usage/` points to the same site and can usually be written as `/guides/usage/` instead.
 
-This behavior is controlled by the [`sameSitePolicy`](/configuration#samesitepolicy) option. By default, all external links are ignored and are not validated. When `sameSitePolicy` is set to `error`, external links with the same origin as your site report a `same site` error. When it is set to `validate`, they are treated like internal links and validated as if they were written without the origin.
+This behavior is controlled by the [`sameSitePolicy`](/configuration/#samesitepolicy) option. By default, all external links are ignored and are not validated. When `sameSitePolicy` is set to `error`, external links with the same origin as your site report a `same site` error. When it is set to `validate`, they are treated like internal links and validated as if they were written without the origin.
 
 ## Example
 

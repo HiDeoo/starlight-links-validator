@@ -20,7 +20,7 @@ export default defineConfig({
         },
         { tag: 'meta', attrs: { property: 'og:image:alt', content: 'Starlight plugin to validate internal links.' } },
       ],
-      plugins: process.env['CHECK_LINKS'] ? [starlightLinksValidator()] : [],
+      plugins: process.env['CHECK_LINKS'] ? [starlightLinksValidator({ sameSitePolicy: 'error' })] : [],
       sidebar: [
         {
           label: 'Start Here',
@@ -55,4 +55,5 @@ export default defineConfig({
     }),
   ],
   site,
+  trailingSlash: 'always',
 })

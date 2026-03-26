@@ -7,7 +7,7 @@ sidebar:
 The `inconsistent locale` error indicates that a link points to a page in a different locale than the current page.
 For example, a link from `/fr/getting-started/` to `/guides/usage/` changes the user from French to the root locale.
 
-This behavior is controlled by the [`errorOnInconsistentLocale`](/configuration#erroroninconsistentlocale) option.
+This behavior is controlled by the [`errorOnInconsistentLocale`](/configuration/#erroroninconsistentlocale) option.
 By default, links that point to a different locale do not report an error.
 When this option is enabled, links that move users to a different locale report an `inconsistent locale` error.
 This can be useful on multilingual sites, where forgetting to update a link to the current language can be confusing for users.
