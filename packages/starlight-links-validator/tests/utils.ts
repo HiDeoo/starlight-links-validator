@@ -9,6 +9,8 @@ import { getValidationErrorMessage, type ValidationErrorType } from '../libs/val
 export async function buildFixture(name: string) {
   const fixturePath = fileURLToPath(new URL(`fixtures/${name}/`, import.meta.url))
 
+  vi.stubEnv('GITHUB_STEP_SUMMARY', '')
+
   let output = ''
   let status: 'success' | 'error'
 
@@ -26,6 +28,8 @@ export async function buildFixture(name: string) {
   } catch {
     status = 'error'
   } finally {
+    vi.unstubAllEnvs()
+
     stderrWriteSpy.mockRestore()
     stdoutWriteSpy.mockRestore()
     consoleWarnSpy.mockRestore()

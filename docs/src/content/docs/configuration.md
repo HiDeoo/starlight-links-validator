@@ -115,7 +115,7 @@ export default defineConfig({
 Relative internal links, such as `./test` or `../test`, are usually considered confusing because they can be difficult to reason about, figure out where they point to and require more maintenance when a page is moved.
 
 By default, the Starlight Links Validator plugin will error if a relative internal link is found.
-If you prefer to ignore relative links instead of erroring on them, you can set this option to `false` but note that theses links will not be validated.
+If you prefer to ignore relative links instead of erroring on them, you can set this option to `false` but note that these links will not be validated.
 
 ```js {6}
 export default defineConfig({
@@ -136,7 +136,7 @@ export default defineConfig({
 **Type:** `boolean`  
 **Default:** `true`
 
-By default, the Starlight Links Validator plugin will error if an internal link points to an [hash fragment](https://developer.mozilla.org/en-US/docs/Web/API/URL/hash) that does not exist in the target page.
+By default, the Starlight Links Validator plugin will error if an internal link points to a [hash fragment](https://developer.mozilla.org/en-US/docs/Web/API/URL/hash) that does not exist in the target page.
 If you want to only validate that pages exist but ignore hashes, you can set this option to `false`.
 
 This option should be used with caution but can be useful in large documentation with many contributors where keeping hashes fully up to date may be difficult, and hash validation may happen on a different schedule, for example once a week.
@@ -251,7 +251,7 @@ export default defineConfig({
 
 By default, the Starlight Links Validator plugin will ignore all external links, e.g. links starting with `http://` or `https://`, and will not validate them.
 
-The `sameSitePolicy` option provide a more granular control over how external links are handled when they point to the same [origin](https://developer.mozilla.org/en-US/docs/Web/API/URL/origin) as the one configured in the [Astro `site` configuration option](https://docs.astro.build/en/reference/configuration-reference/#site).
+The `sameSitePolicy` option provides more granular control over how external links are handled when they point to the same [origin](https://developer.mozilla.org/en-US/docs/Web/API/URL/origin) as the one configured in the [Astro `site` configuration option](https://docs.astro.build/en/reference/configuration-reference/#site).
 
 - `ignore`: Ignore all external links and do not validate them.
 - `error`: Error on external links with an origin matching the Astro `site` configuration option and hint that the link can be rewritten without the origin.
@@ -290,5 +290,37 @@ export default defineConfig({
     }),
   ],
   site: 'https://example.com',
+})
+```
+
+### `reporters`
+
+**Type:** `{ githubActions: boolean }`  
+**Default:** `{ githubActions: true }`
+
+Configures additional reporters for the plugin.
+
+#### `githubActions`
+
+**Type:** `boolean`  
+**Default:** `true`
+
+Defines whether the GitHub Actions reporter is enabled.
+
+When enabled and the plugin runs in GitHub Actions, validation errors are written to the [job summary](https://github.blog/news-insights/product-news/supercharging-github-actions-with-job-summaries/) as a Markdown table.
+
+```js {7}
+export default defineConfig({
+  integrations: [
+    starlight({
+      plugins: [
+        starlightLinksValidator({
+          reporters: {
+            githubActions: false,
+          },
+        }),
+      ],
+    }),
+  ],
 })
 ```

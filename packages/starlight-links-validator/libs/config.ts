@@ -86,6 +86,23 @@ export const StarlightLinksValidatorOptionsSchema = z
       ])
       .default([]),
     /**
+     * Configures additional reporters for the plugin.
+     */
+    reporters: z
+      .object({
+        /**
+         * Defines whether the GitHub Actions reporter is enabled.
+         *
+         * When enabled and the plugin runs in GitHub Actions, validation errors are written to the job summary as a
+         * Markdown table.
+         *
+         * @default true
+         * @see https://github.blog/news-insights/product-news/supercharging-github-actions-with-job-summaries/
+         */
+        githubActions: z.boolean().default(true),
+      })
+      .prefault({}),
+    /**
      * Defines the policy for external links with an origin matching the Astro `site` option.
      *
      * By default, all external links are ignored and not validated by the plugin.
