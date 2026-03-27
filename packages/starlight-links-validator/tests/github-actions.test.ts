@@ -24,6 +24,8 @@ beforeEach(async () => {
 })
 
 test('does not write a summary without a GitHub step summary path', () => {
+  vi.stubEnv('GITHUB_STEP_SUMMARY', '')
+
   testReportToGitHubActions([{ filePath: 'index.md', issues: [{ link: '/missing/' }] }])
 
   expect(mocks.appendFileSync).not.toHaveBeenCalled()
