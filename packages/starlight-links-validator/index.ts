@@ -6,18 +6,22 @@ import { clearContentLayerCache } from './libs/astro'
 import { StarlightLinksValidatorOptionsSchema, type StarlightLinksValidatorUserOptions } from './libs/config'
 import { pathnameToSlug, stripTrailingSlash } from './libs/path'
 import { rehypeStarlightLinksValidator, type RehypeStarlightLinksValidatorConfig } from './libs/rehype'
-import { logErrors, validateLinks } from './libs/validation'
+import { validateLinks } from './libs/validation'
+import { logStep, reportToCli } from './reporters/cli'
+import { reportToGitHubActions } from './reporters/github-actions'
 
 export type { StarlightLinksValidatorOptions } from './libs/config'
 
 export default function starlightLinksValidatorPlugin(
   userOptions?: StarlightLinksValidatorUserOptions,
 ): StarlightPlugin {
-  const options = StarlightLinksValidatorOptionsSchema.safeParse(userOptions)
+  const parsedOptions = StarlightLinksValidatorOptionsSchema.safeParse(userOptions)
 
-  if (!options.success) {
+  if (!parsedOptions.success) {
     throwPluginError('Invalid options passed to the starlight-links-validator plugin.')
   }
+
+  const options = parsedOptions.data
 
   return {
     name: 'starlight-links-validator',
@@ -25,7 +29,6 @@ export default function starlightLinksValidatorPlugin(
       'config:setup'({ addIntegration, astroConfig, config: starlightConfig, logger }) {
         let routes: IntegrationResolvedRoute[] = []
         const site = astroConfig.site ? stripTrailingSlash(astroConfig.site) : undefined
-        const srcDir = astroConfig.srcDir
 
         addIntegration({
           name: 'starlight-links-validator',
@@ -44,7 +47,7 @@ export default function starlightLinksValidatorPlugin(
                       rehypeStarlightLinksValidator,
                       {
                         base: astroConfig.base,
-                        options: options.data,
+                        options: options,
                         site,
                         srcDir: astroConfig.srcDir,
                       } satisfies RehypeStarlightLinksValidatorConfig,
@@ -68,14 +71,30 @@ export default function starlightLinksValidatorPlugin(
                 }
               }
 
-              const errors = validateLinks(pages, customPages, dir, astroConfig, starlightConfig, options.data)
+              logStep('validating links')
 
-              const hasInvalidLinkToCustomPage = await logErrors(logger, errors, { site, srcDir })
+              const report = await validateLinks(pages, customPages, dir, astroConfig, starlightConfig, options)
 
-              if (errors.size > 0) {
+              if (report.hasErrors) {
+                logger.error('Links validation failed.')
+              }
+
+              reportToCli(report)
+
+              if (report.hasErrors && options.reporters.githubActions) {
+                try {
+                  reportToGitHubActions(report)
+                } catch (error) {
+                  logger.warn(
+                    `Failed to write the GitHub Actions step summary: ${error instanceof Error ? error.message : String(error)}`,
+                  )
+                }
+              }
+
+              if (report.hasErrors) {
                 throwPluginError(
                   'Links validation failed.',
-                  hasInvalidLinkToCustomPage
+                  report.hasInvalidLinkToCustomPage
                     ? 'Some invalid links point to custom pages which cannot be validated, see the `exclude` option for more informations at https://starlight-links-validator.vercel.app/configuration#exclude'
                     : undefined,
                 )
