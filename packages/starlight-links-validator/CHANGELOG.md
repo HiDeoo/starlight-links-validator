@@ -1,5 +1,34 @@
 # starlight-links-validator
 
+## 0.21.0
+
+### Minor Changes
+
+- [#142](https://github.com/HiDeoo/starlight-links-validator/pull/142) [`9ee77ad`](https://github.com/HiDeoo/starlight-links-validator/commit/9ee77ad84d61ba3cfa19a43dde1178100c4210fd) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Refactors internal logic from a remark to a rehype plugin.
+
+  This is an internal update and should not cause any user-facing changes, but it improves plugin performance and fixes some edge-case validation issues.
+
+- [#144](https://github.com/HiDeoo/starlight-links-validator/pull/144) [`b30aa17`](https://github.com/HiDeoo/starlight-links-validator/commit/b30aa172909ba0d3056ffa358105cec943989049) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Redesigns link validation error reporting to be more user-friendly and actionable.
+
+  Most notably, error reporting now includes the following improvements:
+  - Errors now include source line numbers.
+  - In supported terminals and editors, links can open the source file at the relevant error location.
+  - In supported terminals, error messages link to dedicated documentation pages with explanations and suggested fixes.
+
+- [#146](https://github.com/HiDeoo/starlight-links-validator/pull/146) [`c3c139d`](https://github.com/HiDeoo/starlight-links-validator/commit/c3c139db3a31352db01eaa1e65ee28a3740a9ec8) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Adds support for a GitHub Actions reporter.
+
+  When enabled and the plugin runs in GitHub Actions, validation errors are written to the [job summary](https://github.blog/news-insights/product-news/supercharging-github-actions-with-job-summaries/) as a Markdown table.
+
+- [#142](https://github.com/HiDeoo/starlight-links-validator/pull/142) [`9ee77ad`](https://github.com/HiDeoo/starlight-links-validator/commit/9ee77ad84d61ba3cfa19a43dde1178100c4210fd) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Adds support for validating links transformed by remark and rehype plugins.
+
+  This change allows users to use [portable Markdown links](https://stereobooster.com/posts/portable-markdown-links/), author links that can be followed in an IDE and that are transformed by remark or rehype plugins into proper URLs at build time, while still being validated.
+
+- [#144](https://github.com/HiDeoo/starlight-links-validator/pull/144) [`b30aa17`](https://github.com/HiDeoo/starlight-links-validator/commit/b30aa172909ba0d3056ffa358105cec943989049) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Reduces terminal text styling dependency size by switching to Node.js built-in `util.styleText()`.
+
+### Patch Changes
+
+- [#142](https://github.com/HiDeoo/starlight-links-validator/pull/142) [`9ee77ad`](https://github.com/HiDeoo/starlight-links-validator/commit/9ee77ad84d61ba3cfa19a43dde1178100c4210fd) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes an edge-case link validation issue related to [Astro 6 Markdown heading ID generation](https://docs.astro.build/en/guides/upgrade-to/v6/#changed-markdown-heading-id-generation) changes.
+
 ## 0.20.1
 
 ### Patch Changes
