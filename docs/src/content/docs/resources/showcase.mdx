@@ -1,0 +1,98 @@
+---
+title: Showcase
+description: Discover Starlight projects using the Starlight Links Validator plugin.
+head:
+  - tag: style
+    content: |
+      .starlight-showcases-media-infos .starlight-showcases-media-title {
+        font-size: 0.9375rem;
+      }
+---
+
+import { ShowcaseIntro, Showcase } from '@hideoo/starlight-plugins-docs-components'
+
+<ShowcaseIntro
+  cta="Have you built a website using the Starlight Links Validator plugin?"
+  href="https://github.com/HiDeoo/starlight-links-validator/edit/main/docs/src/content/docs/resources/showcase.mdx"
+/>
+
+## Sites
+
+The Starlight Links Validator plugin is already being used in production. These are some of the sites around the web:
+
+<Showcase
+  entries={[
+    {
+      thumbnail: import('../../../assets/showcase/starlight-links-validator.vercel.app.png'),
+      href: 'https://starlight-links-validator.vercel.app/',
+      title: 'Starlight Links Validator 🤯',
+    },
+    {
+      thumbnail: import('../../../assets/showcase/starlight.astro.build.png'),
+      href: 'https://starlight.astro.build/',
+      title: 'Starlight',
+    },
+    {
+      thumbnail: import('../../../assets/showcase/biomejs.dev.png'),
+      href: 'https://biomejs.dev/',
+      title: 'Biome',
+    },
+    {
+      thumbnail: import('../../../assets/showcase/developers.cloudflare.com.png'),
+      href: 'https://developers.cloudflare.com/',
+      title: 'Cloudflare Docs',
+    },
+    {
+      thumbnail: import('../../../assets/showcase/terragrunt.com.png'),
+      href: 'https://terragrunt.com/',
+      title: 'Terragrunt',
+    },
+    {
+      thumbnail: import('../../../assets/showcase/aspire.dev.png'),
+      href: 'https://aspire.dev/',
+      title: 'aspire.dev',
+    },
+    {
+      thumbnail: import('../../../assets/showcase/github.github.com-gh-aw.png'),
+      href: 'https://github.github.com/gh-aw/',
+      title: 'GitHub Agentic Workflows',
+    },
+    {
+      thumbnail: import('../../../assets/showcase/microsoft.github.io-genaiscript.png'),
+      href: 'https://microsoft.github.io/genaiscript/',
+      title: 'Microsoft GenAIScript',
+    },
+    {
+      thumbnail: import('../../../assets/showcase/userstyles.catppuccin.com.png'),
+      href: 'https://userstyles.catppuccin.com/',
+      title: 'Catppuccin Userstyles',
+    },
+    {
+      thumbnail: import('../../../assets/showcase/prompty.ai.png'),
+      href: 'https://prompty.ai/',
+      title: 'Microsoft Prompty',
+    },
+    {
+      thumbnail: import('../../../assets/showcase/effect.website.png'),
+      href: 'https://effect.website/docs',
+      title: 'Effect',
+    },
+    {
+      thumbnail: import('../../../assets/showcase/trailbase.io.png'),
+      href: 'https://trailbase.io/',
+      title: 'TrailBase',
+    },
+    {
+      thumbnail: import('../../../assets/showcase/docs.slint.dev.png'),
+      href: 'https://docs.slint.dev/latest/docs/slint/',
+      title: 'Slint',
+    },
+    {
+      thumbnail: import('../../../assets/showcase/docs.openstatus.dev.png'),
+      href: 'https://docs.openstatus.dev/',
+      title: 'OpenStatus',
+    },
+  ]}
+/>
+
+See all the [public projects using the Starlight Links Validator plugin on GitHub](https://github.com/hideoo/starlight-links-validator/network/dependents).

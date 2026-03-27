@@ -2,8 +2,8 @@
   <h1>starlight-links-validator 🦺</h1>
   <p>Starlight plugin to validate internal links.</p>
   <p>
-    <a href="https://github.com/HiDeoo/starlight-links-validator/assets/494699/fe5f797a-8089-4271-b090-7158bb053dfa" title="Screenshot of starlight-links-validator">
-      <img alt="Screenshot of starlight-links-validator" src="https://github.com/HiDeoo/starlight-links-validator/assets/494699/fe5f797a-8089-4271-b090-7158bb053dfa" width="520" />
+    <a href="https://i.imgur.com/lnuPz5B.png" title="Screenshot of starlight-links-validator">
+      <img alt="Screenshot of starlight-links-validator" src="https://i.imgur.com/lnuPz5B.png" width="520" />
     </a>
   </p>
 </div>
@@ -25,12 +25,6 @@ Want to get started immediately? Check out the [getting started guide](https://s
 ## Features
 
 A [Starlight](https://starlight.astro.build) plugin to validate **_internal_** links in Markdown and MDX files.
-
-- Validate internal links to other pages
-- Validate internal links to hashes in other pages
-- Validate internal links to hashes in the same page
-- Ignore external links
-- Run only during a production build
 
 ## License
 
