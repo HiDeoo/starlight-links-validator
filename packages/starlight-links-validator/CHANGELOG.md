@@ -15,7 +15,7 @@
   - In supported terminals and editors, links can open the source file at the relevant error location.
   - In supported terminals, error messages link to dedicated documentation pages with explanations and suggested fixes.
 
-- [#146](https://github.com/HiDeoo/starlight-links-validator/pull/146) [`c3c139d`](https://github.com/HiDeoo/starlight-links-validator/commit/c3c139db3a31352db01eaa1e65ee28a3740a9ec8) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Adds support for a GitHub Actions reporter.
+- [#145](https://github.com/HiDeoo/starlight-links-validator/pull/145) [`82cb4d`](https://github.com/HiDeoo/starlight-links-validator/commit/82cb4de3208e1a4e58b1b342d32ef396a865fe59) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Adds support for a GitHub Actions reporter.
 
   When enabled and the plugin runs in GitHub Actions, validation errors are written to the [job summary](https://github.blog/news-insights/product-news/supercharging-github-actions-with-job-summaries/) as a Markdown table.
 
