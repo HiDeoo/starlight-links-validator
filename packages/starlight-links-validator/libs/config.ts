@@ -86,6 +86,33 @@ export const StarlightLinksValidatorOptionsSchema = z
       ])
       .default([]),
     /**
+     * Defines whether the plugin should error when validation fails.
+     *
+     * When set to `false`, the plugin will not throw an error and the build will succeed even if there are validation
+     * errors.
+     *
+     * @default true
+     */
+    failOnError: z.boolean().default(true),
+    /**
+     * Defines whether the plugin should write validation errors to a JSON file.
+     *
+     * When enabled, validation errors are written as structured JSON to the path specified by `errorsOutputPath`.
+     * Defaults to the inverse of `failOnError` - so when `failOnError: false`, errors are written to a file by default.
+     * Explicitly set to `true` or `false` to override this behavior.
+     *
+     * @default undefined (uses `!failOnError`)
+     */
+    writeErrorsToFile: z.boolean().optional(),
+    /**
+     * Defines the path where validation errors are written when `writeErrorsToFile` is enabled.
+     *
+     * Can be an absolute path or relative to the project root.
+     *
+     * @default '.starlight-links-validator/errors.json'
+     */
+    errorsOutputPath: z.string().min(1).default('.starlight-links-validator/errors.json'),
+    /**
      * Configures additional reporters for the plugin.
      */
     reporters: z

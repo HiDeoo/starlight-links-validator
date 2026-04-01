@@ -1,3 +1,6 @@
+import { mkdirSync, writeFileSync } from 'node:fs'
+import { dirname } from 'node:path'
+
 import type { StarlightPlugin } from '@astrojs/starlight/types'
 import type { IntegrationResolvedRoute } from 'astro'
 import { AstroError } from 'astro/errors'
@@ -76,7 +79,11 @@ export default function starlightLinksValidatorPlugin(
               const report = await validateLinks(pages, customPages, dir, astroConfig, starlightConfig, options)
 
               if (report.hasErrors) {
-                logger.error('Links validation failed.')
+                if (options.failOnError) {
+                  logger.error('Links validation failed.')
+                } else {
+                  logger.warn('Links validation failed but the build will not error due to `failOnError: false`.')
+                }
               }
 
               reportToCli(report)
@@ -91,7 +98,25 @@ export default function starlightLinksValidatorPlugin(
                 }
               }
 
-              if (report.hasErrors) {
+              // Determine if we should write errors to file
+              // Defaults to the inverse of failOnError unless explicitly set
+              const shouldWriteErrors = options.writeErrorsToFile ?? !options.failOnError
+
+              if (report.hasErrors && shouldWriteErrors) {
+                // Write errors to a file for subsequent CI steps to check
+                const outputFile = options.errorsOutputPath
+                try {
+                  mkdirSync(dirname(outputFile), { recursive: true })
+                  writeFileSync(outputFile, JSON.stringify(report, null, 2))
+                  logger.info(`Validation errors written to ${outputFile}`)
+                } catch (error) {
+                  logger.warn(
+                    `Failed to write validation errors to ${outputFile}: ${error instanceof Error ? error.message : String(error)}. Errors were still reported to the CLI output${options.reporters.githubActions ? ' and GitHub Actions job summary' : ''}.`,
+                  )
+                }
+              }
+
+              if (report.hasErrors && options.failOnError) {
                 throwPluginError(
                   'Links validation failed.',
                   report.hasInvalidLinkToCustomPage
