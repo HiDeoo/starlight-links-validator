@@ -1,5 +1,4 @@
-import { mkdirSync, writeFileSync } from 'node:fs'
-import { dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import type { StarlightPlugin } from '@astrojs/starlight/types'
 import type { IntegrationResolvedRoute } from 'astro'
@@ -12,6 +11,8 @@ import { rehypeStarlightLinksValidator, type RehypeStarlightLinksValidatorConfig
 import { validateLinks } from './libs/validation'
 import { logStep, reportToCli } from './reporters/cli'
 import { reportToGitHubActions } from './reporters/github-actions'
+import { setGitHubActionsOutput } from './reporters/github-actions-output'
+import { reportToJson } from './reporters/json'
 
 export type { StarlightLinksValidatorOptions } from './libs/config'
 
@@ -98,22 +99,19 @@ export default function starlightLinksValidatorPlugin(
                 }
               }
 
-              // Determine if we should write errors to file
-              // Defaults to the inverse of failOnError unless explicitly set
-              const shouldWriteErrors = options.writeErrorsToFile ?? !options.failOnError
-
-              if (report.hasErrors && shouldWriteErrors) {
-                // Write errors to a file for subsequent CI steps to check
-                const outputFile = options.errorsOutputPath
+              if (report.hasErrors && options.reporters.json) {
                 try {
-                  mkdirSync(dirname(outputFile), { recursive: true })
-                  writeFileSync(outputFile, JSON.stringify(report, null, 2))
-                  logger.info(`Validation errors written to ${outputFile}`)
+                  const outputPath = reportToJson(report, fileURLToPath(astroConfig.root))
+                  logger.info(`Validation errors written to ${outputPath}`)
                 } catch (error) {
                   logger.warn(
-                    `Failed to write validation errors to ${outputFile}: ${error instanceof Error ? error.message : String(error)}. Errors were still reported to the CLI output${options.reporters.githubActions ? ' and GitHub Actions job summary' : ''}.`,
+                    `Failed to write the JSON report: ${error instanceof Error ? error.message : String(error)}`,
                   )
                 }
+              }
+
+              if (report.hasErrors && !options.failOnError) {
+                setGitHubActionsOutput('has_links_validation_errors', 'true')
               }
 
               if (report.hasErrors && options.failOnError) {

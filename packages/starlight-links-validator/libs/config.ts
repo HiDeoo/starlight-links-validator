@@ -95,24 +95,6 @@ export const StarlightLinksValidatorOptionsSchema = z
      */
     failOnError: z.boolean().default(true),
     /**
-     * Defines whether the plugin should write validation errors to a JSON file.
-     *
-     * When enabled, validation errors are written as structured JSON to the path specified by `errorsOutputPath`.
-     * Defaults to the inverse of `failOnError` - so when `failOnError: false`, errors are written to a file by default.
-     * Explicitly set to `true` or `false` to override this behavior.
-     *
-     * @default undefined (uses `!failOnError`)
-     */
-    writeErrorsToFile: z.boolean().optional(),
-    /**
-     * Defines the path where validation errors are written when `writeErrorsToFile` is enabled.
-     *
-     * Can be an absolute path or relative to the project root.
-     *
-     * @default '.starlight-links-validator/errors.json'
-     */
-    errorsOutputPath: z.string().min(1).default('.starlight-links-validator/errors.json'),
-    /**
      * Configures additional reporters for the plugin.
      */
     reporters: z
@@ -127,6 +109,15 @@ export const StarlightLinksValidatorOptionsSchema = z
          * @see https://github.blog/news-insights/product-news/supercharging-github-actions-with-job-summaries/
          */
         githubActions: z.boolean().default(true),
+        /**
+         * Defines whether the JSON reporter is enabled.
+         *
+         * When enabled, validation errors are written to a `.starlight-links-validator/errors.json` file as structured
+         * JSON matching the output of the `githubActions` reporter.
+         *
+         * @default false
+         */
+        json: z.boolean().default(false),
       })
       .prefault({}),
     /**

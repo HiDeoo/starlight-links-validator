@@ -302,8 +302,6 @@ Defines whether the plugin should error when validation fails.
 
 By default, the Starlight Links Validator plugin will throw an error and fail the build when validation errors are found. Set this option to `false` to allow the build to succeed even with validation errors.
 
-When `failOnError` is set to `false` and validation errors exist, by default errors will be written to `.starlight-links-validator/errors.json`. See [`writeErrorsToFile`](#writeerrorstofile) to control this behavior.
-
 ```js {6}
 export default defineConfig({
   integrations: [
@@ -320,89 +318,21 @@ export default defineConfig({
 
 This option is useful for CI workflows where you want to build and deploy a preview even with broken links, but fail the PR merge check in a subsequent step.
 
-### `writeErrorsToFile`
+When running in GitHub Actions with `failOnError` set to `false` and validation errors are found, the plugin will set a `has_links_validation_errors` [step output](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/passing-information-between-jobs#example-defining-outputs-for-a-job) to `'true'`. This allows you to fail a subsequent step based on the validation result without needing to enable the [`json`](#json) reporter:
 
-**Type:** `boolean`  
-**Default:** `!failOnError`
-
-Defines whether the plugin should write validation errors to a JSON file.
-
-By default, this option is set to the inverse of `failOnError`. This means:
-
-- When `failOnError: true` (default), errors are not written to a file
-- When `failOnError: false`, errors are written to a file
-
-You can explicitly set this option to `true` or `false` to override the default behavior:
-
-```js {7}
-// Fail the build AND write errors to file
-export default defineConfig({
-  integrations: [
-    starlight({
-      plugins: [
-        starlightLinksValidator({
-          failOnError: true,
-          writeErrorsToFile: true,
-        }),
-      ],
-    }),
-  ],
-})
+```yaml
+- name: Build docs
+  id: build
+  run: astro build
+- name: Fail on broken links
+  if: steps.build.outputs.has_links_validation_errors == 'true'
+  run: exit 1
 ```
-
-```js {7}
-// Don't fail, but also don't write errors to file
-export default defineConfig({
-  integrations: [
-    starlight({
-      plugins: [
-        starlightLinksValidator({
-          failOnError: false,
-          writeErrorsToFile: false,
-        }),
-      ],
-    }),
-  ],
-})
-```
-
-When enabled, errors are written to the path specified by [`errorsOutputPath`](#errorsoutputpath).
-
-### `errorsOutputPath`
-
-**Type:** `string`  
-**Default:** `'.starlight-links-validator/errors.json'`
-
-Defines the path where validation errors are written when [`writeErrorsToFile`](#writeerrorstofile) is enabled.
-
-Can be an absolute path or relative to the project root.
-
-```js {7}
-export default defineConfig({
-  integrations: [
-    starlight({
-      plugins: [
-        starlightLinksValidator({
-          failOnError: false,
-          errorsOutputPath: './ci-output/broken-links.json',
-        }),
-      ],
-    }),
-  ],
-})
-```
-
-The output file contains a JSON object with the full validation report, including:
-
-- `errorCount`: Total number of validation errors
-- `files`: Array of files with broken links
-- `hasErrors`: Boolean indicating if any errors were found
-- `hasInvalidLinkToCustomPage`: Boolean indicating if any errors are links to custom pages
 
 ### `reporters`
 
-**Type:** `{ githubActions: boolean }`  
-**Default:** `{ githubActions: true }`
+**Type:** `{ githubActions: boolean, json: boolean }`  
+**Default:** `{ githubActions: true, json: false }`
 
 Configures additional reporters for the plugin.
 
@@ -430,3 +360,40 @@ export default defineConfig({
   ],
 })
 ```
+
+#### `json`
+
+**Type:** `boolean`  
+**Default:** `false`
+
+Defines whether the JSON reporter is enabled.
+
+When enabled, validation errors are written to a `.starlight-links-validator/errors.json` file as structured JSON.
+
+```js {7}
+export default defineConfig({
+  integrations: [
+    starlight({
+      plugins: [
+        starlightLinksValidator({
+          reporters: {
+            json: true,
+          },
+        }),
+      ],
+    }),
+  ],
+})
+```
+
+The output file contains a JSON object with the following structure:
+
+- `errorCount`: Total number of validation errors.
+- `fileCount`: Number of files with broken links.
+- `errors`: Array of errors, each containing:
+  - `file`: The docs path of the file (e.g. `"getting-started.md"`).
+  - `filePath`: The absolute file path.
+  - `link`: The broken link as authored in the content.
+  - `position`: The source position of the link (e.g. `"12:5"`) or `null` if unavailable.
+  - `error`: A description of the error.
+  - `docsUrl`: A URL to the error documentation.

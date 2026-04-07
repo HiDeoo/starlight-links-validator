@@ -2,8 +2,8 @@
 'starlight-links-validator': minor
 ---
 
-Add three new options to control build failure behavior and error output:
+Add `failOnError` option and `json` reporter to support CI workflows that need the build to succeed while still catching broken links:
 
 - `failOnError`: When set to `false`, the build succeeds even with broken links. Defaults to `true`.
-- `writeErrorsToFile`: Controls whether validation errors are written to a JSON file. Defaults to the inverse of `failOnError`.
-- `errorsOutputPath`: Configurable path for the JSON error output file. Defaults to `.starlight-links-validator/errors.json`.
+- `reporters.json`: New JSON reporter that writes validation errors to `.starlight-links-validator/errors.json`.
+- GitHub Actions output parameter: When `failOnError` is `false` and validation errors are found, the plugin sets a `has_links_validation_errors` step output to `'true'`.
