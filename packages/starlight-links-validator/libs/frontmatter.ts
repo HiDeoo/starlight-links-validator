@@ -1,3 +1,4 @@
+import type { DataMap } from 'vfile'
 import { isScalar, LineCounter, parseDocument } from 'yaml'
 
 import { makeUnavailablePosition, type FrontmatterReference, type Position } from './position'
@@ -27,4 +28,36 @@ function getTomlFrontmatterPosition(): Position {
   return makeUnavailablePosition()
 }
 
+export function isFrontmatterWithHeroActions(
+  frontmatter: Frontmatter,
+): frontmatter is Frontmatter & { hero: FrontmatterHeroActions } {
+  return (
+    frontmatter !== undefined &&
+    'hero' in frontmatter &&
+    typeof frontmatter['hero'] === 'object' &&
+    'actions' in frontmatter['hero']
+  )
+}
+
+export function isFrontmatterWithPrevNextLink<T extends 'prev' | 'next'>(
+  frontmatter: Frontmatter,
+  type: T,
+): frontmatter is Frontmatter & Record<T, FrontmatterPrevNextLink> {
+  return frontmatter !== undefined && isFrontmatterPrevNextLink(frontmatter[type])
+}
+
+export function isFrontmatterPrevNextLink(value: unknown): value is FrontmatterPrevNextLink {
+  return typeof value === 'object' && value !== null && 'link' in value && typeof value.link === 'string'
+}
+
 export type FrontmatterFormat = 'yaml' | 'toml'
+
+export type Frontmatter = DataMap['astro']['frontmatter']
+
+interface FrontmatterHeroActions {
+  actions: { link: string }[]
+}
+
+interface FrontmatterPrevNextLink {
+  link: string
+}

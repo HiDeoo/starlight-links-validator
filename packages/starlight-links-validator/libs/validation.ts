@@ -10,9 +10,10 @@ import type { StarlightLinksValidatorOptions } from '..'
 import type { ValidationReport, ValidationReportIssue } from '../reporters'
 
 import { getFallbackHeadings, getLocaleConfig, isInconsistentLocaleLink, type LocaleConfig } from './i18n'
+import type { Link } from './link'
 import { ensureTrailingSlash, stripLeadingSlash, stripTrailingSlash } from './path'
 import { getErrorPosition, isSameLineSourcePosition, type Reference } from './position'
-import { getValidationData, type Link, type ValidationData } from './rehype'
+import { getValidationData, type ValidationData } from './store'
 
 const docsUrl = 'https://starlight-links-validator.vercel.app/'
 
