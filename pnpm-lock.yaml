@@ -130,6 +130,10 @@ importers:
       starlight-links-validator:
         specifier: workspace:*
         version: link:../../..
+    devDependencies:
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
 
   packages/starlight-links-validator/tests/fixtures/custom-ids:
     dependencies:

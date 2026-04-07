@@ -1,30 +1,26 @@
 import nodePath from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import type { AstroConfig } from 'astro'
 import { slug as slugger } from 'github-slugger'
 import type { Element, Nodes, Root } from 'hast'
 import { fromHtml } from 'hast-util-from-html'
-import isAbsoluteUrl from 'is-absolute-url'
 import type { MdxJsxAttribute, MdxJsxExpressionAttribute } from 'mdast-util-mdx-jsx'
 import type { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
-import type { DataMap } from 'vfile'
 
-import type { StarlightLinksValidatorOptions } from './config'
+import type { StarlightLinksValidatorOptions, ValidationConfig } from './config'
+import { isFrontmatterWithPrevNextLink, isFrontmatterWithHeroActions, type Frontmatter } from './frontmatter'
+import { getLinkToValidate, type Link } from './link'
 import { ensureTrailingSlash, stripLeadingSlash } from './path'
-import { getFrontmatterReference, getNodeReference, type Reference } from './position'
-import { ValidationErrorType } from './validation'
+import { getFrontmatterReference, getNodeReference } from './position'
+import { setValidationData } from './store'
 
 const builtInComponents: StarlightLinksValidatorOptions['components'] = [
   ['LinkButton', 'href'],
   ['LinkCard', 'href'],
 ]
 
-// All the validation data keyed by file path.
-const data: ValidationData = new Map()
-
-export const rehypeStarlightLinksValidator: Plugin<[RehypeStarlightLinksValidatorConfig], Root> = function (config) {
+export const rehypeStarlightLinksValidator: Plugin<[ValidationConfig], Root> = function (config) {
   const { base, options, srcDir } = config
 
   const linkComponents: Record<string, string> = Object.fromEntries(
@@ -110,50 +106,11 @@ export const rehypeStarlightLinksValidator: Plugin<[RehypeStarlightLinksValidato
       }
     })
 
-    data.set(getValidationDataId(base, id, slug), {
+    setValidationData(getValidationDataId(base, id, slug), {
       file: path,
       headings: fileHeadings,
       links: fileLinks,
     })
-  }
-}
-
-export function getValidationData(): ValidationData {
-  return data
-}
-
-function getLinkToValidate(
-  link: string,
-  reference: Reference,
-  { options, site }: RehypeStarlightLinksValidatorConfig,
-): Link | undefined {
-  const normalizedLink = normalizeLink(link)
-  const linkTovalidate = { reference, raw: normalizedLink }
-
-  if (!isAbsoluteUrl(normalizedLink, { httpOnly: false })) {
-    return linkTovalidate
-  }
-
-  try {
-    const url = new URL(normalizedLink)
-
-    if (options.sameSitePolicy !== 'ignore' && url.origin === site) {
-      if (options.sameSitePolicy === 'error') {
-        return { ...linkTovalidate, error: ValidationErrorType.SameSite }
-      } else {
-        let transformed = normalizedLink.replace(url.origin, '')
-        if (!transformed) transformed = '/'
-        return { ...linkTovalidate, transformed }
-      }
-    }
-
-    if (!options.errorOnLocalLinks) return
-
-    return url.hostname === 'localhost' || url.hostname === '127.0.0.1'
-      ? { ...linkTovalidate, error: ValidationErrorType.LocalLink }
-      : undefined
-  } catch {
-    return undefined
   }
 }
 
@@ -176,21 +133,6 @@ function normalizeId(base: string, srcDir: URL, filePath: string) {
   if (base !== '/') return nodePath.posix.join(stripLeadingSlash(base), path)
 
   return path
-}
-
-function normalizeLink(link: string): string {
-  const hashIndex = link.indexOf('#')
-  if (hashIndex === -1) return link
-
-  const beforeHash = link.slice(0, hashIndex)
-  const hash = link.slice(hashIndex + 1)
-  if (hash.length === 0) return link
-
-  try {
-    return `${beforeHash}#${decodeURIComponent(hash)}`
-  } catch {
-    return link
-  }
 }
 
 function hasStringProperty<TName extends string>(
@@ -230,11 +172,7 @@ function hasClass(node: Nodes, name: string): boolean {
   return false
 }
 
-function extractFrontmatterLinks(
-  frontmatter: Frontmatter,
-  fileLinks: Link[],
-  config: RehypeStarlightLinksValidatorConfig,
-) {
+function extractFrontmatterLinks(frontmatter: Frontmatter, fileLinks: Link[], config: ValidationConfig) {
   if (!frontmatter) return
 
   if (isFrontmatterWithHeroActions(frontmatter)) {
@@ -244,78 +182,19 @@ function extractFrontmatterLinks(
     }
   }
 
-  if (isFrontmatterPrevNextLink(frontmatter, 'prev')) {
+  if (isFrontmatterWithPrevNextLink(frontmatter, 'prev')) {
     const link = getLinkToValidate(frontmatter.prev.link, getFrontmatterReference(['prev', 'link']), config)
     if (link) fileLinks.push(link)
   }
 
-  if (isFrontmatterPrevNextLink(frontmatter, 'next')) {
+  if (isFrontmatterWithPrevNextLink(frontmatter, 'next')) {
     const link = getLinkToValidate(frontmatter.next.link, getFrontmatterReference(['next', 'link']), config)
     if (link) fileLinks.push(link)
   }
-}
-
-function isFrontmatterWithHeroActions(
-  frontmatter: Frontmatter,
-): frontmatter is Frontmatter & { hero: FrontmatterHeroActions } {
-  return (
-    frontmatter !== undefined &&
-    'hero' in frontmatter &&
-    typeof frontmatter['hero'] === 'object' &&
-    'actions' in frontmatter['hero']
-  )
-}
-
-function isFrontmatterPrevNextLink<T extends 'prev' | 'next'>(
-  frontmatter: Frontmatter,
-  type: T,
-): frontmatter is Frontmatter & Record<T, FrontmatterPrevNextLink> {
-  return (
-    frontmatter !== undefined &&
-    type in frontmatter &&
-    typeof frontmatter[type] === 'object' &&
-    'link' in frontmatter[type]
-  )
-}
-
-export interface RehypeStarlightLinksValidatorConfig {
-  base: string
-  options: StarlightLinksValidatorOptions
-  site: AstroConfig['site']
-  srcDir: URL
-}
-
-export type ValidationData = Map<
-  string,
-  {
-    // The absolute path to the file.
-    file: string
-    // All the headings.
-    headings: string[]
-    // All the internal links.
-    links: Link[]
-  }
->
-
-export interface Link {
-  error?: ValidationErrorType
-  raw: string
-  reference: Reference
-  transformed?: string
 }
 
 interface MdxStringAttribute<TName extends string> {
   name: TName
   type: 'mdxJsxAttribute'
   value: string
-}
-
-type Frontmatter = DataMap['astro']['frontmatter']
-
-interface FrontmatterHeroActions {
-  actions: { link: string }[]
-}
-
-interface FrontmatterPrevNextLink {
-  link: string
 }
