@@ -1,54 +1,58 @@
-import { mkdirSync, writeFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 
 import type { Position } from '../libs/position'
-import type { ValidationReport } from '../reporters'
+import type { Reporter, ValidationReport } from '../reporters'
 
-const outputFileName = '.starlight-links-validator/errors.json'
+export const jsonReporter: Reporter = {
+  name: 'JSON',
+  report(report, { astroConfig: { root }, logger, options }) {
+    const reportDirUrl = new URL('.starlight-links-validator/', root)
+    const reportFileUrl = new URL('errors.json', reportDirUrl)
 
-export function reportToJson(report: ValidationReport, root: string) {
-  const outputPath = join(root, outputFileName)
+    rmSync(reportFileUrl, { force: true })
 
-  mkdirSync(dirname(outputPath), { recursive: true })
-  writeFileSync(outputPath, JSON.stringify(renderJsonReport(report), null, 2), 'utf8')
+    if (!options.reporters.json || !report.hasErrors) return
 
-  return outputPath
+    mkdirSync(reportDirUrl, { recursive: true })
+    writeFileSync(reportFileUrl, JSON.stringify(renderJsonReport(report), null, 2), 'utf8')
+
+    logger.info(`Links validation report written to ${fileURLToPath(reportFileUrl)}`)
+  },
 }
 
 function renderJsonReport(report: ValidationReport): JsonReport {
   return {
     errorCount: report.errorCount,
-    fileCount: report.files.length,
+    errorFileCount: report.files.length,
     errors: report.files.flatMap((file) =>
       file.issues.flatMap((issue) =>
         issue.positions.map((position) => ({
-          file: file.docsPath,
-          filePath: file.filePath,
+          docsPath: file.docsPath,
           link: issue.link,
           position: formatPosition(position),
-          error: issue.message,
-          docsUrl: issue.docsUrl,
+          message: issue.message,
+          documentationUrl: issue.documentationUrl,
         })),
       ),
     ),
   }
 }
 
-function formatPosition(position: Position): string | null {
-  return position.type === 'source' ? `${position.line}:${position.column}` : null
+function formatPosition(position: Position): JsonReportError['position'] {
+  return position.type === 'source' ? { line: position.line, column: position.column } : null
 }
 
 interface JsonReportError {
-  file: string
-  filePath: string
+  docsPath: string
   link: string
-  position: string | null
-  error: string
-  docsUrl: string
+  position: { line: number; column: number } | null
+  message: string
+  documentationUrl: string
 }
 
 interface JsonReport {
   errorCount: number
-  fileCount: number
+  errorFileCount: number
   errors: JsonReportError[]
 }

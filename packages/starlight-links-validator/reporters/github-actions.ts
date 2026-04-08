@@ -3,16 +3,30 @@ import { isAbsolute, posix, relative, sep } from 'node:path'
 
 import type { Position } from '../libs/position'
 import { pluralize } from '../libs/text'
-import type { ValidationReport } from '../reporters'
+import type { Reporter, ValidationReport } from '../reporters'
 
 const lineBreakRegex = /\r?\n/g
 const backtickRegex = /`+/g
 
-export function reportToGitHubActions(report: ValidationReport) {
-  const summaryPath = process.env['GITHUB_STEP_SUMMARY']
-  if (!summaryPath) return
+export const gitHubActionsReporter: Reporter = {
+  name: 'GitHub Actions',
+  report(report, { options }) {
+    if (!options.reporters.githubActions) return
 
-  appendFileSync(summaryPath, renderGitHubActionsReport(report), 'utf8')
+    const outputPath = process.env['GITHUB_OUTPUT']
+
+    if (outputPath) {
+      appendFileSync(outputPath, `link_validation_failed=${report.hasErrors}\n`, 'utf8')
+    }
+
+    // Only write the step summary if there are errors.
+    if (!report.hasErrors) return
+
+    const summaryPath = process.env['GITHUB_STEP_SUMMARY']
+    if (!summaryPath) return
+
+    appendFileSync(summaryPath, renderGitHubActionsReport(report), 'utf8')
+  },
 }
 
 function renderGitHubActionsReport(report: ValidationReport): string {
@@ -45,7 +59,7 @@ function renderGitHubActionsErrorTable(report: ValidationReport): string {
           const fileLink = makeFileLink(file.docsPath, file.filePath, position)
           const link = makeInlineCode(issue.link)
           const positionLabel = position.type === 'source' ? makeInlineCode(`${position.line}:${position.column}`) : '-'
-          const error = `[${issue.message}](${issue.docsUrl})`
+          const error = `[${issue.message}](${issue.documentationUrl})`
 
           return `| ${escapeTableCell(fileLink)} | ${escapeTableCell(link)} | ${positionLabel} | ${escapeTableCell(error)} |`
         })

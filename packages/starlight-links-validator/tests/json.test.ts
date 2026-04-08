@@ -1,47 +1,64 @@
-import { basename } from 'node:path'
-
 import { beforeEach, expect, test, vi } from 'vitest'
 
-import { ValidationErrorType } from '../libs/validation'
-import type { ValidationReportIssue } from '../reporters'
+import { jsonReporter } from '../reporters/json'
 
-let reportToJson: typeof import('../reporters/json').reportToJson
+import { createTestReporterInput, type TestValidationReportFile } from './utils'
 
 const mocks = vi.hoisted(() => ({
   mkdirSync: vi.fn(),
+  rmSync: vi.fn(),
   writeFileSync: vi.fn(),
 }))
 
-vi.mock('node:fs', () => ({ mkdirSync: mocks.mkdirSync, writeFileSync: mocks.writeFileSync }))
+vi.mock('node:fs', () => ({ mkdirSync: mocks.mkdirSync, rmSync: mocks.rmSync, writeFileSync: mocks.writeFileSync }))
 
-beforeEach(async () => {
+beforeEach(() => {
   vi.clearAllMocks()
-  vi.resetModules()
-
-  const mod = await import('../reporters/json')
-
-  reportToJson = mod.reportToJson
 })
 
-test('writes a JSON report to the expected path', () => {
-  testReportToJson([{ filePath: 'index.md', issues: [{ link: '/missing/' }] }])
+test('removes any existing JSON report when the JSON reporter is disabled', async () => {
+  await testJsonReporter([{ filePath: 'index.md', issues: [{ link: '/missing/' }] }], false)
+
+  expect(mocks.rmSync).toHaveBeenCalledOnce()
+  expect(mocks.rmSync.mock.calls[0]?.[0]).toEqual(new URL('file:///project/.starlight-links-validator/errors.json'))
+  expect(mocks.rmSync.mock.calls[0]?.[1]).toStrictEqual({ force: true })
+
+  expect(mocks.mkdirSync).not.toHaveBeenCalled()
+
+  expect(mocks.writeFileSync).not.toHaveBeenCalled()
+})
+
+test('removes any existing JSON report and writes a new one to the expected path', async () => {
+  await testJsonReporter([{ filePath: 'index.md', issues: [{ link: '/missing/' }] }])
+
+  expect(mocks.rmSync).toHaveBeenCalledOnce()
+  expect(mocks.rmSync.mock.calls[0]?.[0]).toEqual(new URL('file:///project/.starlight-links-validator/errors.json'))
+  expect(mocks.rmSync.mock.calls[0]?.[1]).toStrictEqual({ force: true })
 
   expect(mocks.mkdirSync).toHaveBeenCalledOnce()
-  expect(mocks.mkdirSync.mock.calls[0]?.[0]).toBe('/project/.starlight-links-validator')
+  expect(mocks.mkdirSync.mock.calls[0]?.[0]).toEqual(new URL('file:///project/.starlight-links-validator/'))
   expect(mocks.mkdirSync.mock.calls[0]?.[1]).toStrictEqual({ recursive: true })
 
   expect(mocks.writeFileSync).toHaveBeenCalledOnce()
-  expect(mocks.writeFileSync.mock.calls[0]?.[0]).toBe('/project/.starlight-links-validator/errors.json')
+  expect(mocks.writeFileSync.mock.calls[0]?.[0]).toEqual(
+    new URL('file:///project/.starlight-links-validator/errors.json'),
+  )
 })
 
-test('returns the output path', () => {
-  const path = testReportToJson([{ filePath: 'index.md', issues: [{ link: '/missing/' }] }])
+test('does not write a JSON report when no validation errors are found', async () => {
+  await testJsonReporter([])
 
-  expect(path).toBe('/project/.starlight-links-validator/errors.json')
+  expect(mocks.rmSync).toHaveBeenCalledOnce()
+  expect(mocks.rmSync.mock.calls[0]?.[0]).toEqual(new URL('file:///project/.starlight-links-validator/errors.json'))
+  expect(mocks.rmSync.mock.calls[0]?.[1]).toStrictEqual({ force: true })
+
+  expect(mocks.mkdirSync).not.toHaveBeenCalled()
+
+  expect(mocks.writeFileSync).not.toHaveBeenCalled()
 })
 
-test('writes structured JSON matching the GitHub Actions reporter output', () => {
-  testReportToJson([
+test('writes JSON report', async () => {
+  await testJsonReporter([
     { filePath: 'index.md', issues: [{ link: '/missing/' }] },
     {
       filePath: 'test.md',
@@ -63,93 +80,57 @@ test('writes structured JSON matching the GitHub Actions reporter output', () =>
   expect(written).toMatchInlineSnapshot(`
     {
       "errorCount": 4,
+      "errorFileCount": 2,
       "errors": [
         {
-          "docsUrl": "https://example.com/errors/invalid-link/",
-          "error": "invalid link",
-          "file": "index.md",
-          "filePath": "/repo/src/content/docs/index.md",
+          "docsPath": "index.md",
+          "documentationUrl": "https://example.com/errors/invalid-link/",
           "link": "/missing/",
-          "position": "1:1",
+          "message": "invalid link",
+          "position": {
+            "column": 1,
+            "line": 1,
+          },
         },
         {
-          "docsUrl": "https://example.com/errors/invalid-link/",
-          "error": "invalid link",
-          "file": "test.md",
-          "filePath": "/repo/src/content/docs/test.md",
+          "docsPath": "test.md",
+          "documentationUrl": "https://example.com/errors/invalid-link/",
           "link": "/docs/test-a",
-          "position": "1:1",
+          "message": "invalid link",
+          "position": {
+            "column": 1,
+            "line": 1,
+          },
         },
         {
-          "docsUrl": "https://example.com/errors/invalid-link/",
-          "error": "invalid link",
-          "file": "test.md",
-          "filePath": "/repo/src/content/docs/test.md",
+          "docsPath": "test.md",
+          "documentationUrl": "https://example.com/errors/invalid-link/",
           "link": "/docs/test-a",
-          "position": "1:15",
+          "message": "invalid link",
+          "position": {
+            "column": 15,
+            "line": 1,
+          },
         },
         {
-          "docsUrl": "https://example.com/errors/invalid-link/",
-          "error": "invalid link",
-          "file": "test.md",
-          "filePath": "/repo/src/content/docs/test.md",
+          "docsPath": "test.md",
+          "documentationUrl": "https://example.com/errors/invalid-link/",
           "link": "/docs/test-b",
-          "position": "2:1",
+          "message": "invalid link",
+          "position": {
+            "column": 1,
+            "line": 2,
+          },
         },
       ],
-      "fileCount": 2,
     }
   `)
 })
 
-function testReportToJson(files: TestValidationReportFile[]) {
-  return reportToJson(
-    {
-      errorCount: files
-        .flatMap((file) => file.issues)
-        .reduce((count, issue, index) => count + getIssuePositions(issue, index).length, 0),
-      files: files.map((file) => ({
-        docsPath: basename(file.filePath),
-        filePath: `/repo/src/content/docs/${file.filePath}`,
-        issues: file.issues.map((issue, index) => ({
-          docsUrl: 'https://example.com/errors/invalid-link/',
-          link: issue.link,
-          message: 'invalid link',
-          positions: toSourcePositions(getIssuePositions(issue, index)),
-          type: ValidationErrorType.InvalidLink,
-        })),
-      })),
-      hasErrors: true,
-      hasInvalidLinkToCustomPage: false,
-    },
-    '/project',
-  )
-}
+async function testJsonReporter(files: TestValidationReportFile[], enabled = true) {
+  const { report, context } = createTestReporterInput(files, {
+    reporters: { json: enabled },
+  })
 
-function getIssuePositions(issue: TestValidationReportIssue, index: number) {
-  return issue.positions ?? [{ column: 1, line: index + 1 }]
-}
-
-function toSourcePositions(positions: [TestPosition, ...TestPosition[]]): ValidationReportIssue['positions'] {
-  const [firstPosition, ...otherPositions] = positions
-
-  return [
-    { ...firstPosition, type: 'source' as const },
-    ...otherPositions.map((position) => ({ ...position, type: 'source' as const })),
-  ]
-}
-
-interface TestValidationReportFile {
-  filePath: string
-  issues: TestValidationReportIssue[]
-}
-
-interface TestPosition {
-  column: number
-  line: number
-}
-
-interface TestValidationReportIssue {
-  link: string
-  positions?: [TestPosition, ...TestPosition[]]
+  await jsonReporter.report(report, context)
 }
