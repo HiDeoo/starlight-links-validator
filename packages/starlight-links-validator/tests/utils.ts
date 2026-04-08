@@ -9,6 +9,8 @@ import { StarlightLinksValidatorOptionsSchema, type StarlightLinksValidatorUserO
 import { getValidationErrorMessage, ValidationErrorType } from '../libs/validation'
 import type { ValidationReportIssue } from '../reporters'
 
+export const testRootUrl = new URL('project/', import.meta.url)
+
 export async function buildFixture(name: string) {
   const fixturePath = fileURLToPath(new URL(`fixtures/${name}/`, import.meta.url))
 
@@ -109,7 +111,7 @@ export function createTestReporterInput(
       hasInvalidLinkToCustomPage: false,
     },
     context: {
-      astroConfig: { root: new URL('file:///project/') },
+      astroConfig: { root: testRootUrl },
       logger: {
         info: vi.fn(),
         warn: vi.fn(),

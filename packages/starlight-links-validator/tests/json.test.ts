@@ -2,7 +2,10 @@ import { beforeEach, expect, test, vi } from 'vitest'
 
 import { jsonReporter } from '../reporters/json'
 
-import { createTestReporterInput, type TestValidationReportFile } from './utils'
+import { createTestReporterInput, testRootUrl, type TestValidationReportFile } from './utils'
+
+const expectedReportDirUrl = new URL('.starlight-links-validator/', testRootUrl)
+const expectedReportFileUrl = new URL('errors.json', expectedReportDirUrl)
 
 const mocks = vi.hoisted(() => ({
   mkdirSync: vi.fn(),
@@ -20,7 +23,7 @@ test('removes any existing JSON report when the JSON reporter is disabled', asyn
   await testJsonReporter([{ filePath: 'index.md', issues: [{ link: '/missing/' }] }], false)
 
   expect(mocks.rmSync).toHaveBeenCalledOnce()
-  expect(mocks.rmSync.mock.calls[0]?.[0]).toEqual(new URL('file:///project/.starlight-links-validator/errors.json'))
+  expect(mocks.rmSync.mock.calls[0]?.[0]).toEqual(expectedReportFileUrl)
   expect(mocks.rmSync.mock.calls[0]?.[1]).toStrictEqual({ force: true })
 
   expect(mocks.mkdirSync).not.toHaveBeenCalled()
@@ -32,24 +35,22 @@ test('removes any existing JSON report and writes a new one to the expected path
   await testJsonReporter([{ filePath: 'index.md', issues: [{ link: '/missing/' }] }])
 
   expect(mocks.rmSync).toHaveBeenCalledOnce()
-  expect(mocks.rmSync.mock.calls[0]?.[0]).toEqual(new URL('file:///project/.starlight-links-validator/errors.json'))
+  expect(mocks.rmSync.mock.calls[0]?.[0]).toEqual(expectedReportFileUrl)
   expect(mocks.rmSync.mock.calls[0]?.[1]).toStrictEqual({ force: true })
 
   expect(mocks.mkdirSync).toHaveBeenCalledOnce()
-  expect(mocks.mkdirSync.mock.calls[0]?.[0]).toEqual(new URL('file:///project/.starlight-links-validator/'))
+  expect(mocks.mkdirSync.mock.calls[0]?.[0]).toEqual(expectedReportDirUrl)
   expect(mocks.mkdirSync.mock.calls[0]?.[1]).toStrictEqual({ recursive: true })
 
   expect(mocks.writeFileSync).toHaveBeenCalledOnce()
-  expect(mocks.writeFileSync.mock.calls[0]?.[0]).toEqual(
-    new URL('file:///project/.starlight-links-validator/errors.json'),
-  )
+  expect(mocks.writeFileSync.mock.calls[0]?.[0]).toEqual(expectedReportFileUrl)
 })
 
 test('does not write a JSON report when no validation errors are found', async () => {
   await testJsonReporter([])
 
   expect(mocks.rmSync).toHaveBeenCalledOnce()
-  expect(mocks.rmSync.mock.calls[0]?.[0]).toEqual(new URL('file:///project/.starlight-links-validator/errors.json'))
+  expect(mocks.rmSync.mock.calls[0]?.[0]).toEqual(expectedReportFileUrl)
   expect(mocks.rmSync.mock.calls[0]?.[1]).toStrictEqual({ force: true })
 
   expect(mocks.mkdirSync).not.toHaveBeenCalled()
