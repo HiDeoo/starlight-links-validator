@@ -7,7 +7,8 @@ import { VFile } from 'vfile'
 import { expect, test } from 'vitest'
 
 import { StarlightLinksValidatorOptionsSchema } from '../libs/config'
-import { getValidationData, rehypeStarlightLinksValidator } from '../libs/rehype'
+import { rehypeStarlightLinksValidator } from '../libs/rehype'
+import { getValidationData } from '../libs/store'
 
 const processor = createMarkdownProcessor()
 

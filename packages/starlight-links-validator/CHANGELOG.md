@@ -1,5 +1,11 @@
 # starlight-links-validator
 
+## 0.22.0
+
+### Minor Changes
+
+- [#151](https://github.com/HiDeoo/starlight-links-validator/pull/151) [`6f66387`](https://github.com/HiDeoo/starlight-links-validator/commit/6f6638730be205d8c92c7faa170a9bca668fea74) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Adds support for validating frontmatter links transformed by Starlight route data middleware.
+
 ## 0.21.0
 
 ### Minor Changes

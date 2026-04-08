@@ -9,7 +9,7 @@ test('validates links when the `base` Astro option is set', async () => {
 
   expect(status).toBe('error')
 
-  expectValidationErrorCount(output, 28, 2)
+  expectValidationErrorCount(output, 29, 3)
 
   expectValidationErrors(output, 'test.md', [
     ['/guides/example', ValidationErrorType.InvalidLink, 15],
@@ -44,4 +44,6 @@ test('validates links when the `base` Astro option is set', async () => {
     ['/guides/example#description', ValidationErrorType.InvalidLink, 16],
     ['/guides/example/#description', ValidationErrorType.InvalidLink, 17],
   ])
+
+  expectValidationErrors(output, 'transform.md', [['/guides/example/', ValidationErrorType.InvalidLink, 16]])
 })

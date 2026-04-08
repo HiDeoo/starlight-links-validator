@@ -5,9 +5,14 @@ import type { IntegrationResolvedRoute } from 'astro'
 import { AstroError } from 'astro/errors'
 
 import { clearContentLayerCache } from './libs/astro'
-import { StarlightLinksValidatorOptionsSchema, type StarlightLinksValidatorUserOptions } from './libs/config'
+import {
+  StarlightLinksValidatorOptionsSchema,
+  type StarlightLinksValidatorUserOptions,
+  type ValidationConfig,
+} from './libs/config'
 import { pathnameToSlug, stripTrailingSlash } from './libs/path'
-import { rehypeStarlightLinksValidator, type RehypeStarlightLinksValidatorConfig } from './libs/rehype'
+import { rehypeStarlightLinksValidator } from './libs/rehype'
+import { clearValidationData, setValidationConfig } from './libs/store'
 import { validateLinks } from './libs/validation'
 import { logStep, reportToCli } from './reporters/cli'
 import { reportToGitHubActions } from './reporters/github-actions'
@@ -30,35 +35,30 @@ export default function starlightLinksValidatorPlugin(
   return {
     name: 'starlight-links-validator',
     hooks: {
-      'config:setup'({ addIntegration, astroConfig, config: starlightConfig, logger }) {
+      'config:setup'({ addIntegration, addRouteMiddleware, astroConfig, command, config: starlightConfig, logger }) {
+        if (command !== 'build') return
+
         let routes: IntegrationResolvedRoute[] = []
         const site = astroConfig.site ? stripTrailingSlash(astroConfig.site) : undefined
+
+        const validationConfig: ValidationConfig = {
+          base: astroConfig.base,
+          options,
+          site,
+          srcDir: astroConfig.srcDir,
+        }
+
+        setValidationConfig(validationConfig)
+        addRouteMiddleware({ entrypoint: 'starlight-links-validator/middleware', order: 'pre' })
 
         addIntegration({
           name: 'starlight-links-validator',
           hooks: {
-            'astro:config:setup': async ({ command, updateConfig }) => {
-              if (command !== 'build') {
-                return
-              }
-
+            'astro:config:setup': async ({ updateConfig }) => {
+              clearValidationData()
               await clearContentLayerCache(astroConfig, logger)
 
-              updateConfig({
-                markdown: {
-                  rehypePlugins: [
-                    [
-                      rehypeStarlightLinksValidator,
-                      {
-                        base: astroConfig.base,
-                        options: options,
-                        site,
-                        srcDir: astroConfig.srcDir,
-                      } satisfies RehypeStarlightLinksValidatorConfig,
-                    ],
-                  ],
-                },
-              })
+              updateConfig({ markdown: { rehypePlugins: [[rehypeStarlightLinksValidator, validationConfig]] } })
             },
             'astro:routes:resolved': (params) => {
               routes = params.routes

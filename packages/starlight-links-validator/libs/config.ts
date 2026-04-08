@@ -1,3 +1,4 @@
+import type { AstroConfig } from 'astro'
 import { z } from 'astro/zod'
 
 export const StarlightLinksValidatorOptionsSchema = z
@@ -139,3 +140,10 @@ export const StarlightLinksValidatorOptionsSchema = z
 
 export type StarlightLinksValidatorUserOptions = z.input<typeof StarlightLinksValidatorOptionsSchema>
 export type StarlightLinksValidatorOptions = z.output<typeof StarlightLinksValidatorOptionsSchema>
+
+export interface ValidationConfig {
+  base: string
+  options: StarlightLinksValidatorOptions
+  site: AstroConfig['site']
+  srcDir: URL
+}
