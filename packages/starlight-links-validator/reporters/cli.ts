@@ -5,45 +5,52 @@ import terminalLink from 'terminal-link'
 
 import type { Position } from '../libs/position'
 import { pluralize } from '../libs/text'
-import type { ValidationReport } from '../reporters'
+import type { Reporter } from '../reporters'
+
+export const cliReporter: Reporter = {
+  name: 'CLI',
+  report(report) {
+    if (!report.hasErrors) {
+      logSummary('success', 'All internal links are valid.')
+      return
+    }
+
+    for (const file of report.files) {
+      const maxLine = Math.max(
+        ...file.issues.map(({ positions }) => (positions[0].type === 'unavailable' ? 0 : positions[0].line)),
+      )
+      const maxLineLength = String(maxLine).length
+
+      console.error(`\n${pad(maxLineLength)} ╭─ ${blue(fileLink(file.docsPath, file.filePath))}`)
+      console.error(`${pad(maxLineLength)} ·`)
+
+      for (const issue of file.issues) {
+        const position = issue.positions[0]
+        const count = issue.positions.length > 1 ? ` (x${issue.positions.length})` : ''
+        const prefix = `${pad(maxLineLength)} · `
+        const message = `╰── ${urlLink(issue.message, issue.documentationUrl)}${count}`
+        const offset = getMessageOffset(
+          prefix,
+          message,
+          Math.max(issue.link.length - 2, issue.link.length === 2 ? 1 : 0),
+        )
+
+        console.error(
+          `${logPosition(position, maxLineLength)} | ${underline(fileLink(issue.link, file.filePath, position))}`,
+        )
+        console.error(`${prefix}${pad(offset)}${dim(message)}`)
+      }
+    }
+
+    logSummary(
+      'error',
+      `Found ${red(String(report.errorCount))} invalid ${pluralize(report.errorCount, 'link')} in ${red(String(report.files.length))} ${pluralize(report.files.length, 'file')}.`,
+    )
+  },
+}
 
 export function logStep(name: string) {
   process.stdout.write(`\n${styleText(['bgGreen', 'black'], ` ${name} `)}\n`)
-}
-
-export function reportToCli(report: ValidationReport) {
-  if (!report.hasErrors) {
-    logSummary('success', 'All internal links are valid.')
-    return
-  }
-
-  for (const file of report.files) {
-    const maxLine = Math.max(
-      ...file.issues.map(({ positions }) => (positions[0].type === 'unavailable' ? 0 : positions[0].line)),
-    )
-    const maxLineLength = String(maxLine).length
-
-    console.error(`\n${pad(maxLineLength)} ╭─ ${blue(fileLink(file.docsPath, file.filePath))}`)
-    console.error(`${pad(maxLineLength)} ·`)
-
-    for (const issue of file.issues) {
-      const position = issue.positions[0]
-      const count = issue.positions.length > 1 ? ` (x${issue.positions.length})` : ''
-      const prefix = `${pad(maxLineLength)} · `
-      const message = `╰── ${urlLink(issue.message, issue.docsUrl)}${count}`
-      const offset = getMessageOffset(prefix, message, Math.max(issue.link.length - 2, issue.link.length === 2 ? 1 : 0))
-
-      console.error(
-        `${logPosition(position, maxLineLength)} | ${underline(fileLink(issue.link, file.filePath, position))}`,
-      )
-      console.error(`${prefix}${pad(offset)}${dim(message)}`)
-    }
-  }
-
-  logSummary(
-    'error',
-    `Found ${red(String(report.errorCount))} invalid ${pluralize(report.errorCount, 'link')} in ${red(String(report.files.length))} ${pluralize(report.files.length, 'file')}.`,
-  )
 }
 
 function logPosition(position: Position, maxLinePositionLength: number): string {

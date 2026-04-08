@@ -12,8 +12,10 @@ import { pathnameToSlug, stripTrailingSlash } from './libs/path'
 import { rehypeStarlightLinksValidator } from './libs/rehype'
 import { clearValidationData, setValidationConfig } from './libs/store'
 import { validateLinks } from './libs/validation'
-import { logStep, reportToCli } from './reporters/cli'
-import { reportToGitHubActions } from './reporters/github-actions'
+import { runReporters } from './reporters'
+import { cliReporter, logStep } from './reporters/cli'
+import { gitHubActionsReporter } from './reporters/github-actions'
+import { jsonReporter } from './reporters/json'
 
 export type { StarlightLinksValidatorOptions } from './libs/config'
 
@@ -76,26 +78,24 @@ export default function starlightLinksValidatorPlugin(
               const report = await validateLinks(pages, customPages, dir, astroConfig, starlightConfig, options)
 
               if (report.hasErrors) {
-                logger.error('Links validation failed.')
-              }
-
-              reportToCli(report)
-
-              if (report.hasErrors && options.reporters.githubActions) {
-                try {
-                  reportToGitHubActions(report)
-                } catch (error) {
-                  logger.warn(
-                    `Failed to write the GitHub Actions step summary: ${error instanceof Error ? error.message : String(error)}`,
-                  )
+                if (options.failOnError) {
+                  logger.error('Links validation failed.')
+                } else {
+                  logger.warn('Links validation failed, but the build will continue (`failOnError: false`).')
                 }
               }
 
-              if (report.hasErrors) {
+              await runReporters([cliReporter, gitHubActionsReporter, jsonReporter], report, {
+                astroConfig,
+                logger,
+                options,
+              })
+
+              if (report.hasErrors && options.failOnError) {
                 throwPluginError(
                   'Links validation failed.',
                   report.hasInvalidLinkToCustomPage
-                    ? 'Some invalid links point to custom pages which cannot be validated, see the `exclude` option for more informations at https://starlight-links-validator.vercel.app/configuration#exclude'
+                    ? 'Some invalid links point to custom pages which cannot be validated, see the `exclude` option for more information at https://starlight-links-validator.vercel.app/configuration#exclude'
                     : undefined,
                 )
               }
@@ -108,7 +108,7 @@ export default function starlightLinksValidatorPlugin(
 }
 
 function throwPluginError(message: string, additionalHint?: string): never {
-  let hint = 'See the error report above for more informations.\n\n'
+  let hint = 'See the error report above for more information.\n\n'
   if (additionalHint) hint += `${additionalHint}\n\n`
   hint +=
     'If you believe this is a bug, please file an issue at https://github.com/HiDeoo/starlight-links-validator/issues/new/choose'

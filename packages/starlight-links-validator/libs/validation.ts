@@ -15,7 +15,7 @@ import { ensureTrailingSlash, stripLeadingSlash, stripTrailingSlash } from './pa
 import { getErrorPosition, isSameLineSourcePosition, type Reference } from './position'
 import { getValidationData, type ValidationData } from './store'
 
-const docsUrl = 'https://starlight-links-validator.vercel.app/'
+const documentationUrl = 'https://starlight-links-validator.vercel.app/'
 
 const validationErrorDefinitions = {
   InconsistentLocale: {
@@ -140,8 +140,8 @@ export function getValidationErrorMessage(type: ValidationErrorType, context: Va
   return typeof message === 'function' ? message(context) : message
 }
 
-export function getValidationErrorDocsUrl(type: ValidationErrorType) {
-  return new URL(`errors/${validationErrorDefinitions[type].slug}/`, docsUrl).href
+export function getValidationErrorDocumentationUrl(type: ValidationErrorType) {
+  return new URL(`errors/${validationErrorDefinitions[type].slug}/`, documentationUrl).href
 }
 
 /**
@@ -333,7 +333,7 @@ async function buildValidationReportFile(
       previousIssue.positions.push(position)
     } else {
       groupedIssues.push({
-        docsUrl: getValidationErrorDocsUrl(issue.type),
+        documentationUrl: getValidationErrorDocumentationUrl(issue.type),
         link: issue.link,
         message: getValidationErrorMessage(issue.type, { site: astroConfig.site }),
         positions: [position],

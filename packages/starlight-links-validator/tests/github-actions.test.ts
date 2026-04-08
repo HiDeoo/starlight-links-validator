@@ -1,11 +1,11 @@
-import { basename } from 'node:path'
-
 import { beforeEach, expect, test, vi } from 'vitest'
 
-import { ValidationErrorType } from '../libs/validation'
-import type { ValidationReportIssue } from '../reporters'
+import { createTestReporterInput, type TestValidationReportFile } from './utils'
 
-let reportToGitHubActions: typeof import('../reporters/github-actions').reportToGitHubActions
+const gitHubOutputPath = '/tmp/github-output.txt'
+const gitHubStepSummaryPath = '/tmp/github-step-summary.md'
+
+let gitHubActionsReporter: typeof import('../reporters/github-actions').gitHubActionsReporter
 
 const mocks = vi.hoisted(() => ({
   appendFileSync: vi.fn(),
@@ -16,28 +16,69 @@ vi.mock('node:fs', () => ({ appendFileSync: mocks.appendFileSync }))
 beforeEach(async () => {
   vi.clearAllMocks()
   vi.unstubAllEnvs()
+
+  vi.stubEnv('GITHUB_OUTPUT', '')
+  vi.stubEnv('GITHUB_STEP_SUMMARY', '')
+
   vi.resetModules()
 
   const mod = await import('../reporters/github-actions')
 
-  reportToGitHubActions = mod.reportToGitHubActions
+  gitHubActionsReporter = mod.gitHubActionsReporter
 })
 
-test('does not write a summary without a GitHub step summary path', () => {
-  vi.stubEnv('GITHUB_STEP_SUMMARY', '')
+test('does nothing when the GitHub Actions reporter is disabled', async () => {
+  stubGitHubOutput()
+  stubGitHubStepSummary()
 
-  testReportToGitHubActions([{ filePath: 'index.md', issues: [{ link: '/missing/' }] }])
+  await testGitHubActionsReporter([{ filePath: 'index.md', issues: [{ link: '/missing/' }] }], false)
 
   expect(mocks.appendFileSync).not.toHaveBeenCalled()
 })
 
-test('write a summary with a GitHub step summary path', () => {
-  vi.stubEnv('GITHUB_STEP_SUMMARY', '/tmp/github-step-summary.md')
-  vi.stubEnv('GITHUB_REPOSITORY', 'owner/repo')
-  vi.stubEnv('GITHUB_SHA', '0123456789abcdef')
-  vi.stubEnv('GITHUB_WORKSPACE', '/repo')
+test('does not write anything without GitHub output or step summary paths', async () => {
+  await testGitHubActionsReporter([{ filePath: 'index.md', issues: [{ link: '/missing/' }] }])
 
-  testReportToGitHubActions([
+  expect(mocks.appendFileSync).not.toHaveBeenCalled()
+})
+
+test('writes output without a summary when no validation errors are found', async () => {
+  stubGitHubOutput()
+  stubGitHubStepSummary()
+
+  await testGitHubActionsReporter([])
+
+  expect(mocks.appendFileSync).toHaveBeenCalledOnce()
+
+  expectGitHubOutput(false)
+})
+
+test('does not write a summary without a GitHub step summary path', async () => {
+  stubGitHubOutput()
+
+  await testGitHubActionsReporter([{ filePath: 'index.md', issues: [{ link: '/missing/' }] }])
+
+  expect(mocks.appendFileSync).toHaveBeenCalledOnce()
+
+  expectGitHubOutput(true)
+})
+
+test('writes a summary without a GitHub output path', async () => {
+  stubGitHubStepSummary()
+
+  await testGitHubActionsReporter([{ filePath: 'index.md', issues: [{ link: '/missing/' }] }])
+
+  expect(mocks.appendFileSync).toHaveBeenCalledOnce()
+
+  expectGitHubStepSummaryPath(0)
+  expect(mocks.appendFileSync.mock.calls[0]?.[1]).toContain('## Starlight Links Validator')
+})
+
+test('writes output and summary when validation errors are found', async () => {
+  stubGitHubOutput()
+  stubGitHubStepSummary()
+
+  await testGitHubActionsReporter([
     { filePath: 'index.md', issues: [{ link: '/missing/' }] },
     { filePath: '`test`.md', issues: [{ link: '/docs/test`' }] },
     { filePath: 'test|pipe.md', issues: [{ link: '/docs/test|pipe' }] },
@@ -56,9 +97,12 @@ test('write a summary with a GitHub step summary path', () => {
     },
   ])
 
-  expect(mocks.appendFileSync).toHaveBeenCalledOnce()
-  expect(mocks.appendFileSync.mock.calls[0]?.[0]).toBe('/tmp/github-step-summary.md')
-  expect(mocks.appendFileSync.mock.calls[0]?.[1]).toMatchInlineSnapshot(`
+  expect(mocks.appendFileSync).toHaveBeenCalledTimes(2)
+
+  expectGitHubOutput(true)
+
+  expectGitHubStepSummaryPath(1)
+  expect(mocks.appendFileSync.mock.calls[1]?.[1]).toMatchInlineSnapshot(`
     "
     ## Starlight Links Validator
 
@@ -93,51 +137,30 @@ test('write a summary with a GitHub step summary path', () => {
   `)
 })
 
-function testReportToGitHubActions(files: TestValidationReportFile[]) {
-  reportToGitHubActions({
-    errorCount: files
-      .flatMap((file) => file.issues)
-      .reduce((count, issue, index) => count + getIssuePositions(issue, index).length, 0),
-    files: files.map((file) => ({
-      docsPath: basename(file.filePath),
-      filePath: `/repo/src/content/docs/${file.filePath}`,
-      issues: file.issues.map((issue, index) => ({
-        docsUrl: 'https://example.com/errors/invalid-link/',
-        link: issue.link,
-        message: 'invalid link',
-        positions: toSourcePositions(getIssuePositions(issue, index)),
-        type: ValidationErrorType.InvalidLink,
-      })),
-    })),
-    hasErrors: true,
-    hasInvalidLinkToCustomPage: false,
+async function testGitHubActionsReporter(files: TestValidationReportFile[], enabled = true) {
+  const { report, context } = createTestReporterInput(files, {
+    reporters: { githubActions: enabled },
   })
+
+  await gitHubActionsReporter.report(report, context)
 }
 
-function getIssuePositions(issue: TestValidationReportIssue, index: number) {
-  return issue.positions ?? [{ column: 1, line: index + 1 }]
+function stubGitHubOutput() {
+  vi.stubEnv('GITHUB_OUTPUT', gitHubOutputPath)
 }
 
-function toSourcePositions(positions: [TestPosition, ...TestPosition[]]): ValidationReportIssue['positions'] {
-  const [firstPosition, ...otherPositions] = positions
-
-  return [
-    { ...firstPosition, type: 'source' as const },
-    ...otherPositions.map((position) => ({ ...position, type: 'source' as const })),
-  ]
+function stubGitHubStepSummary() {
+  vi.stubEnv('GITHUB_STEP_SUMMARY', gitHubStepSummaryPath)
+  vi.stubEnv('GITHUB_REPOSITORY', 'owner/repo')
+  vi.stubEnv('GITHUB_SHA', '0123456789abcdef')
+  vi.stubEnv('GITHUB_WORKSPACE', '/repo')
 }
 
-interface TestValidationReportFile {
-  filePath: string
-  issues: TestValidationReportIssue[]
+function expectGitHubOutput(value: boolean) {
+  expect(mocks.appendFileSync.mock.calls[0]?.[0]).toBe(gitHubOutputPath)
+  expect(mocks.appendFileSync.mock.calls[0]?.[1]).toBe(`link_validation_failed=${value}\n`)
 }
 
-interface TestPosition {
-  column: number
-  line: number
-}
-
-interface TestValidationReportIssue {
-  link: string
-  positions?: [TestPosition, ...TestPosition[]]
+function expectGitHubStepSummaryPath(callIndex = 0) {
+  expect(mocks.appendFileSync.mock.calls[callIndex]?.[0]).toBe(gitHubStepSummaryPath)
 }

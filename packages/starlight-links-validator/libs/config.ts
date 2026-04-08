@@ -87,6 +87,15 @@ export const StarlightLinksValidatorOptionsSchema = z
       ])
       .default([]),
     /**
+     * Controls whether link validation issues fail the build.
+     *
+     * When set to `true`, validation issues fail the build.
+     * When set to `false`, validation issues are still reported, but they do not fail the build.
+     *
+     * @default true
+     */
+    failOnError: z.boolean().default(true),
+    /**
      * Configures additional reporters for the plugin.
      */
     reporters: z
@@ -94,13 +103,24 @@ export const StarlightLinksValidatorOptionsSchema = z
         /**
          * Defines whether the GitHub Actions reporter is enabled.
          *
-         * When enabled and the plugin runs in GitHub Actions, validation errors are written to the job summary as a
-         * Markdown table.
+         * When enabled and the plugin runs in GitHub Actions, it sets a `link_validation_failed` step output to
+         * `'true'` or `'false'`.
+         * When validation errors are found, it also writes them to the GitHub Actions job summary as a Markdown table.
          *
          * @default true
+         * @see https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/pass-job-outputs
          * @see https://github.blog/news-insights/product-news/supercharging-github-actions-with-job-summaries/
          */
         githubActions: z.boolean().default(true),
+        /**
+         * Defines whether the JSON reporter is enabled.
+         *
+         * When enabled, validation errors are written to the `.starlight-links-validator/errors.json` file, which is
+         * only created when validation errors are found.
+         *
+         * @default false
+         */
+        json: z.boolean().default(false),
       })
       .prefault({}),
     /**

@@ -1,14 +1,20 @@
+import { basename } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { format, stripVTControlCharacters } from 'node:util'
 
-import { build } from 'astro'
+import { build, type AstroIntegrationLogger } from 'astro'
 import { expect, vi } from 'vitest'
 
-import { getValidationErrorMessage, type ValidationErrorType } from '../libs/validation'
+import { StarlightLinksValidatorOptionsSchema, type StarlightLinksValidatorUserOptions } from '../libs/config'
+import { getValidationErrorMessage, ValidationErrorType } from '../libs/validation'
+import type { ValidationReportIssue } from '../reporters'
+
+export const testRootUrl = new URL('project/', import.meta.url)
 
 export async function buildFixture(name: string) {
   const fixturePath = fileURLToPath(new URL(`fixtures/${name}/`, import.meta.url))
 
+  vi.stubEnv('GITHUB_OUTPUT', '')
   vi.stubEnv('GITHUB_STEP_SUMMARY', '')
 
   let output = ''
@@ -80,6 +86,54 @@ export const expectValidationErrors = vi.defineHelper(
   },
 )
 
+export function createTestReporterInput(
+  files: TestValidationReportFile[],
+  userOptions: StarlightLinksValidatorUserOptions = {},
+) {
+  const errorCount = files
+    .flatMap((file) => file.issues)
+    .reduce((count, issue, index) => count + getIssuePositions(issue, index).length, 0)
+  return {
+    report: {
+      errorCount,
+      files: files.map((file) => ({
+        docsPath: basename(file.filePath),
+        filePath: `/repo/src/content/docs/${file.filePath}`,
+        issues: file.issues.map((issue, index) => ({
+          documentationUrl: 'https://example.com/errors/invalid-link/',
+          link: issue.link,
+          message: 'invalid link',
+          positions: toSourcePositions(getIssuePositions(issue, index)),
+          type: ValidationErrorType.InvalidLink,
+        })),
+      })),
+      hasErrors: errorCount > 0,
+      hasInvalidLinkToCustomPage: false,
+    },
+    context: {
+      astroConfig: { root: testRootUrl },
+      logger: {
+        info: vi.fn(),
+        warn: vi.fn(),
+      } as unknown as AstroIntegrationLogger,
+      options: StarlightLinksValidatorOptionsSchema.parse(userOptions),
+    },
+  }
+}
+
+function getIssuePositions(issue: TestValidationReportIssue, index: number) {
+  return issue.positions ?? [{ column: 1, line: index + 1 }]
+}
+
+function toSourcePositions(positions: [TestPosition, ...TestPosition[]]): ValidationReportIssue['positions'] {
+  const [firstPosition, ...otherPositions] = positions
+
+  return [
+    { ...firstPosition, type: 'source' as const },
+    ...otherPositions.map((position) => ({ ...position, type: 'source' as const })),
+  ]
+}
+
 function makeAndEscapeRegex(string: string) {
   return new RegExp(escapeRegex(string))
 }
@@ -87,4 +141,19 @@ function makeAndEscapeRegex(string: string) {
 function escapeRegex(string: string) {
   // https://github.com/sindresorhus/escape-string-regexp/blob/cbc42403142c96923b482604e1f3d627b1956aff/index.js
   return string.replaceAll(/[|\\{}()[\]^$+*?.]/g, String.raw`\$&`).replaceAll('-', String.raw`\x2d`)
+}
+
+export interface TestValidationReportFile {
+  filePath: string
+  issues: TestValidationReportIssue[]
+}
+
+interface TestPosition {
+  column: number
+  line: number
+}
+
+interface TestValidationReportIssue {
+  link: string
+  positions?: [TestPosition, ...TestPosition[]]
 }

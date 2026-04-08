@@ -1,5 +1,7 @@
 ---
 title: Configuration
+tableOfContents:
+  maxHeadingLevel: 4
 ---
 
 The Starlight Links Validator plugin can be configured inside the `astro.config.mjs` configuration file of your project:
@@ -139,7 +141,7 @@ export default defineConfig({
 By default, the Starlight Links Validator plugin will error if an internal link points to a [hash fragment](https://developer.mozilla.org/en-US/docs/Web/API/URL/hash) that does not exist in the target page.
 If you want to only validate that pages exist but ignore hashes, you can set this option to `false`.
 
-This option should be used with caution but can be useful in large documentation with many contributors where keeping hashes fully up to date may be difficult, and hash validation may happen on a different schedule, for example once a week.
+This option should be used with caution. It can be useful in large documentation with many contributors where keeping hashes fully up to date may be difficult, and hash validation may happen on a different schedule, for example once a week.
 
 ```js {6}
 export default defineConfig({
@@ -185,7 +187,7 @@ export default defineConfig({
 A list of links or [glob patterns](https://github.com/micromatch/picomatch#globbing-features) that should be excluded from validation.
 For more advanced use cases, a function can also be provided to dynamically determine whether a link should be excluded or not.
 
-This option should be used with caution but can be useful to exclude links that are not meant to be validated like redirects only existing in production or links to [custom pages](https://starlight.astro.build/guides/pages/#custom-pages) that are automatically generated or not part of your documentation.
+This option should be used with caution. It can be useful to exclude links that are not meant to be validated like redirects only existing in production or links to [custom pages](https://starlight.astro.build/guides/pages/#custom-pages) that are automatically generated or not part of your documentation.
 
 The following example uses glob patterns to exclude links to the `/social/twitter` page, all links to any pages in the `/api/interface/` and `/api/functions/` directories, and all links to the `/changelog` page, no matter if a trailing slash is used or not, and also all links to any pages in the `/changelog/` directory:
 
@@ -293,10 +295,36 @@ export default defineConfig({
 })
 ```
 
+### `failOnError`
+
+**Type:** `boolean`  
+**Default:** `true`
+
+Controls whether link validation issues fail the build.
+
+When set to `true`, validation issues fail the build.
+When set to `false`, validation issues are still reported, but they do not fail the build.
+
+This option should be used with caution. It can be useful when you do not want validation issues to fail the build, but you will usually want to use additional [reporters](#reporters) to make sure those issues are still reported and visible.
+
+```js {6}
+export default defineConfig({
+  integrations: [
+    starlight({
+      plugins: [
+        starlightLinksValidator({
+          failOnError: false,
+        }),
+      ],
+    }),
+  ],
+})
+```
+
 ### `reporters`
 
-**Type:** `{ githubActions: boolean }`  
-**Default:** `{ githubActions: true }`
+**Type:** `{ githubActions: boolean, json: boolean }`  
+**Default:** `{ githubActions: true, json: false }`
 
 Configures additional reporters for the plugin.
 
@@ -307,7 +335,8 @@ Configures additional reporters for the plugin.
 
 Defines whether the GitHub Actions reporter is enabled.
 
-When enabled and the plugin runs in GitHub Actions, validation errors are written to the [job summary](https://github.blog/news-insights/product-news/supercharging-github-actions-with-job-summaries/) as a Markdown table.
+When enabled and the plugin runs in GitHub Actions, it sets a `link_validation_failed` [step output](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/pass-job-outputs) to `'true'` or `'false'`.
+When validation errors are found, it also writes them to the GitHub Actions [job summary](https://github.blog/news-insights/product-news/supercharging-github-actions-with-job-summaries/) as a Markdown table.
 
 ```js {7}
 export default defineConfig({
@@ -324,3 +353,79 @@ export default defineConfig({
   ],
 })
 ```
+
+The `link_validation_failed` step output can be useful with the [`failOnError`](#failonerror) option set to `false`, for example to continue building and deploying a preview while failing a subsequent workflow step if validation errors are found.
+
+```yaml {2,5} title=".github/workflows/deploy-and-validate-links.yml"
+- name: Build docs
+  id: build
+  run: astro build
+- name: Fail on link validation errors
+  if: steps.build.outputs.link_validation_failed == 'true'
+  run: exit 1
+```
+
+The GitHub Actions job summary available when validation errors are found will look similar to the following:
+
+```md title="GitHub Actions job summary"
+| File      | Link        | Position | Error                                                                             |
+| --------- | ----------- | :------: | --------------------------------------------------------------------------------- |
+| `test.md` | `/unknown/` |  `5:3`   | [invalid link](https://starlight-links-validator.vercel.app/errors/invalid-link/) |
+```
+
+#### `json`
+
+**Type:** `boolean`  
+**Default:** `false`
+
+Defines whether the JSON reporter is enabled.
+
+When enabled, validation errors are written to the `.starlight-links-validator/errors.json` file, which is only created when validation errors are found.
+
+```js {7}
+export default defineConfig({
+  integrations: [
+    starlight({
+      plugins: [
+        starlightLinksValidator({
+          reporters: {
+            json: true,
+          },
+        }),
+      ],
+    }),
+  ],
+})
+```
+
+The output file contains a JSON object similar to the following:
+
+```json title=".starlight-links-validator/errors.json"
+{
+  "errorCount": 1,
+  "errorFileCount": 1,
+  "errors": [
+    {
+      "docsPath": "test.md",
+      "link": "/unknown/",
+      "position": {
+        "line": 5,
+        "column": 3
+      },
+      "message": "invalid link",
+      "documentationUrl": "https://starlight-links-validator.vercel.app/errors/invalid-link/"
+    }
+  ]
+}
+```
+
+The object contains the following properties:
+
+- `errorCount`: Total number of validation errors.
+- `errorFileCount`: Number of files containing at least one validation error.
+- `errors`: Array of validation errors, each containing:
+  - `docsPath`: Path to the file relative to the `src/content/docs/` directory.
+  - `link`: The link as authored in the content.
+  - `position`: Source position of the link as an object with `line` and `column`, or `null` when unavailable.
+  - `message`: Description of the validation error.
+  - `documentationUrl`: URL to the plugin documentation for the reported validation error.
