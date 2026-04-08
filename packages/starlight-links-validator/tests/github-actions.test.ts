@@ -16,6 +16,10 @@ vi.mock('node:fs', () => ({ appendFileSync: mocks.appendFileSync }))
 beforeEach(async () => {
   vi.clearAllMocks()
   vi.unstubAllEnvs()
+
+  vi.stubEnv('GITHUB_OUTPUT', '')
+  vi.stubEnv('GITHUB_STEP_SUMMARY', '')
+
   vi.resetModules()
 
   const mod = await import('../reporters/github-actions')
