@@ -21,7 +21,7 @@ test('does not build with invalid links', async () => {
 
   expect(status).toBe('error')
 
-  expectValidationErrorCount(output, 85, 6)
+  expectValidationErrorCount(output, 88, 7)
 
   expectValidationErrors(output, 'frontmatter.md', [
     ['/unknown-action/', ValidationErrorType.InvalidLink, 6],
@@ -120,5 +120,11 @@ test('does not build with invalid links', async () => {
     ['/unknown-a/', ValidationErrorType.InvalidLink, 9],
     ['/unknown-b/', ValidationErrorType.InvalidLink, 9],
     ['/guides/example/#unknown-duplicate-hash', ValidationErrorType.InvalidHash, 11, undefined, 2],
+  ])
+
+  expectValidationErrors(output, 'unicode.md', [
+    ['#icônes', ValidationErrorType.InvalidHash, 5],
+    ['/unicode/#icônes', ValidationErrorType.InvalidHash, 7],
+    ['/café/#icônes', ValidationErrorType.InvalidLink, 9],
   ])
 })
