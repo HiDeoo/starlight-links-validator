@@ -1,5 +1,23 @@
 # starlight-links-validator
 
+## 0.23.0
+
+### Minor Changes
+
+- [#147](https://github.com/HiDeoo/starlight-links-validator/pull/147) [`424b4c2`](https://github.com/HiDeoo/starlight-links-validator/commit/424b4c2df4275818d8d41949ad9c02d2c5440b7a) Thanks [@mvvmm](https://github.com/mvvmm)! - Adds a new `failOnError` option to control whether link validation issues fail the build.
+  - When set to `true`, validation issues fail the build.
+  - When set to `false`, validation issues are still reported, but they do not fail the build.
+
+- [#147](https://github.com/HiDeoo/starlight-links-validator/pull/147) [`424b4c2`](https://github.com/HiDeoo/starlight-links-validator/commit/424b4c2df4275818d8d41949ad9c02d2c5440b7a) Thanks [@mvvmm](https://github.com/mvvmm)! - Adds support for a JSON reporter.
+
+  When enabled, validation errors are written to the `.starlight-links-validator/errors.json` file, which is only created when validation errors are found.
+
+- [#147](https://github.com/HiDeoo/starlight-links-validator/pull/147) [`424b4c2`](https://github.com/HiDeoo/starlight-links-validator/commit/424b4c2df4275818d8d41949ad9c02d2c5440b7a) Thanks [@mvvmm](https://github.com/mvvmm)! - Adds a `link_validation_failed` [step output](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/pass-job-outputs) to the GitHub Actions reporter.
+
+### Patch Changes
+
+- [#155](https://github.com/HiDeoo/starlight-links-validator/pull/155) [`045637e`](https://github.com/HiDeoo/starlight-links-validator/commit/045637e6f0f29832cd0bc6a1d858a945b2a8053f) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes a regression in version `0.21.0` where some links were incorrectly reported as invalid or failed to match the `exclude` option.
+
 ## 0.22.0
 
 ### Minor Changes
