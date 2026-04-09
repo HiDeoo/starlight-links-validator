@@ -41,17 +41,26 @@ export function getLinkToValidate(
 
 function normalizeLink(link: string): string {
   const hashIndex = link.indexOf('#')
-  if (hashIndex === -1) return link
 
-  const beforeHash = link.slice(0, hashIndex)
-  const hash = link.slice(hashIndex + 1)
-  if (hash.length === 0) return link
+  let beforeHash = hashIndex === -1 ? link : link.slice(0, hashIndex)
+  let hash = hashIndex === -1 ? undefined : link.slice(hashIndex + 1)
 
   try {
-    return `${beforeHash}#${decodeURIComponent(hash)}`
+    beforeHash = decodeURI(beforeHash)
   } catch {
-    return link
+    // Ignore decoding errors
   }
+
+  if (hash === undefined) return beforeHash
+  if (hash.length === 0) return `${beforeHash}#`
+
+  try {
+    hash = decodeURIComponent(hash)
+  } catch {
+    // Ignore decoding errors
+  }
+
+  return `${beforeHash}#${hash}`
 }
 
 export interface Link {

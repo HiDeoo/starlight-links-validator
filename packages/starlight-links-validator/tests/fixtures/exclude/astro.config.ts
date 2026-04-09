@@ -7,7 +7,9 @@ export default defineConfig({
     starlight({
       pagefind: false,
       plugins: [
-        starlightLinksValidator({ exclude: ['/excluded', '/glob/*', '/api/{interface,functions}/**/*', '/tests/**'] }),
+        starlightLinksValidator({
+          exclude: ['/excluded', '/glob/*', '/api/{interface,functions}/**/*', '/tests/**', '{props.*}'],
+        }),
       ],
       title: 'Starlight Links Validator Tests - exclude',
     }),

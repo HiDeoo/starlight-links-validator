@@ -27,3 +27,4 @@ title: Test
 - [And another glob excluded link](/tests/e2e/thing)
 - [Glob non-excluded link](/api/getting-started)
 - [Another glob non-excluded link](/api/class/baz)
+- [Glob excluded decoded link]({props.url})
