@@ -10,5 +10,8 @@ export default defineConfig({
       title: 'Starlight Links Validator Tests - trailing always',
     }),
   ],
+  redirects: {
+    '/redirect-test/': '/test/',
+  },
   trailingSlash: 'always',
 })

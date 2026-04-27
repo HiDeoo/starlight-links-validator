@@ -21,7 +21,7 @@ test('does not build with invalid links', async () => {
 
   expect(status).toBe('error')
 
-  expectValidationErrorCount(output, 88, 7)
+  expectValidationErrorCount(output, 92, 8)
 
   expectValidationErrors(output, 'frontmatter.md', [
     ['/unknown-action/', ValidationErrorType.InvalidLink, 6],
@@ -126,5 +126,12 @@ test('does not build with invalid links', async () => {
     ['#icônes', ValidationErrorType.InvalidHash, 5],
     ['/unicode/#icônes', ValidationErrorType.InvalidHash, 7],
     ['/café/#icônes', ValidationErrorType.InvalidLink, 9],
+  ])
+
+  expectValidationErrors(output, 'redirects.md', [
+    ['/redirect-test/#unknown', ValidationErrorType.InvalidHash, 5],
+    ['/redirect-custom-page/', ValidationErrorType.InvalidLinkToCustomPage, 6],
+    ['/redirect-custom-dynamic/foo/', ValidationErrorType.InvalidLinkToCustomPage, 7],
+    ['/redirect-unknown/', ValidationErrorType.InvalidLink, 8],
   ])
 })

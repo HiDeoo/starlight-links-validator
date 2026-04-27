@@ -27,10 +27,14 @@ test('does not build with invalid same site links with the option set to `valida
 
   expect(status).toBe('error')
 
-  expectValidationErrorCount(output, 2, 1)
+  expectValidationErrorCount(output, 3, 2)
 
   expectValidationErrors(output, 'test.md', [
     ['https://example.com/unknown/', ValidationErrorType.InvalidLink, 15],
     ['https://example.com/guides/example/#unknown', ValidationErrorType.InvalidHash, 18],
+  ])
+
+  expectValidationErrors(output, 'redirects.md', [
+    ['https://example.com/redirect-test/#unknown', ValidationErrorType.InvalidHash, 6],
   ])
 })

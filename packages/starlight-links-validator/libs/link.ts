@@ -1,4 +1,4 @@
-import isAbsoluteUrl from 'is-absolute-url'
+import isAbsolute from 'is-absolute-url'
 
 import type { ValidationConfig } from './config'
 import type { Reference } from './position'
@@ -12,7 +12,7 @@ export function getLinkToValidate(
   const normalizedLink = normalizeLink(link)
   const linkToValidate = { reference, raw: normalizedLink }
 
-  if (!isAbsoluteUrl(normalizedLink, { httpOnly: false })) {
+  if (!isAbsoluteUrl(normalizedLink)) {
     return linkToValidate
   }
 
@@ -37,6 +37,10 @@ export function getLinkToValidate(
   } catch {
     return undefined
   }
+}
+
+export function isAbsoluteUrl(link: string): boolean {
+  return isAbsolute(link, { httpOnly: false })
 }
 
 function normalizeLink(link: string): string {

@@ -1,3 +1,5 @@
+import { posix } from 'node:path'
+
 const htmlExtension = '.html'
 
 export function ensureLeadingSlash(path: string): string {
@@ -35,4 +37,8 @@ export function pathnameToSlug(pathname: string): string {
   }
 
   return segments.filter(Boolean).join('/')
+}
+
+export function normalizePathname(pathname: string, base: string) {
+  return ensureTrailingSlash(base === '/' ? stripLeadingSlash(pathname) : posix.join(stripLeadingSlash(base), pathname))
 }

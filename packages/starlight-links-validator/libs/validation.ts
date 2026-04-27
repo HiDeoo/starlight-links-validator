@@ -11,7 +11,7 @@ import type { ValidationReport, ValidationReportIssue } from '../reporters'
 
 import { getFallbackHeadings, getLocaleConfig, isInconsistentLocaleLink, type LocaleConfig } from './i18n'
 import type { Link } from './link'
-import { ensureTrailingSlash, stripLeadingSlash, stripTrailingSlash } from './path'
+import { ensureTrailingSlash, normalizePathname, stripLeadingSlash, stripTrailingSlash } from './path'
 import { getErrorPosition, isSameLineSourcePosition, type Reference } from './position'
 import { getValidationData, type ValidationData } from './store'
 
@@ -67,7 +67,7 @@ export const ValidationErrorType = Object.freeze(
 
 export async function validateLinks(
   pages: PageData[],
-  customPages: Set<string>,
+  projectRoutes: ProjectRoutes,
   outputDir: URL,
   astroConfig: AstroConfig,
   starlightConfig: StarlightUserConfig,
@@ -75,15 +75,7 @@ export async function validateLinks(
 ): Promise<ValidationReport> {
   const localeConfig = getLocaleConfig(starlightConfig)
   const validationData = getValidationData()
-  const allPages: Pages = new Set(
-    pages.map((page) =>
-      ensureTrailingSlash(
-        astroConfig.base === '/'
-          ? stripLeadingSlash(page.pathname)
-          : posix.join(stripLeadingSlash(astroConfig.base), page.pathname),
-      ),
-    ),
-  )
+  const allPages: Pages = new Set(pages.map((page) => normalizePathname(page.pathname, astroConfig.base)))
 
   const issues: ValidationContext['issues'] = new Map()
 
@@ -91,7 +83,6 @@ export async function validateLinks(
     for (const link of fileLinks) {
       const validationContext: ValidationContext = {
         astroConfig,
-        customPages,
         file,
         id,
         issues,
@@ -100,6 +91,7 @@ export async function validateLinks(
         options,
         outputDir,
         pages: allPages,
+        projectRoutes,
         validationData,
       }
 
@@ -148,7 +140,7 @@ export function getValidationErrorDocumentationUrl(type: ValidationErrorType) {
  * Validate a link to another internal page that may or may not have a hash.
  */
 function validateLink(context: ValidationContext) {
-  const { astroConfig, customPages, id, link, localeConfig, options, pages } = context
+  const { astroConfig, id, link, localeConfig, options, pages, projectRoutes } = context
 
   if (isExcludedLink(link, context)) {
     return
@@ -187,16 +179,36 @@ function validateLink(context: ValidationContext) {
   const sanitizedPath = ensureTrailingSlash(stripQueryString(path))
 
   const isValidPage = pages.has(sanitizedPath)
-  const fileHeadings = getFileHeadings(sanitizedPath, context)
+  let fileHeadings = getFileHeadings(sanitizedPath, context)
 
   if (!isValidPage || !fileHeadings) {
-    addIssue(
-      context,
-      customPages.has(stripTrailingSlash(sanitizedPath))
-        ? ValidationErrorType.InvalidLinkToCustomPage
-        : ValidationErrorType.InvalidLink,
-    )
-    return
+    const projectRoute = projectRoutes.get(stripTrailingSlash(sanitizedPath))
+
+    if (projectRoute?.type === 'redirect-external') {
+      fileHeadings = undefined
+    } else if (projectRoute?.type === 'redirect-internal') {
+      fileHeadings = getFileHeadings(projectRoute.path, context)
+
+      if (!fileHeadings) {
+        const destination = projectRoutes.get(stripTrailingSlash(projectRoute.path))
+
+        addIssue(
+          context,
+          destination?.type === 'custom-page'
+            ? ValidationErrorType.InvalidLinkToCustomPage
+            : ValidationErrorType.InvalidLink,
+        )
+        return
+      }
+    } else {
+      addIssue(
+        context,
+        projectRoute?.type === 'custom-page'
+          ? ValidationErrorType.InvalidLinkToCustomPage
+          : ValidationErrorType.InvalidLink,
+      )
+      return
+    }
   }
 
   if (options.errorOnInconsistentLocale && localeConfig && isInconsistentLocaleLink(id, link.raw, localeConfig)) {
@@ -204,7 +216,7 @@ function validateLink(context: ValidationContext) {
     return
   }
 
-  if (hash && !fileHeadings.includes(hash)) {
+  if (hash && fileHeadings && !fileHeadings.includes(hash)) {
     if (options.errorOnInvalidHashes) {
       addIssue(context, ValidationErrorType.InvalidHash)
     }
@@ -379,9 +391,22 @@ interface PageData {
 
 type Pages = Set<PageData['pathname']>
 
+export type ProjectRoutes = Map<
+  string,
+  | {
+      type: 'custom-page'
+    }
+  | {
+      type: 'redirect-external'
+    }
+  | {
+      type: 'redirect-internal'
+      path: string
+    }
+>
+
 interface ValidationContext {
   astroConfig: AstroConfig
-  customPages: Set<string>
   id: string
   file: string
   issues: Map<string, ValidationFileIssues>
@@ -390,6 +415,7 @@ interface ValidationContext {
   options: StarlightLinksValidatorOptions
   outputDir: URL
   pages: Pages
+  projectRoutes: ProjectRoutes
   validationData: ValidationData
 }
 
