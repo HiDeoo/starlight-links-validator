@@ -10,5 +10,8 @@ export default defineConfig({
       title: 'Starlight Links Validator Tests - sameSitePolicy validate',
     }),
   ],
+  redirects: {
+    '/redirect-test/': '/test/',
+  },
   site: 'https://example.com',
 })

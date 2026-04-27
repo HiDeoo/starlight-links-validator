@@ -9,7 +9,7 @@ test('validates links when the `trailingSlash` Astro option is set to `never`', 
 
   expect(status).toBe('error')
 
-  expectValidationErrorCount(output, 12, 1)
+  expectValidationErrorCount(output, 14, 2)
 
   expectValidationErrors(output, 'test.md', [
     ['/guides/example/', ValidationErrorType.TrailingSlashForbidden, 12],
@@ -25,6 +25,11 @@ test('validates links when the `trailingSlash` Astro option is set to `never`', 
     ['/unknown?query=string#title', ValidationErrorType.InvalidLink, 36],
     ['/unknown/?query=string#title', ValidationErrorType.InvalidLink, 37],
   ])
+
+  expectValidationErrors(output, 'redirects.md', [
+    ['/redirect-test/', ValidationErrorType.TrailingSlashForbidden, 6],
+    ['/redirect-test/#some-links', ValidationErrorType.TrailingSlashForbidden, 8],
+  ])
 })
 
 test('validates links when the `trailingSlash` Astro option is set to `always`', async () => {
@@ -32,7 +37,7 @@ test('validates links when the `trailingSlash` Astro option is set to `always`',
 
   expect(status).toBe('error')
 
-  expectValidationErrorCount(output, 12, 1)
+  expectValidationErrorCount(output, 14, 2)
 
   expectValidationErrors(output, 'test.md', [
     ['/guides/example', ValidationErrorType.TrailingSlashMissing, 11],
@@ -47,5 +52,10 @@ test('validates links when the `trailingSlash` Astro option is set to `always`',
     ['/unknown/?query=string', ValidationErrorType.InvalidLink, 34],
     ['/unknown?query=string#title', ValidationErrorType.InvalidLink, 36],
     ['/unknown/?query=string#title', ValidationErrorType.InvalidLink, 37],
+  ])
+
+  expectValidationErrors(output, 'redirects.md', [
+    ['/redirect-test', ValidationErrorType.TrailingSlashMissing, 5],
+    ['/redirect-test#some-links', ValidationErrorType.TrailingSlashMissing, 7],
   ])
 })

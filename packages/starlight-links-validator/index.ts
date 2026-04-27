@@ -8,10 +8,11 @@ import {
   type StarlightLinksValidatorUserOptions,
   type ValidationConfig,
 } from './libs/config'
-import { pathnameToSlug, stripTrailingSlash } from './libs/path'
+import { isAbsoluteUrl } from './libs/link'
+import { normalizePathname, pathnameToSlug, stripTrailingSlash } from './libs/path'
 import { rehypeStarlightLinksValidator } from './libs/rehype'
 import { clearValidationData, setValidationConfig } from './libs/store'
-import { validateLinks } from './libs/validation'
+import { validateLinks, type ProjectRoutes } from './libs/validation'
 import { runReporters } from './reporters'
 import { cliReporter, logStep } from './reporters/cli'
 import { gitHubActionsReporter } from './reporters/github-actions'
@@ -62,20 +63,37 @@ export default function starlightLinksValidatorPlugin(
               routes = params.routes
             },
             'astro:build:done': async ({ dir, pages, assets }) => {
-              const customPages = new Set<string>()
+              const projectRoutes: ProjectRoutes = new Map()
 
               for (const [pattern, urls] of assets) {
                 const route = routes.find((route) => route.pattern === pattern)
                 if (route?.origin !== 'project') continue
 
                 for (const url of urls) {
-                  customPages.add(pathnameToSlug(url.pathname.replace(astroConfig.outDir.pathname, '')))
+                  const routeKey = pathnameToSlug(url.pathname.replace(astroConfig.outDir.pathname, ''))
+
+                  if (route.type !== 'redirect' || !route.redirect || !route.pathname) {
+                    projectRoutes.set(routeKey, { type: 'custom-page' })
+                    continue
+                  }
+
+                  const destination = typeof route.redirect === 'string' ? route.redirect : route.redirect.destination
+
+                  if (isAbsoluteUrl(destination)) {
+                    projectRoutes.set(routeKey, { type: 'redirect-external' })
+                    continue
+                  }
+
+                  projectRoutes.set(routeKey, {
+                    type: 'redirect-internal',
+                    path: normalizePathname(destination, astroConfig.base),
+                  })
                 }
               }
 
               logStep('validating links')
 
-              const report = await validateLinks(pages, customPages, dir, astroConfig, starlightConfig, options)
+              const report = await validateLinks(pages, projectRoutes, dir, astroConfig, starlightConfig, options)
 
               if (report.hasErrors) {
                 if (options.failOnError) {

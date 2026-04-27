@@ -10,4 +10,10 @@ export default defineConfig({
       title: 'Starlight Links Validator Tests - invalid links',
     }),
   ],
+  redirects: {
+    '/redirect-test/': '/test/',
+    '/redirect-custom-page/': '/custom-page/',
+    '/redirect-custom-dynamic/[...param]': '/custom-dynamic-page/[...param]',
+    '/redirect-unknown/': '/unknown/',
+  },
 })

@@ -10,5 +10,9 @@ export default defineConfig({
       title: 'Starlight Links Validator Tests - valid links',
     }),
   ],
+  redirects: {
+    '/redirect-external/': 'https://starlight.astro.build/',
+    '/redirect-test/': '/test/',
+  },
   site: 'https://example.com',
 })
