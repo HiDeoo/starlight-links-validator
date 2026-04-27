@@ -1,5 +1,11 @@
 # starlight-links-validator
 
+## 0.24.0
+
+### Minor Changes
+
+- [#157](https://github.com/HiDeoo/starlight-links-validator/pull/157) [`e7663be`](https://github.com/HiDeoo/starlight-links-validator/commit/e7663bec19c14b51527e043bd498047ca7f44e97) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Adds support for validating links to Astro [redirects](https://docs.astro.build/en/guides/routing/#redirects).
+
 ## 0.23.0
 
 ### Minor Changes
