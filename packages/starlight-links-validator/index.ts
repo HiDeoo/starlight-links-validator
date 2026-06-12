@@ -1,8 +1,8 @@
 import type { StarlightPlugin } from '@astrojs/starlight/types'
-import type { IntegrationResolvedRoute } from 'astro'
+import type { AstroUserConfig, IntegrationResolvedRoute } from 'astro'
 import { AstroError } from 'astro/errors'
 
-import { clearContentLayerCache } from './libs/astro'
+import { clearContentLayerCache, isUnifiedProcessor } from './libs/astro'
 import {
   StarlightLinksValidatorOptionsSchema,
   type StarlightLinksValidatorUserOptions,
@@ -57,7 +57,28 @@ export default function starlightLinksValidatorPlugin(
               clearValidationData()
               await clearContentLayerCache(astroConfig, logger)
 
-              updateConfig({ markdown: { rehypePlugins: [[rehypeStarlightLinksValidator, validationConfig]] } })
+              const markdownProcessor = (
+                astroConfig.markdown as
+                  | { processor?: NonNullable<AstroUserConfig['markdown']>['processor'] }
+                  | undefined
+              )?.processor
+
+              if (markdownProcessor) {
+                if (isUnifiedProcessor(markdownProcessor)) {
+                  // When using the Unified processor (Astro 6.4+), we push our rehype plugin onto
+                  // `processor.options.rehypePlugins`.
+                  markdownProcessor.options.rehypePlugins.push([rehypeStarlightLinksValidator, validationConfig])
+                } else {
+                  // When using another processor (Astro 6.4+), we throw an error, since we don't support Sätteri yet.
+                  throwPluginError(
+                    "The configured 'markdown.processor' is not supported. Switch to 'unified()' from '@astrojs/markdown-remark'.",
+                  )
+                }
+              } else {
+                // For Astro versions before 6.4, we fall back to injecting the rehype plugin directly into the Astro
+                // config.
+                updateConfig({ markdown: { rehypePlugins: [[rehypeStarlightLinksValidator, validationConfig]] } })
+              }
             },
             'astro:routes:resolved': (params) => {
               routes = params.routes
