@@ -1,5 +1,11 @@
 # starlight-links-validator
 
+## 0.24.1
+
+### Patch Changes
+
+- [#163](https://github.com/HiDeoo/starlight-links-validator/pull/163) [`52766c9`](https://github.com/HiDeoo/starlight-links-validator/commit/52766c9fb4ce35be9b72e8f6bb40476a7c6a9d58) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Prevents a warning when used with Astro 6.4+
+
 ## 0.24.0
 
 ### Minor Changes
