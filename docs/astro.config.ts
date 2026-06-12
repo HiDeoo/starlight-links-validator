@@ -32,7 +32,7 @@ export default defineConfig({
         },
         {
           label: 'Errors',
-          autogenerate: { directory: 'errors' },
+          items: [{ autogenerate: { directory: 'errors' } }],
         },
         {
           label: 'Resources',

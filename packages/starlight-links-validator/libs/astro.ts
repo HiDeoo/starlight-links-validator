@@ -15,3 +15,14 @@ export async function clearContentLayerCache(config: AstroConfig, logger: AstroI
 function getDataStoreFile(config: AstroConfig) {
   return new URL(dataStoreFile, config.cacheDir)
 }
+
+export function isUnifiedProcessor(processor: unknown): processor is UnifiedMarkdownProcessor {
+  if (typeof processor !== 'object' || processor === null) return false
+  const candidate = processor as { name?: unknown; options?: { rehypePlugins?: unknown } }
+  return candidate.name === 'unified' && Array.isArray(candidate.options?.rehypePlugins)
+}
+
+interface UnifiedMarkdownProcessor {
+  name: string
+  options: { rehypePlugins: unknown[] }
+}
