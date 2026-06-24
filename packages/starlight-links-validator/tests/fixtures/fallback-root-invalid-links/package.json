@@ -2,8 +2,8 @@
   "name": "@starlight-links-validator-tests/fallback-root-invalid-links",
   "version": "0.0.0",
   "dependencies": {
-    "@astrojs/starlight": "^0.40.0",
-    "astro": "^6.4.6",
+    "@astrojs/starlight": "^0.41.0",
+    "astro": "^7.0.2",
     "starlight-links-validator": "workspace:*"
   },
   "private": true

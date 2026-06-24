@@ -12,7 +12,4 @@ minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - 'astro'
   - '@astrojs/starlight'
-  - 'astro-expressive-code'
-  - 'rehype-expressive-code'
-  - 'expressive-code'
-  - '@expressive-code/*'
+  - '@astrojs/markdown-satteri'

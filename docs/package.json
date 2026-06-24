@@ -14,9 +14,9 @@
     "linkcheck": "CHECK_LINKS=true pnpm build"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.40.0",
+    "@astrojs/starlight": "^0.41.0",
     "@hideoo/starlight-plugins-docs-components": "^0.4.2",
-    "astro": "^6.4.6",
+    "astro": "^7.0.2",
     "sharp": "^0.34.5"
   },
   "devDependencies": {
