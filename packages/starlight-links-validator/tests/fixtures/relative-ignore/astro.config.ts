@@ -2,8 +2,11 @@ import starlight from '@astrojs/starlight'
 import { defineConfig } from 'astro/config'
 import type { Root as RehypeRoot } from 'hast'
 import type { Root as RemarkRoot } from 'mdast'
+import { defineHastPlugin, defineMdastPlugin } from 'satteri'
 import starlightLinksValidator from 'starlight-links-validator'
 import { visit } from 'unist-util-visit'
+
+import { getMarkdownProcessor } from '../processor'
 
 export default defineConfig({
   integrations: [
@@ -14,10 +17,44 @@ export default defineConfig({
     }),
   ],
   markdown: {
-    remarkPlugins: [remarkPlugin],
-    rehypePlugins: [rehypePlugin],
+    processor: getMarkdownProcessor({
+      satteri: {
+        mdastPlugins: [mdastPlugin()],
+        hastPlugins: [satteriHastPlugin()],
+      },
+      unified: {
+        remarkPlugins: [remarkPlugin],
+        rehypePlugins: [rehypePlugin],
+      },
+    }),
   },
 })
+
+// `./link.md` → `./link.m`
+function mdastPlugin() {
+  return defineMdastPlugin({
+    name: 'mdast-links',
+    link(node, ctx) {
+      if (!node.url.endsWith('.md')) return
+      ctx.setProperty(node, 'url', node.url.replace(/\.md$/, '.m'))
+    },
+  })
+}
+
+// `./link.m` → `/link`
+function satteriHastPlugin() {
+  return defineHastPlugin({
+    name: 'hast-links',
+    element: {
+      filter: ['a'],
+      visit(node, ctx) {
+        const href = node.properties['href']
+        if (typeof href !== 'string' || !href.endsWith('.m')) return
+        ctx.setProperty(node, 'href', href.replace(/^\./, '').replace(/\.m$/, ''))
+      },
+    },
+  })
+}
 
 // `./link.md` → `./link.m`
 function remarkPlugin() {

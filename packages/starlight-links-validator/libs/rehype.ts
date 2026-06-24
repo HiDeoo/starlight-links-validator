@@ -1,31 +1,25 @@
-import nodePath from 'node:path'
-import { fileURLToPath } from 'node:url'
-
-import { slug as slugger } from 'github-slugger'
-import type { Element, Nodes, Root } from 'hast'
-import { fromHtml } from 'hast-util-from-html'
-import type { MdxJsxAttribute, MdxJsxExpressionAttribute } from 'mdast-util-mdx-jsx'
+import type { Root } from 'hast'
 import type { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
 
-import type { StarlightLinksValidatorOptions, ValidationConfig } from './config'
-import { isFrontmatterWithPrevNextLink, isFrontmatterWithHeroActions, type Frontmatter } from './frontmatter'
+import type { ValidationConfig } from './config'
 import { getLinkToValidate, type Link } from './link'
-import { ensureTrailingSlash, stripLeadingSlash } from './path'
-import { getFrontmatterReference, getNodeReference } from './position'
+import {
+  extractFrontmatterLinks,
+  extractRawHeadingsAndLinks,
+  getLinksComponents,
+  isElementWithClass,
+  isElementWithStringProperty,
+  isStringAttribute,
+  normalizeId,
+} from './markdown'
+import { getNodeReference } from './position'
 import { setValidationData } from './store'
-
-const builtInComponents: StarlightLinksValidatorOptions['components'] = [
-  ['LinkButton', 'href'],
-  ['LinkCard', 'href'],
-]
 
 export const rehypeStarlightLinksValidator: Plugin<[ValidationConfig], Root> = function (config) {
   const { base, options, srcDir } = config
 
-  const linkComponents: Record<string, string> = Object.fromEntries(
-    [...builtInComponents, ...options.components].map(([name, attribute]) => [name, attribute]),
-  )
+  const linkComponents = getLinksComponents(options.components)
 
   return (tree, file) => {
     const path = file.history[0]
@@ -49,11 +43,17 @@ export const rehypeStarlightLinksValidator: Plugin<[ValidationConfig], Root> = f
       // https://github.com/syntax-tree/mdast-util-mdx-jsx#nodes
       switch (node.type) {
         case 'element': {
-          if (hasStringProperty(node, 'id')) {
+          if (isElementWithStringProperty(node, 'id')) {
             fileHeadings.push(node.properties['id'])
           }
 
-          if (node.tagName !== 'a' || !hasStringProperty(node, 'href') || hasClass(node, 'sl-anchor-link')) break
+          if (
+            node.tagName !== 'a' ||
+            !isElementWithStringProperty(node, 'href') ||
+            isElementWithClass(node, 'sl-anchor-link')
+          ) {
+            break
+          }
 
           const link = getLinkToValidate(node.properties['href'], getNodeReference(node), config)
           if (link) fileLinks.push(link)
@@ -88,113 +88,16 @@ export const rehypeStarlightLinksValidator: Plugin<[ValidationConfig], Root> = f
           break
         }
         case 'raw': {
-          const htmlTree = fromHtml(node.value, { fragment: true })
+          const { headings, links } = extractRawHeadingsAndLinks(node, config)
 
-          visit(htmlTree, (htmlNode: Nodes) => {
-            if (hasStringProperty(htmlNode, 'id')) {
-              fileHeadings.push(htmlNode.properties.id)
-            }
-
-            if (htmlNode.type === 'element' && htmlNode.tagName === 'a' && hasStringProperty(htmlNode, 'href')) {
-              const link = getLinkToValidate(htmlNode.properties.href, getNodeReference(node, htmlNode), config)
-              if (link) fileLinks.push(link)
-            }
-          })
+          fileHeadings.push(...headings)
+          fileLinks.push(...links)
 
           break
         }
       }
     })
 
-    setValidationData(getValidationDataId(base, id, slug), {
-      file: path,
-      headings: fileHeadings,
-      links: fileLinks,
-    })
+    setValidationData({ base, id, slug }, { file: path, headings: fileHeadings, links: fileLinks })
   }
-}
-
-function getValidationDataId(base: string, id: string, slug: string | undefined) {
-  if (slug) return nodePath.posix.join(stripLeadingSlash(base), stripLeadingSlash(ensureTrailingSlash(slug)))
-
-  return id
-}
-
-function normalizeId(base: string, srcDir: URL, filePath: string) {
-  const path = nodePath
-    .relative(nodePath.join(fileURLToPath(srcDir), 'content/docs'), filePath)
-    .replace(/\.\w+$/, '')
-    .replace(/(^|[/\\])index$/, '')
-    .replace(/[/\\]?$/, '/')
-    .split(/[/\\]/)
-    .map((segment) => slugger(segment))
-    .join('/')
-
-  if (base !== '/') return nodePath.posix.join(stripLeadingSlash(base), path)
-
-  return path
-}
-
-function hasStringProperty<TName extends string>(
-  node: Nodes,
-  name: TName,
-): node is Element & { properties: Element['properties'] & Record<TName, string> } {
-  return (
-    node.type === 'element' &&
-    node.properties[name] !== undefined &&
-    typeof node.properties[name] === 'string' &&
-    node.properties[name].length > 0
-  )
-}
-
-function isStringAttribute<TName extends string>(
-  attribute: MdxJsxAttribute | MdxJsxExpressionAttribute,
-  name: TName,
-): attribute is MdxStringAttribute<TName> {
-  return (
-    attribute.type === 'mdxJsxAttribute' &&
-    attribute.name === name &&
-    typeof attribute.value === 'string' &&
-    attribute.value.length > 0
-  )
-}
-
-function hasClass(node: Nodes, name: string): boolean {
-  if (node.type !== 'element') return false
-
-  if (hasStringProperty(node, 'class')) return node.properties['class'].split(/\s+/).includes(name)
-  if (hasStringProperty(node, 'className')) return node.properties['className'].split(/\s+/).includes(name)
-
-  if (Array.isArray(node.properties['className'])) {
-    return node.properties['className'].some((value) => typeof value === 'string' && value === name)
-  }
-
-  return false
-}
-
-function extractFrontmatterLinks(frontmatter: Frontmatter, fileLinks: Link[], config: ValidationConfig) {
-  if (!frontmatter) return
-
-  if (isFrontmatterWithHeroActions(frontmatter)) {
-    for (const [index, action] of frontmatter.hero.actions.entries()) {
-      const link = getLinkToValidate(action.link, getFrontmatterReference(['hero', 'actions', index, 'link']), config)
-      if (link) fileLinks.push(link)
-    }
-  }
-
-  if (isFrontmatterWithPrevNextLink(frontmatter, 'prev')) {
-    const link = getLinkToValidate(frontmatter.prev.link, getFrontmatterReference(['prev', 'link']), config)
-    if (link) fileLinks.push(link)
-  }
-
-  if (isFrontmatterWithPrevNextLink(frontmatter, 'next')) {
-    const link = getLinkToValidate(frontmatter.next.link, getFrontmatterReference(['next', 'link']), config)
-    if (link) fileLinks.push(link)
-  }
-}
-
-interface MdxStringAttribute<TName extends string> {
-  name: TName
-  type: 'mdxJsxAttribute'
-  value: string
 }

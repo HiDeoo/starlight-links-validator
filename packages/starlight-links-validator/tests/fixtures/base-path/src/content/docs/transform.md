@@ -10,7 +10,7 @@ hero:
       link: /test/guides/example/
     - text: External link
       link: https://starlight.astro.build/
-    - text: Example page with missing base transformed by remark plugin
+    - text: Example page with missing base transformed by mdast/remark plugin
       link: /guides/example/
     - text: Example page (not transformed)
       link: /guides/example/
@@ -20,4 +20,4 @@ next:
   link: /release/@pkg/v0.1.0/#some-heading
 ---
 
-This page is used to test frontmatter links transformed by both a route data middleware and a remark plugin.
+This page is used to test frontmatter links transformed by both a route data middleware and a mdast/remark plugin.

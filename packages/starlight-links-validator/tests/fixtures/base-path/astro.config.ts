@@ -1,8 +1,11 @@
 import starlight from '@astrojs/starlight'
 import { defineConfig } from 'astro/config'
 import type { Root } from 'mdast'
+import { defineMdastPlugin } from 'satteri'
 import starlightLinksValidator from 'starlight-links-validator'
 import type { DataMap, VFile } from 'vfile'
+
+import { getMarkdownProcessor } from '../processor'
 
 const base = '/test'
 
@@ -21,23 +24,43 @@ export default defineConfig({
     }),
   ],
   markdown: {
-    remarkPlugins: [remarkPlugin],
+    processor: getMarkdownProcessor({
+      satteri: {
+        mdastPlugins: [mdastPlugin()],
+      },
+      unified: {
+        remarkPlugins: [remarkPlugin],
+      },
+    }),
   },
   site: 'https://example.com',
 })
 
-// `/guides/example/` → `/test/guides/example/` only for the action link with the text containing "remark plugin"
+// `/guides/example/` → `/test/guides/example/` only for the action link with the text containing "mdast/remark plugin"
+function mdastPlugin() {
+  return defineMdastPlugin({
+    name: 'base-path-frontmatter-links',
+    paragraph(_node, ctx) {
+      transformFrontmatter(ctx.data.astro?.frontmatter)
+    },
+  })
+}
+
+// `/guides/example/` → `/test/guides/example/` only for the action link with the text containing "mdast/remark plugin"
 function remarkPlugin() {
   return function transformer(_tree: Root, file: VFile) {
-    const frontmatter = file.data.astro?.frontmatter
-    if (!isFrontmatterWithHeroActions(frontmatter)) return
+    transformFrontmatter(file.data.astro?.frontmatter)
+  }
+}
 
-    for (const action of frontmatter.hero.actions) {
-      if (!action.text?.includes('remark plugin')) continue
-      if (action.link.startsWith(base)) continue
+function transformFrontmatter(frontmatter: Frontmatter) {
+  if (!isFrontmatterWithHeroActions(frontmatter)) return
 
-      action.link = `${base}${action.link}`
-    }
+  for (const action of frontmatter.hero.actions) {
+    if (!action.text?.includes('mdast/remark plugin')) continue
+    if (action.link.startsWith(base)) continue
+
+    action.link = `${base}${action.link}`
   }
 }
 

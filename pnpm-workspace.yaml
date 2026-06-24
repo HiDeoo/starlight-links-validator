@@ -12,4 +12,7 @@ minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - 'astro'
   - '@astrojs/starlight'
+  - '@astrojs/mdx'
   - '@astrojs/markdown-satteri'
+  - 'satteri'
+  - '@bruits/*'
