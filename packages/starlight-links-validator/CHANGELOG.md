@@ -1,5 +1,17 @@
 # starlight-links-validator
 
+## 0.25.0
+
+### Minor Changes
+
+- [#167](https://github.com/HiDeoo/starlight-links-validator/pull/167) [`5019546`](https://github.com/HiDeoo/starlight-links-validator/commit/5019546076cd65c19d1601e584ae237ff092c70d) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Adds support for Astro v7, drops support for Astro v6.
+
+  ⚠️ **BREAKING CHANGE:** The minimum supported version of Starlight is now `0.41.0`.
+
+  Please follow the [upgrade guide](https://github.com/withastro/starlight/releases/tag/%40astrojs%2Fstarlight%400.41.0) to update your project.
+
+- [#167](https://github.com/HiDeoo/starlight-links-validator/pull/167) [`5019546`](https://github.com/HiDeoo/starlight-links-validator/commit/5019546076cd65c19d1601e584ae237ff092c70d) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Adds support for the Sätteri Markdown processor.
+
 ## 0.24.1
 
 ### Patch Changes
