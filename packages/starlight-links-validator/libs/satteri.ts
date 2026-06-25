@@ -1,7 +1,6 @@
-import '@astrojs/markdown-satteri'
-
 import { fileURLToPath } from 'node:url'
 
+import type { SatteriAstroData } from '@astrojs/markdown-satteri'
 import { defineHastPlugin, type HastPluginDefinition, type HastVisitorContext } from 'satteri'
 
 import type { ValidationConfig } from './config'
@@ -157,3 +156,9 @@ type ValidationContext =
     }
 
 type ValidationContexts = WeakMap<URL, ValidationContext>
+
+declare module 'satteri' {
+  interface DataMap {
+    astro: SatteriAstroData
+  }
+}
