@@ -1,5 +1,11 @@
 # starlight-links-validator
 
+## 0.25.1
+
+### Patch Changes
+
+- [#169](https://github.com/HiDeoo/starlight-links-validator/pull/169) [`0016925`](https://github.com/HiDeoo/starlight-links-validator/commit/001692541e033ce75b9a520bc40ac76a64b66d86) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes a potential type error.
+
 ## 0.25.0
 
 ### Minor Changes
