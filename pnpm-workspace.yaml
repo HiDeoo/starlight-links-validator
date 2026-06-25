@@ -16,3 +16,5 @@ minimumReleaseAgeExclude:
   - '@astrojs/markdown-satteri'
   - 'satteri'
   - '@bruits/*'
+  - '@napi-rs/wasm-runtime'
+  - '@tybys/wasm-util'

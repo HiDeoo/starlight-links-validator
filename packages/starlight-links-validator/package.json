@@ -24,7 +24,7 @@
     "mdast-util-mdx-jsx": "^3.2.0",
     "mdast-util-to-hast": "^13.2.1",
     "picomatch": "^4.0.3",
-    "satteri": "^0.9.2",
+    "satteri": "^0.9.3",
     "terminal-link": "^5.0.0",
     "unist-util-visit": "^5.1.0",
     "yaml": "^2.8.3"
