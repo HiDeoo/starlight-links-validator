@@ -2,7 +2,7 @@ import { basename } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { format, stripVTControlCharacters } from 'node:util'
 
-import { build, type AstroIntegrationLogger } from 'astro'
+import { build, type AstroInlineConfig, type AstroIntegrationLogger } from 'astro'
 import { expect, vi } from 'vitest'
 
 import { StarlightLinksValidatorOptionsSchema, type StarlightLinksValidatorUserOptions } from '../libs/config'
@@ -11,11 +11,15 @@ import type { ValidationReportIssue } from '../reporters'
 
 export const testRootUrl = new URL('project/', import.meta.url)
 
+const fixturesWithCustomMarkdownConfig = new Set(['base-path', 'custom-ids', 'relative-ignore'])
+
 export async function buildFixture(name: string) {
   const fixturePath = fileURLToPath(new URL(`fixtures/${name}/`, import.meta.url))
+  const markdownProcessor = getMarkdownProcessor()
 
   vi.stubEnv('GITHUB_OUTPUT', '')
   vi.stubEnv('GITHUB_STEP_SUMMARY', '')
+  vi.stubEnv('STARLIGHT_LINKS_VALIDATOR_TEST_MARKDOWN_PROCESSOR', markdownProcessor)
 
   let output = ''
   let status: 'success' | 'error'
@@ -29,7 +33,7 @@ export async function buildFixture(name: string) {
   })
 
   try {
-    await build({ root: fixturePath })
+    await build({ root: fixturePath, ...(await getMarkdownProcessorConfig(name, markdownProcessor)) })
     status = 'success'
   } catch {
     status = 'error'
@@ -142,6 +146,42 @@ function escapeRegex(string: string) {
   // https://github.com/sindresorhus/escape-string-regexp/blob/cbc42403142c96923b482604e1f3d627b1956aff/index.js
   return string.replaceAll(/[|\\{}()[\]^$+*?.]/g, String.raw`\$&`).replaceAll('-', String.raw`\x2d`)
 }
+
+function getMarkdownProcessor(): TestMarkdownProcessor {
+  switch (import.meta.env.MODE) {
+    case 'unified': {
+      return 'unified'
+    }
+    case 'satteri': {
+      return 'satteri'
+    }
+    default: {
+      throw new Error(
+        "Unknown test Markdown processor: either use 'unified' or 'satteri' using the '--mode' Vitest CLI option.",
+      )
+    }
+  }
+}
+
+async function getMarkdownProcessorConfig(
+  fixtureName: string,
+  markdownProcessor: TestMarkdownProcessor,
+): Promise<Pick<AstroInlineConfig, 'markdown'>> {
+  if (fixturesWithCustomMarkdownConfig.has(fixtureName)) return {}
+
+  switch (markdownProcessor) {
+    case 'unified': {
+      const { unified } = await import('@astrojs/markdown-remark')
+
+      return { markdown: { processor: unified() } }
+    }
+    case 'satteri': {
+      return {}
+    }
+  }
+}
+
+type TestMarkdownProcessor = 'satteri' | 'unified'
 
 export interface TestValidationReportFile {
   filePath: string

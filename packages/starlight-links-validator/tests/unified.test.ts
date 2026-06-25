@@ -1,5 +1,3 @@
-import { fileURLToPath } from 'node:url'
-
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
@@ -13,16 +11,16 @@ import { getValidationData } from '../libs/store'
 const processor = createMarkdownProcessor()
 
 test('does not run for file without a path', async () => {
-  await renderMarkdown(`This is a test`, { url: null })
+  await renderMarkdown('This is a test')
 
   const validationData = getValidationData()
 
   expect(validationData.size).toBe(0)
 })
 
-async function renderMarkdown(content: string, options?: { url?: URL | null }) {
+async function renderMarkdown(content: string) {
   const file = new VFile({
-    path: options?.url === null ? undefined : fileURLToPath(new URL(`src/content/docs/index.md`, import.meta.url)),
+    path: undefined,
     value: content,
   })
 

@@ -1,5 +1,8 @@
+import { posix } from 'node:path'
+
 import type { ValidationConfig } from './config'
 import type { Link } from './link'
+import { ensureTrailingSlash, stripLeadingSlash } from './path'
 import type { FrontmatterReference } from './position'
 
 export function getValidationData(): ValidationData {
@@ -7,8 +10,26 @@ export function getValidationData(): ValidationData {
   return globalThis._starlightLinksValidatorValidationData
 }
 
-export function setValidationData(id: string, entry: ValidationDataEntry) {
-  getValidationData().set(id, entry)
+export function setValidationData(source: ValidationDataSource, entry: ValidationDataEntry) {
+  getValidationData().set(getValidationDataId(source), entry)
+}
+
+export function updateValidationData(source: ValidationDataSource, entry: ValidationDataEntry) {
+  const id = getValidationDataId(source)
+
+  const existingEntry = getValidationData().get(id)
+
+  if (!existingEntry) {
+    getValidationData().set(id, {
+      file: entry.file,
+      headings: ['_top', ...entry.headings],
+      links: entry.links,
+    })
+    return
+  }
+
+  existingEntry.headings.push(...entry.headings)
+  existingEntry.links.push(...entry.links)
 }
 
 export function clearValidationData() {
@@ -47,6 +68,12 @@ export function updateFrontmatterLink(id: string, path: FrontmatterReference['pa
   }
 }
 
+function getValidationDataId({ base, id, slug }: ValidationDataSource) {
+  if (slug) return posix.join(stripLeadingSlash(base), stripLeadingSlash(ensureTrailingSlash(slug)))
+
+  return id
+}
+
 function isEqualReferencePath(a: FrontmatterReference['path'], b: FrontmatterReference['path']) {
   return a.length === b.length && a.every((segment, index) => segment === b[index])
 }
@@ -57,6 +84,12 @@ declare global {
 }
 
 export type ValidationData = Map<string, ValidationDataEntry>
+
+interface ValidationDataSource {
+  base: string
+  id: string
+  slug: string | undefined
+}
 
 interface ValidationDataEntry {
   // The absolute path to the file.

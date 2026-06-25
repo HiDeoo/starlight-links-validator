@@ -1,16 +1,16 @@
 import type { StarlightPlugin } from '@astrojs/starlight/types'
-import type { AstroUserConfig, IntegrationResolvedRoute } from 'astro'
-import { AstroError } from 'astro/errors'
+import type { IntegrationResolvedRoute } from 'astro'
 
-import { clearContentLayerCache, isUnifiedProcessor } from './libs/astro'
+import { clearContentLayerCache } from './libs/astro'
 import {
   StarlightLinksValidatorOptionsSchema,
   type StarlightLinksValidatorUserOptions,
   type ValidationConfig,
 } from './libs/config'
+import { throwPluginError } from './libs/error'
 import { isAbsoluteUrl } from './libs/link'
 import { normalizePathname, pathnameToSlug, stripTrailingSlash } from './libs/path'
-import { rehypeStarlightLinksValidator } from './libs/rehype'
+import { applyMarkdownPlugin } from './libs/processor'
 import { clearValidationData, setValidationConfig } from './libs/store'
 import { validateLinks, type ProjectRoutes } from './libs/validation'
 import { runReporters } from './reporters'
@@ -53,32 +53,11 @@ export default function starlightLinksValidatorPlugin(
         addIntegration({
           name: 'starlight-links-validator',
           hooks: {
-            'astro:config:setup': async ({ updateConfig }) => {
+            'astro:config:setup': async () => {
+              applyMarkdownPlugin(astroConfig.markdown.processor, validationConfig)
+
               clearValidationData()
               await clearContentLayerCache(astroConfig, logger)
-
-              const markdownProcessor = (
-                astroConfig.markdown as
-                  | { processor?: NonNullable<AstroUserConfig['markdown']>['processor'] }
-                  | undefined
-              )?.processor
-
-              if (markdownProcessor) {
-                if (isUnifiedProcessor(markdownProcessor)) {
-                  // When using the Unified processor (Astro 6.4+), we push our rehype plugin onto
-                  // `processor.options.rehypePlugins`.
-                  markdownProcessor.options.rehypePlugins.push([rehypeStarlightLinksValidator, validationConfig])
-                } else {
-                  // When using another processor (Astro 6.4+), we throw an error, since we don't support Sätteri yet.
-                  throwPluginError(
-                    "The configured 'markdown.processor' is not supported. Switch to 'unified()' from '@astrojs/markdown-remark'.",
-                  )
-                }
-              } else {
-                // For Astro versions before 6.4, we fall back to injecting the rehype plugin directly into the Astro
-                // config.
-                updateConfig({ markdown: { rehypePlugins: [[rehypeStarlightLinksValidator, validationConfig]] } })
-              }
             },
             'astro:routes:resolved': (params) => {
               routes = params.routes
@@ -144,13 +123,4 @@ export default function starlightLinksValidatorPlugin(
       },
     },
   }
-}
-
-function throwPluginError(message: string, additionalHint?: string): never {
-  let hint = 'See the error report above for more information.\n\n'
-  if (additionalHint) hint += `${additionalHint}\n\n`
-  hint +=
-    'If you believe this is a bug, please file an issue at https://github.com/HiDeoo/starlight-links-validator/issues/new/choose'
-
-  throw new AstroError(message, hint)
 }

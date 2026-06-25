@@ -22,6 +22,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
+        processor: [satteri, unified]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -42,15 +43,15 @@ jobs:
         run: pnpm install
 
       - name: Test
-        run: pnpm test
+        run: pnpm --filter starlight-links-validator test:${{ matrix.processor }}
 
       - name: Generates docs TypeScript types
-        if: matrix.os != 'windows-latest'
+        if: matrix.os == 'ubuntu-latest' && matrix.processor == 'satteri'
         run: pnpm astro sync
         working-directory: docs
 
       - name: Lint
-        if: matrix.os != 'windows-latest'
+        if: matrix.os == 'ubuntu-latest' && matrix.processor == 'satteri'
         run: pnpm lint
   links:
     name: Check for broken links

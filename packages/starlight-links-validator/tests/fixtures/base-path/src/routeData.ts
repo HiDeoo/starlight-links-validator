@@ -7,9 +7,9 @@ export const onRequest = defineRouteMiddleware((context) => {
 
   if (hasHeroActions(frontmatter)) {
     for (const action of frontmatter.hero.actions) {
-      // Skip transforming links for actions that include "remark plugin" in their text, to test that the middleware
-      // does not track links not transformed by the middleware itself.
-      if (action.text.includes('remark plugin')) continue
+      // Skip transforming links for actions that include "mdast/remark plugin" in their text, to test that the
+      // middleware does not track links not transformed by the middleware itself.
+      if (action.text.includes('mdast/remark plugin')) continue
       // Skip transforming links for actions that include "not transformed" in their text, to test that invalid links
       // are still reported.
       if (action.text.includes('not transformed')) continue
