@@ -1,5 +1,11 @@
 # starlight-links-validator
 
+## 0.25.2
+
+### Patch Changes
+
+- [#171](https://github.com/HiDeoo/starlight-links-validator/pull/171) [`19b97a0`](https://github.com/HiDeoo/starlight-links-validator/commit/19b97a0ff89b5bd02feec0369579be9116037681) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes link validation issue for frontmatter-only pages when using Sätteri.
+
 ## 0.25.1
 
 ### Patch Changes
