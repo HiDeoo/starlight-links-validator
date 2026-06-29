@@ -101,3 +101,8 @@ title: Index
 Email: user@example.org
 
 Email: [User](mailto:user@example.org)
+
+## Empty page
+
+[Link to empty page](/empty)
+[Link to empty page](/empty/)

@@ -2,7 +2,7 @@ import { markdownToHtml } from 'satteri'
 import { expect, test } from 'vitest'
 
 import { StarlightLinksValidatorOptionsSchema } from '../libs/config'
-import { satteriStarlightLinksValidator } from '../libs/satteri'
+import { createSatteriStarlightLinksValidator } from '../libs/satteri'
 import { getValidationData } from '../libs/store'
 
 test('does not run for file without a URL', () => {
@@ -20,12 +20,12 @@ function renderMarkdown(content: string) {
     {
       fileURL: undefined,
       hastPlugins: [
-        satteriStarlightLinksValidator({
+        createSatteriStarlightLinksValidator({
           base: '/',
           options: StarlightLinksValidatorOptionsSchema.parse({}),
           site: 'https://example.com',
           srcDir: new URL('src/content/docs/', import.meta.url),
-        }),
+        }).hastPlugin,
       ],
     },
   )

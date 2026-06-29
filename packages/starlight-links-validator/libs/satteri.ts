@@ -17,8 +17,21 @@ import {
 import { getNodeReference } from './position'
 import { updateValidationData } from './store'
 
-export function satteriStarlightLinksValidator(config: ValidationConfig): HastPluginDefinition {
+export function createSatteriStarlightLinksValidator(config: ValidationConfig) {
   const validationContexts: ValidationContexts = new WeakMap()
+
+  return {
+    hastPlugin: createSatteriHastPlugin(config, validationContexts),
+    registerFile(options: { fileURL?: URL; frontmatter?: SatteriAstroData['frontmatter'] } | undefined) {
+      getValidationContext(config, { fileURL: options?.fileURL, frontmatter: options?.frontmatter }, validationContexts)
+    },
+  }
+}
+
+function createSatteriHastPlugin(
+  config: ValidationConfig,
+  validationContexts: ValidationContexts,
+): HastPluginDefinition {
   const linkComponents = getLinksComponents(config.options.components)
 
   return defineHastPlugin({
@@ -99,7 +112,11 @@ function visitNode(
   const headings: string[] = []
   const links: Link[] = []
 
-  const validationContext = getValidationContext(config, ctx, validationContexts)
+  const validationContext = getValidationContext(
+    config,
+    { fileURL: ctx.fileURL, frontmatter: ctx.data.astro?.frontmatter },
+    validationContexts,
+  )
   if (!validationContext.shouldValidate) return
 
   visitor({ headings, links })
@@ -114,29 +131,32 @@ const shouldNotValidateContext: ValidationContext = { shouldValidate: false }
 
 function getValidationContext(
   config: ValidationConfig,
-  ctx: HastVisitorContext,
+  source: ValidationSource,
   validationContexts: ValidationContexts,
 ): ValidationContext {
   // If the content does not have a URL, e.g. when rendered using the content loader `renderMarkdown()` API, skip it.
-  if (!ctx.fileURL) return shouldNotValidateContext
+  if (!source.fileURL) return shouldNotValidateContext
 
-  if (ctx.data.astro?.frontmatter['draft']) return shouldNotValidateContext
-
-  const existingContext = validationContexts.get(ctx.fileURL)
+  const existingContext = validationContexts.get(source.fileURL)
   if (existingContext) return existingContext
+
+  if (source.frontmatter?.['draft']) {
+    validationContexts.set(source.fileURL, shouldNotValidateContext)
+    return shouldNotValidateContext
+  }
 
   const { base, srcDir } = config
 
-  const path = fileURLToPath(ctx.fileURL)
+  const path = fileURLToPath(source.fileURL)
   const id = normalizeId(base, srcDir, path)
   const slug: string | undefined =
-    typeof ctx.data.astro?.frontmatter['slug'] === 'string' ? ctx.data.astro.frontmatter['slug'] : undefined
+    typeof source.frontmatter?.['slug'] === 'string' ? source.frontmatter['slug'] : undefined
 
   const frontmatterLinks: Link[] = []
-  extractFrontmatterLinks(ctx.data.astro?.frontmatter, frontmatterLinks, config)
+  extractFrontmatterLinks(source.frontmatter, frontmatterLinks, config)
 
   const validationContext: ValidationContext = { shouldValidate: true, path, id, slug }
-  validationContexts.set(ctx.fileURL, validationContext)
+  validationContexts.set(source.fileURL, validationContext)
 
   updateValidationData(
     { base: config.base, id: validationContext.id, slug: validationContext.slug },
@@ -144,6 +164,11 @@ function getValidationContext(
   )
 
   return validationContext
+}
+
+interface ValidationSource {
+  fileURL: URL | undefined
+  frontmatter: SatteriAstroData['frontmatter'] | undefined
 }
 
 type ValidationContext =
