@@ -3,11 +3,34 @@ import type { AstroConfig } from 'astro'
 import type { ValidationConfig } from './config'
 import { throwPluginError } from './error'
 import { rehypeStarlightLinksValidator } from './rehype'
-import { satteriStarlightLinksValidator } from './satteri'
+import { createSatteriStarlightLinksValidator } from './satteri'
 
 export function applyMarkdownPlugin(processor: MarkdownProcessor, validationConfig: ValidationConfig) {
   if (isSatteriProcessor(processor)) {
-    processor.options.hastPlugins.push(satteriStarlightLinksValidator(validationConfig))
+    const validator = createSatteriStarlightLinksValidator(validationConfig)
+
+    processor.options.hastPlugins.push(validator.hastPlugin)
+
+    const createRenderer = processor.createRenderer.bind(processor)
+
+    // TODO We workaround the fact that Sätteri does not provide a hook when a file is rendered, which means a Markdown
+    // file with only a frontmatter will not be registered for validation. This should be refactored once Sätteri
+    // provides a proper way to do so.
+    processor.createRenderer = async (shared) => {
+      const renderer = await createRenderer(shared)
+      const render = renderer.render.bind(renderer)
+
+      return {
+        ...renderer,
+        async render(content, options) {
+          const result = await render(content, options)
+
+          validator.registerFile(options)
+
+          return result
+        },
+      }
+    }
   } else if (isUnifiedProcessor(processor)) {
     processor.options.rehypePlugins.push([rehypeStarlightLinksValidator, validationConfig])
   } else {
