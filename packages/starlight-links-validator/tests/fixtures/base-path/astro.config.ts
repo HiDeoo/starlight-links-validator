@@ -33,6 +33,10 @@ export default defineConfig({
       },
     }),
   },
+  redirects: {
+    '/redirect-test/': '/guides/example/',
+    '/redirect-unknown/': '/unknown/',
+  },
   site: 'https://example.com',
 })
 

@@ -19,12 +19,6 @@ export function stripTrailingSlash(path: string) {
 }
 
 export function pathnameToSlug(pathname: string): string {
-  const base = stripTrailingSlash(import.meta.env.BASE_URL)
-
-  if (pathname.startsWith(base)) {
-    pathname = pathname.replace(base, '')
-  }
-
   const segments = pathname.split('/')
 
   if (segments.at(-1) === 'index.html') {

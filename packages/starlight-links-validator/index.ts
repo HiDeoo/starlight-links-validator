@@ -70,7 +70,12 @@ export default function starlightLinksValidatorPlugin(
                 if (route?.origin !== 'project') continue
 
                 for (const url of urls) {
-                  const routeKey = pathnameToSlug(url.pathname.replace(astroConfig.outDir.pathname, ''))
+                  const routeKey = stripTrailingSlash(
+                    normalizePathname(
+                      pathnameToSlug(url.pathname.replace(astroConfig.outDir.pathname, '')),
+                      astroConfig.base,
+                    ),
+                  )
 
                   if (route.type !== 'redirect' || !route.redirect || !route.pathname) {
                     projectRoutes.set(routeKey, { type: 'custom-page' })
