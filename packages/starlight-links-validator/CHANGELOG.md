@@ -1,5 +1,13 @@
 # starlight-links-validator
 
+## 0.25.3
+
+### Patch Changes
+
+- [#173](https://github.com/HiDeoo/starlight-links-validator/pull/173) [`7f9c3b7`](https://github.com/HiDeoo/starlight-links-validator/commit/7f9c3b7fc5e36e1784f126531bee6998fa67dd8e) Thanks [@pat-s](https://github.com/pat-s)! - Fixes a validation issue with Astro redirects when the `base` option is configured.
+
+- [#173](https://github.com/HiDeoo/starlight-links-validator/pull/173) [`7f9c3b7`](https://github.com/HiDeoo/starlight-links-validator/commit/7f9c3b7fc5e36e1784f126531bee6998fa67dd8e) Thanks [@pat-s](https://github.com/pat-s)! - Fixes a validation issue when using Bun.
+
 ## 0.25.2
 
 ### Patch Changes
