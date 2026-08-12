@@ -11,7 +11,7 @@ import type { ValidationReport, ValidationReportIssue } from '../reporters'
 
 import { getFallbackHeadings, getLocaleConfig, isInconsistentLocaleLink, type LocaleConfig } from './i18n'
 import type { Link } from './link'
-import { ensureTrailingSlash, normalizePathname, stripLeadingSlash, stripTrailingSlash } from './path'
+import { normalizePathname, normalizePathnameWithBase, stripLeadingSlash, stripTrailingSlash } from './path'
 import { getErrorPosition, isSameLineSourcePosition, type Reference } from './position'
 import { getValidationData, type ValidationData } from './store'
 
@@ -75,7 +75,7 @@ export async function validateLinks(
 ): Promise<ValidationReport> {
   const localeConfig = getLocaleConfig(starlightConfig)
   const validationData = getValidationData()
-  const allPages: Pages = new Set(pages.map((page) => normalizePathname(page.pathname, astroConfig.base)))
+  const allPages: Pages = new Set(pages.map((page) => normalizePathnameWithBase(page.pathname, astroConfig.base)))
 
   const issues: ValidationContext['issues'] = new Map()
 
@@ -176,7 +176,7 @@ function validateLink(context: ValidationContext) {
     return
   }
 
-  const sanitizedPath = ensureTrailingSlash(stripQueryString(path))
+  const sanitizedPath = normalizePathname(stripQueryString(path))
 
   const isValidPage = pages.has(sanitizedPath)
   let fileHeadings = getFileHeadings(sanitizedPath, context)

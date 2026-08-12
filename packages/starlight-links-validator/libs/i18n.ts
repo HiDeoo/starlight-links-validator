@@ -1,4 +1,4 @@
-import { ensureLeadingSlash, ensureTrailingSlash, stripLeadingSlash } from './path'
+import { ensureLeadingSlash, ensureTrailingSlash, normalizePathname } from './path'
 import type { ValidationData } from './store'
 import type { StarlightUserConfig } from './validation'
 
@@ -37,7 +37,7 @@ export function getFallbackHeadings(
   if (!localeConfig) return
 
   const isPathWithBase = base !== '/'
-  const normalizedBase = isPathWithBase ? ensureTrailingSlash(stripLeadingSlash(base)) : ''
+  const normalizedBase = isPathWithBase ? normalizePathname(base) : ''
   const normalizedPath = isPathWithBase ? path.replace(normalizedBase, '') : path
 
   for (const locale of localeConfig.locales) {

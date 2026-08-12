@@ -33,6 +33,10 @@ export default defineConfig({
       },
     }),
   },
+  redirects: {
+    '/redirect-external/': 'https://starlight.astro.build/',
+    '/redirect-test/': `${base}/guides/example/`,
+  },
   site: 'https://example.com',
 })
 
