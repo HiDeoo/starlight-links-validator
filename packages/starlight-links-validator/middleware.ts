@@ -2,7 +2,7 @@ import { defineRouteMiddleware, type StarlightRouteData } from '@astrojs/starlig
 
 import { isFrontmatterWithHeroActions, isFrontmatterPrevNextLink } from './libs/frontmatter'
 import { getLinkToValidate } from './libs/link'
-import { ensureTrailingSlash, stripLeadingSlash } from './libs/path'
+import { normalizePathname } from './libs/path'
 import { getFrontmatterReference, type FrontmatterReference } from './libs/position'
 import { getValidationConfig, updateFrontmatterLink } from './libs/store'
 
@@ -15,7 +15,7 @@ export const onRequest = defineRouteMiddleware(async (context, next) => {
   const config = getValidationConfig()
   if (!config) return
 
-  const id = ensureTrailingSlash(stripLeadingSlash(context.url.pathname))
+  const id = normalizePathname(context.url.pathname)
   const after = getFrontmatterLinks(context.locals.starlightRoute.entry.data)
 
   for (const [key, { link, path }] of after) {

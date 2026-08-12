@@ -9,11 +9,14 @@ test('validates links when the `base` Astro option is set', async () => {
 
   expect(status).toBe('error')
 
-  expectValidationErrorCount(output, 31, 4)
+  expectValidationErrorCount(output, 34, 4)
 
   expectValidationErrors(output, 'redirects.md', [
-    ['/test/redirect-test/#unknown', ValidationErrorType.InvalidHash, 6],
-    ['/test/redirect-unknown/', ValidationErrorType.InvalidLink, 7],
+    ['/test/redirect-test/#unknown', ValidationErrorType.InvalidHash, 9],
+    ['/test/redirect-unknown/', ValidationErrorType.InvalidLink, 10],
+    ['/redirect-external/', ValidationErrorType.InvalidLink, 12],
+    ['/redirect-test/', ValidationErrorType.InvalidLink, 13],
+    ['/redirect-test/#description', ValidationErrorType.InvalidLink, 14],
   ])
 
   expectValidationErrors(output, 'test.md', [

@@ -9,7 +9,7 @@ import {
 } from './libs/config'
 import { throwPluginError } from './libs/error'
 import { isAbsoluteUrl } from './libs/link'
-import { normalizePathname, pathnameToSlug, stripTrailingSlash } from './libs/path'
+import { normalizePathname, normalizePathnameWithBase, pathnameToSlug, stripTrailingSlash } from './libs/path'
 import { applyMarkdownPlugin } from './libs/processor'
 import { clearValidationData, setValidationConfig } from './libs/store'
 import { validateLinks, type ProjectRoutes } from './libs/validation'
@@ -71,7 +71,7 @@ export default function starlightLinksValidatorPlugin(
 
                 for (const url of urls) {
                   const routeKey = stripTrailingSlash(
-                    normalizePathname(
+                    normalizePathnameWithBase(
                       pathnameToSlug(url.pathname.replace(astroConfig.outDir.pathname, '')),
                       astroConfig.base,
                     ),
@@ -91,7 +91,7 @@ export default function starlightLinksValidatorPlugin(
 
                   projectRoutes.set(routeKey, {
                     type: 'redirect-internal',
-                    path: normalizePathname(destination, astroConfig.base),
+                    path: normalizePathname(destination),
                   })
                 }
               }
