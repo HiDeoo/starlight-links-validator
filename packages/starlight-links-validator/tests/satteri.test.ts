@@ -5,8 +5,8 @@ import { StarlightLinksValidatorOptionsSchema } from '../libs/config'
 import { createSatteriStarlightLinksValidator } from '../libs/satteri'
 import { getValidationData } from '../libs/store'
 
-test('does not run for file without a URL', () => {
-  renderMarkdown('This is a test')
+test('does not run for file without a URL', async () => {
+  await renderMarkdown('This is a test')
 
   const validationData = getValidationData()
 
@@ -14,7 +14,7 @@ test('does not run for file without a URL', () => {
 })
 
 function renderMarkdown(content: string) {
-  markdownToHtml(
+  return markdownToHtml(
     content,
     // @ts-expect-error - Testing with a file without a URL.
     {
@@ -25,7 +25,7 @@ function renderMarkdown(content: string) {
           options: StarlightLinksValidatorOptionsSchema.parse({}),
           site: 'https://example.com',
           srcDir: new URL('src/content/docs/', import.meta.url),
-        }).hastPlugin,
+        }),
       ],
     },
   )
