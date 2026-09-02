@@ -106,3 +106,4 @@ Email: [User](mailto:user@example.org)
 
 [Link to empty page](/empty)
 [Link to empty page](/empty/)
+[Link to empty MDX page](/empty-mdx/)
