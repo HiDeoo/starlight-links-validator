@@ -22,11 +22,11 @@ export function getLinkToValidate(
     if (options.sameSitePolicy !== 'ignore' && url.origin === site) {
       if (options.sameSitePolicy === 'error') {
         return { ...linkToValidate, error: ValidationErrorType.SameSite }
-      } else {
-        let transformed = normalizedLink.replace(url.origin, '')
-        if (!transformed) transformed = '/'
-        return { ...linkToValidate, transformed }
       }
+
+      let transformed = normalizedLink.replace(url.origin, '')
+      if (!transformed) transformed = '/'
+      return { ...linkToValidate, transformed }
     }
 
     if (!options.errorOnLocalLinks) return

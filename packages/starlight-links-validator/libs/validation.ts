@@ -106,7 +106,7 @@ export async function validateLinks(
   }
 
   const validationReportFiles = await Promise.all(
-    [...issues.values()].map((file) => buildValidationReportFile(file, astroConfig)),
+    issues.values().map((file) => buildValidationReportFile(file, astroConfig)),
   )
 
   const files: ValidationReport['files'] = []
@@ -156,11 +156,12 @@ function validateLink(context: ValidationContext) {
   const segments = sanitizedLink.split('#')
 
   let path = segments[0]
-  const hash = segments[1]
 
   if (path === undefined) {
     throw new Error('Failed to validate a link with no path.')
   }
+
+  const hash = segments[1]
 
   path = stripQueryString(path)
 
@@ -211,7 +212,7 @@ function validateLink(context: ValidationContext) {
     }
   }
 
-  if (options.errorOnInconsistentLocale && localeConfig && isInconsistentLocaleLink(id, link.raw, localeConfig)) {
+  if (localeConfig && options.errorOnInconsistentLocale && isInconsistentLocaleLink(id, link.raw, localeConfig)) {
     addIssue(context, ValidationErrorType.InconsistentLocale)
     return
   }
@@ -227,7 +228,9 @@ function validateLink(context: ValidationContext) {
     if (astroConfig.trailingSlash === 'always' && !path.endsWith('/')) {
       addIssue(context, ValidationErrorType.TrailingSlashMissing)
       return
-    } else if (astroConfig.trailingSlash === 'never' && path.endsWith('/')) {
+    }
+
+    if (astroConfig.trailingSlash === 'never' && path.endsWith('/')) {
       addIssue(context, ValidationErrorType.TrailingSlashForbidden)
       return
     }
@@ -237,7 +240,7 @@ function validateLink(context: ValidationContext) {
 function getFileHeadings(path: string, { astroConfig, localeConfig, options, validationData }: ValidationContext) {
   let headings = validationData.get(path === '' ? '/' : path)?.headings
 
-  if (!options.errorOnFallbackPages && !headings && localeConfig) {
+  if (!headings && localeConfig && !options.errorOnFallbackPages) {
     headings = getFallbackHeadings(path, validationData, localeConfig, astroConfig.base)
   }
 
@@ -254,7 +257,7 @@ function validateSelfHash(context: ValidationContext) {
     return
   }
 
-  const hash = link.raw.split('#')[1] ?? link.raw
+  const hash = link.raw.split('#', 2)[1] ?? link.raw
   const sanitizedHash = hash.replace(/^#/, '')
   const fileHeadings = validationData.get(id)?.headings
 
@@ -308,7 +311,7 @@ function isExcludedLink(link: Link, { id, options, validationData }: ValidationC
 }
 
 function stripQueryString(path: string): string {
-  return path.split('?')[0] ?? path
+  return path.split('?', 1)[0] ?? path
 }
 
 function getDocsPath(filePath: string, srcDir: AstroConfig['srcDir']) {
@@ -337,8 +340,7 @@ async function buildValidationReportFile(
     const previousIssue = groupedIssues.at(-1)
 
     if (
-      previousIssue &&
-      previousIssue.link === issue.link &&
+      previousIssue?.link === issue.link &&
       previousIssue.type === issue.type &&
       isSameLineSourcePosition(previousIssue.positions[0], position)
     ) {

@@ -81,7 +81,7 @@ function makeInlineCode(code: string): string {
 
   let escapedCode = normalizedCode
   if (escapedCode.startsWith('`')) escapedCode = ` ${escapedCode}`
-  if (escapedCode.endsWith('`')) escapedCode = `${escapedCode} `
+  if (escapedCode.endsWith('`')) escapedCode += ` `
 
   return `${delimiter}${escapedCode}${delimiter}`
 }
@@ -119,5 +119,5 @@ function getGitHubFileUrl(filePath: string, line?: number): string | undefined {
   url.searchParams.set('plain', '1')
   if (line) url.hash = `L${line}`
 
-  return url.toString()
+  return url.href
 }

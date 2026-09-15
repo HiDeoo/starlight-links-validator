@@ -65,7 +65,7 @@ export function createSatteriStarlightLinksValidator(config: ValidationConfig): 
 
             const componentProp = linkComponents[node.name]
 
-            if (node.name !== 'a' && !componentProp) return
+            if (!componentProp && node.name !== 'a') return
 
             for (const attribute of node.attributes) {
               if (!isStringAttribute(attribute, componentProp ?? 'href')) continue
@@ -102,10 +102,10 @@ function visitNode(
   { config, validationContext }: { config: ValidationConfig; validationContext: ValidationContext },
   visitor: (validationData: { headings: string[]; links: Link[] }) => void,
 ) {
+  if (!validationContext.shouldValidate) return
+
   const headings: string[] = []
   const links: Link[] = []
-
-  if (!validationContext.shouldValidate) return
 
   visitor({ headings, links })
 
