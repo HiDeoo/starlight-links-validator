@@ -44,7 +44,8 @@ export function getFallbackHeadings(
     if (normalizedPath.startsWith(`${locale}/`)) {
       const fallbackPath = path.replace(
         new RegExp(`^${normalizedBase}${locale}/`),
-        normalizedBase +
+        () =>
+          normalizedBase +
           (localeConfig.defaultLocale === '' ? localeConfig.defaultLocale : `${localeConfig.defaultLocale}/`),
       )
 

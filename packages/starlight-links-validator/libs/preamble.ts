@@ -50,7 +50,9 @@ export async function readPreamble(filePath: string): Promise<Preamble> {
 
         // If we reach the first non-blank line that is not the start of frontmatter, it's the end of preamble.
         break
-      } else if (state === 'in-frontmatter') {
+      }
+
+      if (state === 'in-frontmatter') {
         lines.frontmatter.push(line)
 
         if (
@@ -61,15 +63,15 @@ export async function readPreamble(filePath: string): Promise<Preamble> {
         }
 
         continue
-      } else {
-        if (isBlankLine) {
-          lines.trailing.push(line)
-          continue
-        }
-
-        // If we reach the first non-blank line after the frontmatter, it's the end of preamble.
-        break
       }
+
+      if (isBlankLine) {
+        lines.trailing.push(line)
+        continue
+      }
+
+      // If we reach the first non-blank line after the frontmatter, it's the end of preamble.
+      break
     }
   } finally {
     rl.close()
@@ -78,13 +80,13 @@ export async function readPreamble(filePath: string): Promise<Preamble> {
 
   const content =
     // If there is no frontmatter, or if there is a non-closed frontmatter, return leading blank lines only.
-    lines.frontmatter.length === 0 || state !== 'after-frontmatter'
+    state !== 'after-frontmatter' || lines.frontmatter.length === 0
       ? lines.leading
       : [...lines.leading, ...lines.frontmatter, ...lines.trailing]
 
   preamble = { lines: content.length }
 
-  if (lines.frontmatter.length > 2 && state === 'after-frontmatter' && frontmatterFormat) {
+  if (frontmatterFormat && state === 'after-frontmatter' && lines.frontmatter.length > 2) {
     preamble.frontmatter = {
       format: frontmatterFormat,
       content: lines.frontmatter.slice(1, -1).join('\n'),

@@ -26,7 +26,7 @@ export function pathnameToSlug(pathname: string): string {
   } else if (segments.at(-1)?.endsWith(htmlExtension)) {
     const last = segments.pop()
     if (last) {
-      segments.push(last.slice(0, -1 * htmlExtension.length))
+      segments.push(last.slice(0, -htmlExtension.length))
     }
   }
 

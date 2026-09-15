@@ -69,7 +69,7 @@ export const rehypeStarlightLinksValidator: Plugin<[ValidationConfig], Root> = f
 
           const componentProp = linkComponents[node.name]
 
-          if (node.name !== 'a' && !componentProp) break
+          if (!componentProp && node.name !== 'a') break
 
           for (const attribute of node.attributes) {
             if (!isStringAttribute(attribute, componentProp ?? 'href')) continue

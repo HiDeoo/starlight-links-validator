@@ -6,6 +6,7 @@ import { ensureTrailingSlash, stripLeadingSlash } from './path'
 import type { FrontmatterReference } from './position'
 
 export function getValidationData(): ValidationData {
+  // eslint-disable-next-line unicorn/no-global-object-property-assignment
   globalThis._starlightLinksValidatorValidationData ??= new Map()
   return globalThis._starlightLinksValidatorValidationData
 }
@@ -41,6 +42,7 @@ export function getValidationConfig(): ValidationConfig | undefined {
 }
 
 export function setValidationConfig(config: ValidationConfig) {
+  // eslint-disable-next-line unicorn/no-global-object-property-assignment
   globalThis._starlightLinksValidatorValidationConfig = config
 }
 
