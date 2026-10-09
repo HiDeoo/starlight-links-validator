@@ -1,5 +1,11 @@
 # starlight-links-validator
 
+## 0.27.0
+
+### Minor Changes
+
+- [#179](https://github.com/HiDeoo/starlight-links-validator/pull/179) [`20cc2ff`](https://github.com/HiDeoo/starlight-links-validator/commit/20cc2ffcc715989a91955cf04117a649870e35b3) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Distributes package as JavaScript files with dedicated type declaration files instead of TypeScript source files.
+
 ## 0.26.0
 
 ### Minor Changes
