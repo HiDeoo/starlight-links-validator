@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { ValidationErrorType } from '../libs/validation'
+import { ValidationErrorType } from '../src/libs/validation'
 
 import config from './fixtures/same-site-error/astro.config'
 import { buildFixture, expectValidationErrorCount, expectValidationErrors } from './utils'

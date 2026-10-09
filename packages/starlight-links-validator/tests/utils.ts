@@ -5,9 +5,9 @@ import { format, stripVTControlCharacters } from 'node:util'
 import { build, type AstroInlineConfig, type AstroIntegrationLogger } from 'astro'
 import { expect, vi } from 'vitest'
 
-import { StarlightLinksValidatorOptionsSchema, type StarlightLinksValidatorUserOptions } from '../libs/config'
-import { getValidationErrorMessage, ValidationErrorType } from '../libs/validation'
-import type { ValidationReportIssue } from '../reporters'
+import { StarlightLinksValidatorOptionsSchema, type StarlightLinksValidatorUserOptions } from '../src/libs/config'
+import { getValidationErrorMessage, ValidationErrorType } from '../src/libs/validation'
+import type { ValidationReportIssue } from '../src/reporters'
 
 export const testRootUrl = new URL('project/', import.meta.url)
 

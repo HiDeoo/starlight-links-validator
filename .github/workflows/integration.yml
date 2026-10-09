@@ -35,6 +35,11 @@ jobs:
         with:
           cache: true
 
+      - name: Build package
+        if: matrix.os == 'ubuntu-latest' && matrix.processor == 'satteri'
+        run: pnpm build
+        working-directory: packages/starlight-links-validator
+
       - name: Test
         run: pnpm --filter starlight-links-validator test:${{ matrix.processor }}
 

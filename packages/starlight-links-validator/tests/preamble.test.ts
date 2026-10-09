@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 
-let readPreamble: typeof import('../libs/preamble').readPreamble
+let readPreamble: typeof import('../src/libs/preamble').readPreamble
 
 const mocks = vi.hoisted(() => {
   return {
@@ -16,7 +16,7 @@ beforeEach(async () => {
   vi.clearAllMocks()
 
   vi.resetModules()
-  const mod = await import('../libs/preamble')
+  const mod = await import('../src/libs/preamble')
   readPreamble = mod.readPreamble
 })
 
