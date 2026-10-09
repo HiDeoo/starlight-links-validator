@@ -1,6 +1,6 @@
 import { beforeEach, expect, test, vi } from 'vitest'
 
-import { jsonReporter } from '../reporters/json'
+import { jsonReporter } from '../src/reporters/json'
 
 import { createTestReporterInput, testRootUrl, type TestValidationReportFile } from './utils'
 

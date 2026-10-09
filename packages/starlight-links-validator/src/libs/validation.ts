@@ -6,9 +6,9 @@ import type { StarlightUserConfig as StarlightUserConfigWithPlugins } from '@ast
 import type { AstroConfig } from 'astro'
 import picomatch from 'picomatch'
 
-import type { StarlightLinksValidatorOptions } from '..'
 import type { ValidationReport, ValidationReportIssue } from '../reporters'
 
+import type { StarlightLinksValidatorOptions } from './config'
 import { getFallbackHeadings, getLocaleConfig, isInconsistentLocaleLink, type LocaleConfig } from './i18n'
 import type { Link } from './link'
 import { normalizePathname, normalizePathnameWithBase, stripLeadingSlash, stripTrailingSlash } from './path'

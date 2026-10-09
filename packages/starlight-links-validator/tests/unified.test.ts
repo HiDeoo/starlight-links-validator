@@ -4,9 +4,9 @@ import { unified } from 'unified'
 import { VFile } from 'vfile'
 import { expect, test } from 'vitest'
 
-import { StarlightLinksValidatorOptionsSchema } from '../libs/config'
-import { rehypeStarlightLinksValidator } from '../libs/rehype'
-import { getValidationData } from '../libs/store'
+import { StarlightLinksValidatorOptionsSchema } from '../src/libs/config'
+import { rehypeStarlightLinksValidator } from '../src/libs/rehype'
+import { getValidationData } from '../src/libs/store'
 
 const processor = createMarkdownProcessor()
 

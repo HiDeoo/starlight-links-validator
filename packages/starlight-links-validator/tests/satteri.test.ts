@@ -1,9 +1,9 @@
 import { markdownToHtml } from 'satteri'
 import { expect, test } from 'vitest'
 
-import { StarlightLinksValidatorOptionsSchema } from '../libs/config'
-import { createSatteriStarlightLinksValidator } from '../libs/satteri'
-import { getValidationData } from '../libs/store'
+import { StarlightLinksValidatorOptionsSchema } from '../src/libs/config'
+import { createSatteriStarlightLinksValidator } from '../src/libs/satteri'
+import { getValidationData } from '../src/libs/store'
 
 test('does not run for file without a URL', async () => {
   await renderMarkdown('This is a test')

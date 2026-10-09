@@ -5,7 +5,7 @@ import { createTestReporterInput, type TestValidationReportFile } from './utils'
 const gitHubOutputPath = '/tmp/github-output.txt'
 const gitHubStepSummaryPath = '/tmp/github-step-summary.md'
 
-let gitHubActionsReporter: typeof import('../reporters/github-actions').gitHubActionsReporter
+let gitHubActionsReporter: typeof import('../src/reporters/github-actions').gitHubActionsReporter
 
 const mocks = vi.hoisted(() => ({
   appendFileSync: vi.fn(),
@@ -22,7 +22,7 @@ beforeEach(async () => {
 
   vi.resetModules()
 
-  const mod = await import('../reporters/github-actions')
+  const mod = await import('../src/reporters/github-actions')
 
   gitHubActionsReporter = mod.gitHubActionsReporter
 })

@@ -6,18 +6,18 @@
   "author": "HiDeoo <github@hideoo.dev> (https://hideoo.dev)",
   "type": "module",
   "exports": {
-    ".": "./index.ts",
-    "./middleware": "./middleware.ts",
+    ".": "./src/index.ts",
+    "./middleware": "./src/middleware.ts",
     "./package.json": "./package.json"
   },
   "scripts": {
+    "build": "tsdown",
     "test:satteri": "vitest --mode satteri",
     "test:unified": "vitest --mode unified",
     "lint": "eslint . --cache --max-warnings=0"
   },
   "dependencies": {
     "@astrojs/markdown-satteri": "^0.4.0",
-    "@types/picomatch": "^4.0.2",
     "github-slugger": "^2.0.0",
     "hast-util-from-html": "^2.0.3",
     "is-absolute-url": "^5.0.0",
@@ -33,8 +33,11 @@
     "@astrojs/markdown-remark": "^7.3.0",
     "@types/hast": "^3.0.4",
     "@types/node": "^22.19.15",
+    "@types/picomatch": "^4.0.3",
+    "publint": "^0.3.25",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
+    "tsdown": "^0.23.0",
     "unified": "^11.0.5",
     "vfile": "^6.0.3",
     "vitest": "^4.1.1"
@@ -44,9 +47,23 @@
     "astro": ">=7.2.10"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      },
+      "./middleware": {
+        "types": "./dist/middleware.d.ts",
+        "import": "./dist/middleware.js"
+      },
+      "./package.json": "./package.json"
+    }
   },
   "sideEffects": false,
+  "files": [
+    "dist"
+  ],
   "keywords": [
     "starlight",
     "plugin",
@@ -57,7 +74,7 @@
   "homepage": "https://github.com/HiDeoo/starlight-links-validator",
   "repository": {
     "type": "git",
-    "url": "https://github.com/HiDeoo/starlight-links-validator.git",
+    "url": "git+https://github.com/HiDeoo/starlight-links-validator.git",
     "directory": "packages/starlight-links-validator"
   },
   "bugs": "https://github.com/HiDeoo/starlight-links-validator/issues"
