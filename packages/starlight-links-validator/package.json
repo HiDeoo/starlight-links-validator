@@ -17,14 +17,14 @@
     "lint": "eslint . --cache --max-warnings=0"
   },
   "dependencies": {
-    "@astrojs/markdown-satteri": "^0.4.0",
+    "@astrojs/markdown-satteri": "^0.4.10",
     "github-slugger": "^2.0.0",
     "hast-util-from-html": "^2.0.3",
     "is-absolute-url": "^5.0.0",
     "mdast-util-mdx-jsx": "^3.2.0",
     "mdast-util-to-hast": "^13.2.1",
     "picomatch": "^4.0.3",
-    "satteri": "^0.10.3",
+    "satteri": "^0.11.7",
     "terminal-link": "^5.0.0",
     "unist-util-visit": "^5.1.0",
     "yaml": "^2.8.3"
