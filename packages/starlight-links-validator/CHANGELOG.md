@@ -1,5 +1,13 @@
 # starlight-links-validator
 
+## 0.27.1
+
+### Patch Changes
+
+- [#185](https://github.com/HiDeoo/starlight-links-validator/pull/185) [`75c1f96`](https://github.com/HiDeoo/starlight-links-validator/commit/75c1f96829a0696cc2605253da580631912a45f1) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes link validation when an Astro redirect points to another redirect.
+
+- [#185](https://github.com/HiDeoo/starlight-links-validator/pull/185) [`75c1f96`](https://github.com/HiDeoo/starlight-links-validator/commit/75c1f96829a0696cc2605253da580631912a45f1) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes link validation when an Astro redirect destination includes a query string or hash.
+
 ## 0.27.0
 
 ### Minor Changes
