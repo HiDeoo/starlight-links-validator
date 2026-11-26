@@ -11,7 +11,13 @@ import type { ValidationReport, ValidationReportIssue } from '../reporters'
 import type { StarlightLinksValidatorOptions } from './config'
 import { getFallbackHeadings, getLocaleConfig, isInconsistentLocaleLink, type LocaleConfig } from './i18n'
 import type { Link } from './link'
-import { normalizePathname, normalizePathnameWithBase, stripLeadingSlash, stripTrailingSlash } from './path'
+import {
+  normalizePathname,
+  normalizePathnameWithBase,
+  stripLeadingSlash,
+  stripQueryString,
+  stripTrailingSlash,
+} from './path'
 import { getErrorPosition, isSameLineSourcePosition, type Reference } from './position'
 import { getValidationData, type ValidationData } from './store'
 
@@ -161,7 +167,7 @@ function validateLink(context: ValidationContext) {
     throw new Error('Failed to validate a link with no path.')
   }
 
-  const hash = segments[1]
+  let hash = segments[1]
 
   path = stripQueryString(path)
 
@@ -188,11 +194,19 @@ function validateLink(context: ValidationContext) {
     if (projectRoute?.type === 'redirect-external') {
       fileHeadings = undefined
     } else if (projectRoute?.type === 'redirect-internal') {
-      fileHeadings = getFileHeadings(projectRoute.path, context)
+      const visitedRedirects = new Set<InternalRedirectRoute>()
+      let redirect: InternalRedirectRoute | undefined = projectRoute
+      let destination: ProjectRoute | undefined
 
-      if (!fileHeadings) {
-        const destination = projectRoutes.get(stripTrailingSlash(projectRoute.path))
+      while (redirect && !visitedRedirects.has(redirect)) {
+        visitedRedirects.add(redirect)
+        hash = redirect.hash ?? hash
+        fileHeadings = getFileHeadings(redirect.path, context)
+        destination = projectRoutes.get(stripTrailingSlash(redirect.path))
+        redirect = !fileHeadings && destination?.type === 'redirect-internal' ? destination : undefined
+      }
 
+      if (!fileHeadings && destination?.type !== 'redirect-external') {
         addIssue(
           context,
           destination?.type === 'custom-page'
@@ -310,10 +324,6 @@ function isExcludedLink(link: Link, { id, options, validationData }: ValidationC
   })
 }
 
-function stripQueryString(path: string): string {
-  return path.split('?', 1)[0] ?? path
-}
-
 function getDocsPath(filePath: string, srcDir: AstroConfig['srcDir']) {
   return relative(fileURLToPath(srcDir), filePath).split(sep).join(posix.sep).replace('content/docs/', '')
 }
@@ -393,19 +403,22 @@ interface PageData {
 
 type Pages = Set<PageData['pathname']>
 
-export type ProjectRoutes = Map<
-  string,
-  | {
-      type: 'custom-page'
-    }
-  | {
-      type: 'redirect-external'
-    }
-  | {
-      type: 'redirect-internal'
-      path: string
-    }
->
+interface CustomPageRoute {
+  type: 'custom-page'
+}
+
+interface ExternalRedirectRoute {
+  type: 'redirect-external'
+}
+
+interface InternalRedirectRoute {
+  type: 'redirect-internal'
+  path: string
+  hash: string | undefined
+}
+
+type ProjectRoute = CustomPageRoute | ExternalRedirectRoute | InternalRedirectRoute
+export type ProjectRoutes = Map<string, ProjectRoute>
 
 interface ValidationContext {
   astroConfig: AstroConfig
