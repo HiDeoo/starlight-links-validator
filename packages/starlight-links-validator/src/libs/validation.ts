@@ -188,11 +188,19 @@ function validateLink(context: ValidationContext) {
     if (projectRoute?.type === 'redirect-external') {
       fileHeadings = undefined
     } else if (projectRoute?.type === 'redirect-internal') {
-      fileHeadings = getFileHeadings(projectRoute.path, context)
+      const visitedPaths = new Set<string>()
+      let destinationPath = projectRoute.path
+      let destination = projectRoutes.get(stripTrailingSlash(destinationPath))
+      fileHeadings = getFileHeadings(destinationPath, context)
 
-      if (!fileHeadings) {
-        const destination = projectRoutes.get(stripTrailingSlash(projectRoute.path))
+      while (!fileHeadings && destination?.type === 'redirect-internal' && !visitedPaths.has(destinationPath)) {
+        visitedPaths.add(destinationPath)
+        destinationPath = destination.path
+        destination = projectRoutes.get(stripTrailingSlash(destinationPath))
+        fileHeadings = getFileHeadings(destinationPath, context)
+      }
 
+      if (!fileHeadings && destination?.type !== 'redirect-external') {
         addIssue(
           context,
           destination?.type === 'custom-page'

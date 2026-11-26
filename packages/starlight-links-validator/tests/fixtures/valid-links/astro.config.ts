@@ -13,6 +13,8 @@ export default defineConfig({
   redirects: {
     '/redirect-external/': 'https://starlight.astro.build/',
     '/redirect-test/': '/test/',
+    '/redirect-chain-external/': '/redirect-external/',
+    '/redirect-chain/': '/redirect-test/',
   },
   site: 'https://example.com',
 })
