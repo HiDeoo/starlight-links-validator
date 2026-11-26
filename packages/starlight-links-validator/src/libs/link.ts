@@ -43,7 +43,7 @@ export function isAbsoluteUrl(link: string): boolean {
   return isAbsolute(link, { httpOnly: false })
 }
 
-function normalizeLink(link: string): string {
+export function decodeLink(link: string) {
   const hashIndex = link.indexOf('#')
 
   let beforeHash = hashIndex === -1 ? link : link.slice(0, hashIndex)
@@ -55,16 +55,21 @@ function normalizeLink(link: string): string {
     // Ignore decoding errors
   }
 
-  if (hash === undefined) return beforeHash
-  if (hash.length === 0) return `${beforeHash}#`
-
-  try {
-    hash = decodeURIComponent(hash)
-  } catch {
-    // Ignore decoding errors
+  if (hash) {
+    try {
+      hash = decodeURIComponent(hash)
+    } catch {
+      // Ignore decoding errors
+    }
   }
 
-  return `${beforeHash}#${hash}`
+  return { beforeHash, hash }
+}
+
+function normalizeLink(link: string): string {
+  const { beforeHash, hash } = decodeLink(link)
+
+  return hash === undefined ? beforeHash : `${beforeHash}#${hash}`
 }
 
 export interface Link {

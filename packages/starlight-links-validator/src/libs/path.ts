@@ -18,6 +18,10 @@ export function stripTrailingSlash(path: string) {
   return path.replace(/\/$/, '')
 }
 
+export function stripQueryString(path: string): string {
+  return path.split('?', 1)[0] ?? path
+}
+
 export function pathnameToSlug(pathname: string): string {
   const segments = pathname.split('/')
 

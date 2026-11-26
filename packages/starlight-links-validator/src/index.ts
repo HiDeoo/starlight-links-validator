@@ -8,8 +8,14 @@ import {
   type ValidationConfig,
 } from './libs/config'
 import { throwPluginError } from './libs/error'
-import { isAbsoluteUrl } from './libs/link'
-import { normalizePathname, normalizePathnameWithBase, pathnameToSlug, stripTrailingSlash } from './libs/path'
+import { decodeLink, isAbsoluteUrl } from './libs/link'
+import {
+  normalizePathname,
+  normalizePathnameWithBase,
+  pathnameToSlug,
+  stripQueryString,
+  stripTrailingSlash,
+} from './libs/path'
 import { applyMarkdownPlugin } from './libs/processor'
 import { clearValidationData, setValidationConfig } from './libs/store'
 import { validateLinks, type ProjectRoutes } from './libs/validation'
@@ -89,9 +95,12 @@ export default function starlightLinksValidatorPlugin(
                     continue
                   }
 
+                  const { beforeHash, hash } = decodeLink(destination)
+
                   projectRoutes.set(routeKey, {
                     type: 'redirect-internal',
-                    path: normalizePathname(destination),
+                    path: normalizePathname(stripQueryString(beforeHash)),
+                    hash,
                   })
                 }
               }

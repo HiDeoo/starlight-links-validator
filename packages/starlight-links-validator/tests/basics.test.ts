@@ -21,7 +21,7 @@ test('does not build with invalid links', async () => {
 
   expect(status).toBe('error')
 
-  expectValidationErrorCount(output, 96, 8)
+  expectValidationErrorCount(output, 100, 8)
 
   expectValidationErrors(output, 'frontmatter.md', [
     ['/unknown-action/', ValidationErrorType.InvalidLink, 6],
@@ -133,9 +133,13 @@ test('does not build with invalid links', async () => {
     ['/redirect-custom-page/', ValidationErrorType.InvalidLinkToCustomPage, 6],
     ['/redirect-custom-dynamic/foo/', ValidationErrorType.InvalidLinkToCustomPage, 7],
     ['/redirect-unknown/', ValidationErrorType.InvalidLink, 8],
-    ['/redirect-chain/#unknown', ValidationErrorType.InvalidHash, 10],
-    ['/redirect-chain-custom-page/', ValidationErrorType.InvalidLinkToCustomPage, 11],
-    ['/redirect-chain-unknown/', ValidationErrorType.InvalidLink, 12],
-    ['/redirect-loop-a/', ValidationErrorType.InvalidLink, 13],
+    ['/redirect-hash/', ValidationErrorType.InvalidHash, 9],
+    ['/redirect-hash/#some-links', ValidationErrorType.InvalidHash, 10],
+    ['/redirect-chain/#unknown', ValidationErrorType.InvalidHash, 12],
+    ['/redirect-chain-custom-page/', ValidationErrorType.InvalidLinkToCustomPage, 13],
+    ['/redirect-chain-unknown/', ValidationErrorType.InvalidLink, 14],
+    ['/redirect-loop-a/', ValidationErrorType.InvalidLink, 15],
+    ['/redirect-chain-hash-first/', ValidationErrorType.InvalidHash, 16],
+    ['/redirect-chain-hash-last/', ValidationErrorType.InvalidHash, 17],
   ])
 })

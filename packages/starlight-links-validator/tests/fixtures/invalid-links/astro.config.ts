@@ -15,10 +15,13 @@ export default defineConfig({
     '/redirect-custom-page/': '/custom-page/',
     '/redirect-custom-dynamic/[...param]': '/custom-dynamic-page/[...param]',
     '/redirect-unknown/': '/unknown/',
+    '/redirect-hash/': '/test/#unknown',
     '/redirect-chain/': '/redirect-test/',
     '/redirect-chain-custom-page/': '/redirect-custom-page/',
     '/redirect-chain-unknown/': '/redirect-unknown/',
     '/redirect-loop-a/': '/redirect-loop-b/',
     '/redirect-loop-b/': '/redirect-loop-a/',
+    '/redirect-chain-hash-first/': '/redirect-test/#unknown',
+    '/redirect-chain-hash-last/': '/redirect-hash/',
   },
 })
