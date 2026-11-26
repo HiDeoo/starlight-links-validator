@@ -85,3 +85,6 @@ For the example above, you would:
 
 - Update `/guides/usage/#overveiw` to `/guides/usage/#overview` so the hash matches the existing heading ID.
 - Update `#troubleshooting` to match an existing heading or element ID in `src/content/docs/getting-started.md`, or create the missing heading if it should exist.
+
+If the link points to an [Astro redirect](https://docs.astro.build/en/guides/routing/#redirects) and the redirect destination includes a hash, that hash is validated instead of the one in the link.
+In that case, update the hash in the redirect destination in your Astro configuration.
